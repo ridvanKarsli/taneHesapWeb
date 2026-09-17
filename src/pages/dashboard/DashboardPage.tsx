@@ -20,7 +20,10 @@ export function DashboardPage() {
       <div className="dashboard-grid">
         {shortcuts.map((item) => (
           <Link key={item.path} to={item.path} className="dashboard-card">
-            {item.label}
+            <span className="dashboard-card-icon" aria-hidden="true">
+              {item.icon}
+            </span>
+            <span className="dashboard-card-label">{item.label}</span>
           </Link>
         ))}
       </div>

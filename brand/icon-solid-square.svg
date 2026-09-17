@@ -5,7 +5,7 @@
       <stop offset="1" stop-color="#B5651D"/>
     </linearGradient>
   </defs>
-  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect width="512" height="512" fill="url(#bg)"/>
   <g transform="rotate(-22 256 256)">
     <path d="M256 132 Q332 190 332 256 Q332 322 256 380 Q180 322 180 256 Q180 190 256 132 Z" fill="#FFF6E8"/>
     <path d="M256 168 Q276 256 256 344" fill="none" stroke="#C87F2E" stroke-width="9" stroke-linecap="round" opacity="0.55"/>

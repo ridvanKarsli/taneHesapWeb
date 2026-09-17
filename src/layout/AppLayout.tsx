@@ -14,11 +14,22 @@ export function AppLayout() {
   }
 
   const visibleNavItems = NAV_ITEMS.filter((item) => item.roles.includes(user.role));
+  const initials = user.fullName
+    .split(" ")
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
   return (
     <div className="app-shell">
       <aside className="app-sidebar">
-        <div className="app-sidebar-brand">taneHesap</div>
+        <div className="app-sidebar-brand">
+          <span className="app-sidebar-brand-mark" aria-hidden="true">
+            🌾
+          </span>
+          <span>taneHesap</span>
+        </div>
         <nav className="app-sidebar-nav">
           {visibleNavItems.map((item) => (
             <NavLink
@@ -27,6 +38,9 @@ export function AppLayout() {
               end={item.path === "/"}
               className={({ isActive }) => (isActive ? "app-nav-link active" : "app-nav-link")}
             >
+              <span className="app-nav-icon" aria-hidden="true">
+                {item.icon}
+              </span>
               {item.label}
             </NavLink>
           ))}
@@ -36,8 +50,13 @@ export function AppLayout() {
       <div className="app-main">
         <header className="app-topbar">
           <div className="app-topbar-user">
-            <strong>{user.fullName}</strong>
-            <span className="app-role-badge">{ROLE_LABELS[user.role]}</span>
+            <span className="app-user-avatar" aria-hidden="true">
+              {initials}
+            </span>
+            <div>
+              <strong>{user.fullName}</strong>
+              <span className="app-role-badge">{ROLE_LABELS[user.role]}</span>
+            </div>
           </div>
           <div className="app-topbar-actions">
             <NotificationsBell />

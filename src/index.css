@@ -1,14 +1,37 @@
 :root {
-  --color-bg: #f4f5f7;
+  /* Sıcak, misafirperver ama düzenli/kurumsal bir palet — Meydan Pilavcısı temasına (safran/
+     pilav tonları) göre seçildi. Bileşenler renklere doğrudan değil bu token'lara başvurur, böylece
+     marka rengi değişirse tek değişiklik noktası burasıdır. */
+  --color-bg: #fbf6ec;
   --color-surface: #ffffff;
-  --color-border: #e2e4e9;
-  --color-text: #1c1f26;
-  --color-text-muted: #6b7280;
-  --color-primary: #2f6f4f;
-  --color-primary-dark: #234f38;
-  --color-danger: #c0392b;
+  --color-surface-alt: #fdf3e3;
+  --color-border: #ece0cb;
+  --color-text: #2b2320;
+  --color-text-muted: #8a7a68;
 
-  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  --color-primary: #b5651d;
+  --color-primary-dark: #7a4213;
+  --color-primary-soft: #f3ddb8;
+  --color-accent: #e8a33d;
+  --color-danger: #c0392b;
+  --color-danger-soft: #f6dedb;
+  --color-success: #3f7a3d;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(43, 35, 32, 0.07);
+  --shadow-md: 0 8px 24px rgba(43, 35, 32, 0.1);
+  --shadow-lg: 0 20px 48px rgba(43, 35, 32, 0.16);
+
+  font-family:
+    "Plus Jakarta Sans",
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    sans-serif;
   color-scheme: light;
 }
 
@@ -26,6 +49,14 @@ body {
   margin: 0;
   background: var(--color-bg);
   color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 button {
@@ -40,15 +71,47 @@ button {
   color: var(--color-text-muted);
 }
 
+.not-found-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(232, 163, 61, 0.16), transparent 45%),
+    radial-gradient(circle at 85% 80%, rgba(181, 101, 29, 0.14), transparent 45%),
+    var(--color-bg);
+  padding: 1.5rem;
+}
+
+.not-found-page .coming-soon-page {
+  max-width: 380px;
+  box-shadow: var(--shadow-lg);
+  border-style: solid;
+}
+
 .coming-soon-page {
-  padding: 2rem;
-  border-radius: 10px;
+  padding: 2.5rem 2rem;
+  border-radius: var(--radius-lg);
   background: var(--color-surface);
   border: 1px dashed var(--color-border);
   color: var(--color-text-muted);
+  text-align: center;
+}
+
+.coming-soon-page-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 0.75rem;
 }
 
 .coming-soon-page h1 {
   color: var(--color-text);
-  margin-top: 0;
+  margin: 0 0 0.4rem;
+  font-size: 1.3rem;
+}
+
+.coming-soon-page p {
+  margin: 0;
+  max-width: 420px;
+  margin-inline: auto;
 }

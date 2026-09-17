@@ -37,7 +37,7 @@ export function AppRoutes() {
                 <RequireAuth allowedRoles={item.roles} />
               }
             >
-              <Route index element={<ComingSoonPage title={item.label} />} />
+              <Route index element={<ComingSoonPage title={item.label} icon={item.icon} />} />
             </Route>
           ))}
         </Route>

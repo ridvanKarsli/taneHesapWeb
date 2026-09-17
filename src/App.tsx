@@ -1,5 +1,6 @@
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./auth/AuthContext";
+import { InstallPromptBanner } from "./pwa/InstallPromptBanner";
 import { AppRoutes } from "./routes/AppRoutes";
 
 export function App() {
@@ -7,6 +8,7 @@ export function App() {
     <BrowserRouter>
       <AuthProvider>
         <AppRoutes />
+        <InstallPromptBanner />
       </AuthProvider>
     </BrowserRouter>
   );

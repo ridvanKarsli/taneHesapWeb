@@ -52,8 +52,15 @@ export function LoginPage() {
   return (
     <div className="login-page">
       <form className="login-card" onSubmit={handleSubmit}>
-        <h1>taneHesap</h1>
-        <p className="login-subtitle">Meydan Pilavcısı — gelir/gider yönetim paneli</p>
+        <div className="login-brand">
+          <span className="login-brand-mark" aria-hidden="true">
+            🌾
+          </span>
+          <div>
+            <h1>taneHesap</h1>
+            <p className="login-subtitle">Meydan Pilavcısı — gelir/gider yönetim paneli</p>
+          </div>
+        </div>
 
         {!totpRequired && (
           <>
