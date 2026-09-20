@@ -1,7 +1,8 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { Fragment, useEffect, useState, type FormEvent } from "react";
 import { businessApi } from "../../api/businessApi";
 import { extractErrorMessage } from "../../api/authApi";
 import type { BusinessDto } from "../../types/business";
+import { BusinessAdminsPanel } from "./BusinessAdminsPanel";
 import "./BusinessesPage.css";
 
 interface EditDraft {
@@ -33,6 +34,12 @@ export function BusinessesPage() {
   const [editDraft, setEditDraft] = useState<EditDraft | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+
+  const [expandedBusinessId, setExpandedBusinessId] = useState<string | null>(null);
+
+  function toggleAdminsPanel(businessId: string) {
+    setExpandedBusinessId((current) => (current === businessId ? null : businessId));
+  }
 
   async function loadBusinesses() {
     try {
@@ -147,59 +154,73 @@ export function BusinessesPage() {
             </tr>
           </thead>
           <tbody>
-            {businesses.map((business) =>
-              editingId === business.id && editDraft ? (
-                <tr key={business.id}>
-                  <td colSpan={4}>
-                    <form className="business-edit-form" onSubmit={handleSaveEdit}>
-                      <input
-                        value={editDraft.name}
-                        onChange={(event) => setEditDraft({ ...editDraft, name: event.target.value })}
-                        required
-                        aria-label="İşletme adı"
-                      />
-                      <input
-                        value={editDraft.address}
-                        onChange={(event) => setEditDraft({ ...editDraft, address: event.target.value })}
-                        aria-label="Adres"
-                      />
-                      <label className="business-active-toggle">
+            {businesses.map((business) => (
+              <Fragment key={business.id}>
+                {editingId === business.id && editDraft ? (
+                  <tr>
+                    <td colSpan={4}>
+                      <form className="business-edit-form" onSubmit={handleSaveEdit}>
                         <input
-                          type="checkbox"
-                          checked={editDraft.isActive}
-                          onChange={(event) => setEditDraft({ ...editDraft, isActive: event.target.checked })}
+                          value={editDraft.name}
+                          onChange={(event) => setEditDraft({ ...editDraft, name: event.target.value })}
+                          required
+                          aria-label="İşletme adı"
                         />
-                        Aktif
-                      </label>
-                      <div className="business-edit-actions">
-                        <button type="submit" disabled={isSaving}>
-                          {isSaving ? "Kaydediliyor…" : "Kaydet"}
-                        </button>
-                        <button type="button" onClick={cancelEditing} disabled={isSaving}>
-                          Vazgeç
-                        </button>
-                      </div>
-                      {saveError && <p className="business-form-error">{saveError}</p>}
-                    </form>
-                  </td>
-                </tr>
-              ) : (
-                <tr key={business.id}>
-                  <td>{business.name}</td>
-                  <td>{business.address || "—"}</td>
-                  <td>
-                    <span className={business.isActive ? "business-status active" : "business-status inactive"}>
-                      {business.isActive ? "Aktif" : "Pasif"}
-                    </span>
-                  </td>
-                  <td>
-                    <button type="button" onClick={() => startEditing(business)}>
-                      Düzenle
-                    </button>
-                  </td>
-                </tr>
-              ),
-            )}
+                        <input
+                          value={editDraft.address}
+                          onChange={(event) => setEditDraft({ ...editDraft, address: event.target.value })}
+                          aria-label="Adres"
+                        />
+                        <label className="business-active-toggle">
+                          <input
+                            type="checkbox"
+                            checked={editDraft.isActive}
+                            onChange={(event) => setEditDraft({ ...editDraft, isActive: event.target.checked })}
+                          />
+                          Aktif
+                        </label>
+                        <div className="business-edit-actions">
+                          <button type="submit" disabled={isSaving}>
+                            {isSaving ? "Kaydediliyor…" : "Kaydet"}
+                          </button>
+                          <button type="button" onClick={cancelEditing} disabled={isSaving}>
+                            Vazgeç
+                          </button>
+                        </div>
+                        {saveError && <p className="business-form-error">{saveError}</p>}
+                      </form>
+                    </td>
+                  </tr>
+                ) : (
+                  <tr>
+                    <td>{business.name}</td>
+                    <td>{business.address || "—"}</td>
+                    <td>
+                      <span className={business.isActive ? "business-status active" : "business-status inactive"}>
+                        {business.isActive ? "Aktif" : "Pasif"}
+                      </span>
+                    </td>
+                    <td className="business-row-actions">
+                      <button type="button" onClick={() => toggleAdminsPanel(business.id)}>
+                        {expandedBusinessId === business.id ? "Yöneticileri gizle" : "Yöneticiler"}
+                      </button>
+                      <button type="button" onClick={() => startEditing(business)}>
+                        Düzenle
+                      </button>
+                    </td>
+                  </tr>
+                )}
+
+                {expandedBusinessId === business.id && (
+                  <tr>
+                    <td colSpan={4} className="business-admins-cell">
+                      <h2>{business.name} — Yöneticiler (ADMIN)</h2>
+                      <BusinessAdminsPanel businessId={business.id} />
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
+            ))}
           </tbody>
         </table>
       )}

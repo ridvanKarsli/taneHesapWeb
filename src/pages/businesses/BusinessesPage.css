@@ -160,3 +160,73 @@
   display: flex;
   gap: 0.5rem;
 }
+
+.business-row-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.business-admins-cell {
+  background: var(--color-surface-alt);
+  padding: 1.1rem 1.25rem !important;
+}
+
+.business-admins-cell h2 {
+  margin: 0 0 0.8rem;
+  font-size: 1rem;
+  color: var(--color-text-muted);
+}
+
+.business-admins-panel .admin-create-form {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.business-admins-panel .admin-create-form > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.business-admins-panel .admin-create-form label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.business-admins-panel .admin-create-form input {
+  padding: 0.55rem 0.7rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: 0.9rem;
+  min-width: 180px;
+}
+
+.business-admins-panel .admin-create-form input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.business-admins-panel .admin-create-form button {
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: var(--color-primary);
+  color: white;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.business-admins-panel .admin-create-form button:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+}
+
+.business-admins-panel .admin-create-form button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
