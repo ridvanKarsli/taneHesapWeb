@@ -1,0 +1,162 @@
+.businesses-page h1 {
+  margin: 0 0 1.2rem;
+  font-size: 1.4rem;
+}
+
+.business-create-form {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.business-create-form > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.business-create-form label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.business-create-form input,
+.business-edit-form input {
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  font-size: 0.95rem;
+  min-width: 220px;
+}
+
+.business-create-form input:focus,
+.business-edit-form input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background: var(--color-surface);
+}
+
+.business-create-form button,
+.business-edit-actions button,
+.businesses-table button {
+  padding: 0.6rem 1.1rem;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: var(--color-primary);
+  color: white;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.business-create-form button:hover:not(:disabled),
+.business-edit-actions button:hover:not(:disabled),
+.businesses-table button:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+}
+
+.business-create-form button:disabled,
+.business-edit-actions button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.business-edit-actions button[type="button"],
+.businesses-table td:last-child button {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+}
+
+.business-edit-actions button[type="button"]:hover:not(:disabled),
+.businesses-table td:last-child button:hover:not(:disabled) {
+  background: var(--color-border);
+}
+
+.business-form-error {
+  flex-basis: 100%;
+  margin: 0;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+  font-size: 0.85rem;
+}
+
+.businesses-empty {
+  color: var(--color-text-muted);
+}
+
+.businesses-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.businesses-table th {
+  text-align: left;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-text-muted);
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.businesses-table td {
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+
+.businesses-table tr:last-child td {
+  border-bottom: none;
+}
+
+.business-status {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.business-status.active {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+}
+
+.business-status.inactive {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.business-edit-form {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.business-active-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+}
+
+.business-edit-actions {
+  display: flex;
+  gap: 0.5rem;
+}
