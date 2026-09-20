@@ -9,7 +9,7 @@ export type AuthStatus = "checking-session" | "authenticated" | "anonymous";
 export interface AuthContextValue {
   status: AuthStatus;
   user: AuthenticatedUser | null;
-  login: (username: string, password: string, totpCode: string | null) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -54,8 +54,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       status,
       user,
-      async login(username, password, totpCode) {
-        const response = await authApi.login({ username, password, totpCode });
+      async login(username, password) {
+        const response = await authApi.login({ username, password });
         setAccessToken(response.accessToken);
         persistRefreshToken(response.refreshToken);
         setUser(toAuthenticatedUser(response));

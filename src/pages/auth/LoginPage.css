@@ -53,12 +53,6 @@
   line-height: 1.35;
 }
 
-.login-totp-hint {
-  margin: 0 0 0.5rem;
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
-}
-
 .login-card label {
   font-size: 0.82rem;
   font-weight: 600;
@@ -102,18 +96,6 @@
 .login-card button:disabled {
   opacity: 0.6;
   cursor: default;
-}
-
-.login-secondary-action {
-  margin-top: 0.5rem !important;
-  background: transparent !important;
-  color: var(--color-text-muted) !important;
-  font-weight: 500 !important;
-}
-
-.login-secondary-action:hover:not(:disabled) {
-  background: var(--color-surface-alt) !important;
-  color: var(--color-text) !important;
 }
 
 .login-error {

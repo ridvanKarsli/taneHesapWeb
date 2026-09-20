@@ -22,7 +22,6 @@ export const ROLE_LABELS: Record<UserRole, string> = {
 export interface LoginRequest {
   username: string;
   password: string;
-  totpCode: string | null;
 }
 
 /** Backend `LoginResponse` ile birebir eşleşir. */
