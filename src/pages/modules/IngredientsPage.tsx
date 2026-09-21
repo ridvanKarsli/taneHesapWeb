@@ -53,6 +53,8 @@ export function IngredientsPage() {
       createFields={baseFields}
       createInitialValues={{ name: "", unit: "kg", currentUnitPrice: "", minimumStockThreshold: "0" }}
       onCreate={(values) => ingredientApi.create(toRequest(values))}
+      onDelete={(row) => ingredientApi.remove(row.id)}
+      describeRow={(row) => row.name}
       editTitle={(row) => `${row.name} — düzenle`}
       editFields={[...baseFields, { name: "isActive", label: "Aktif", type: "checkbox" }]}
       toEditValues={(row) => ({

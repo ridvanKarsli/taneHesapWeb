@@ -1,4 +1,4 @@
-import { Bell, BellOff, BellRing, Check } from "lucide-react";
+import { Bell, BellOff, BellRing, Check, CheckCheck } from "lucide-react";
 import { useState } from "react";
 import { notificationApi } from "../api/moduleApis";
 import { useAuth } from "../auth/useAuth";
@@ -56,7 +56,15 @@ function AdminNotificationsBell() {
 
       {isOpen && (
         <div className="notifications-bell-dropdown">
-          <div className="notifications-bell-header">Bildirimler</div>
+          <div className="notifications-bell-header">
+            Bildirimler
+            {items.length > 1 && (
+              <button type="button" onClick={() => items.forEach((item) => void markAsRead(item.id))}>
+                <CheckCheck size={13} aria-hidden="true" />
+                Tümünü okundu yap
+              </button>
+            )}
+          </div>
           {items.length === 0 ? (
             <p className="notifications-bell-empty">
               <BellOff size={22} aria-hidden="true" />

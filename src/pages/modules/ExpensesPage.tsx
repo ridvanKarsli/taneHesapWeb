@@ -1,11 +1,13 @@
-import { Hash, ListChecks, Plus, Wallet } from "lucide-react";
+import { Hash, ListChecks, Pencil, Plus, Wallet } from "lucide-react";
 import { useState } from "react";
 import { expenseApi, expenseTypeApi } from "../../api/moduleApis";
 import { useAuth } from "../../auth/useAuth";
 import { AsyncState } from "../../components/ui/AsyncState";
 import { DataTable } from "../../components/ui/DataTable";
-import { EntityForm } from "../../components/ui/EntityForm";
-import { formValue } from "../../components/ui/formValues";
+import { ConfirmDialog, DeleteButton } from "../../components/ui/ConfirmDialog";
+import { EntityForm, type FieldDef } from "../../components/ui/EntityForm";
+import { Modal } from "../../components/ui/Modal";
+import { formValue, type FormValues } from "../../components/ui/formValues";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Section } from "../../components/ui/Section";
 import { StatGrid, StatTile } from "../../components/ui/StatTile";
@@ -13,12 +15,47 @@ import { useAsyncData } from "../../hooks/useAsyncData";
 import { formatDate, formatMoney, formatNumber, startOfMonthIso, todayIso } from "../../lib/format";
 import { PAYMENT_METHOD_LABELS, toOptions, type PaymentMethod } from "../../types/enums";
 import { UserRole } from "../../types/auth";
-import type { ExpenseListFilter } from "../../types/expense";
+import type { CreateExpenseRequest, ExpenseDto, ExpenseListFilter } from "../../types/expense";
+
+function expenseFields(typeOptions: { value: string; label: string }[]): FieldDef[] {
+  return [
+    { name: "expenseTypeId", label: "Gider türü", type: "select", required: true, options: typeOptions },
+    { name: "amount", label: "Tutar (₺)", type: "number", required: true, min: 0 },
+    { name: "quantity", label: "Miktar (opsiyonel)", type: "number", min: 0 },
+    { name: "expenseDate", label: "Tarih", type: "date", required: true },
+    { name: "paymentMethod", label: "Ödeme şekli", type: "select", options: toOptions(PAYMENT_METHOD_LABELS) },
+    { name: "description", label: "Açıklama", type: "textarea" },
+  ];
+}
+
+function toRequest(values: FormValues): CreateExpenseRequest {
+  return {
+    expenseTypeId: formValue.text(values, "expenseTypeId"),
+    amount: formValue.number(values, "amount"),
+    quantity: formValue.optionalNumber(values, "quantity"),
+    expenseDate: formValue.text(values, "expenseDate"),
+    paymentMethod: formValue.optionalNumber(values, "paymentMethod") as PaymentMethod | null,
+    description: formValue.optionalText(values, "description"),
+  };
+}
+
+function toFormValues(expense: ExpenseDto): FormValues {
+  return {
+    expenseTypeId: expense.expenseTypeId,
+    amount: String(expense.amount),
+    quantity: expense.quantity === null ? "" : String(expense.quantity),
+    expenseDate: expense.expenseDate,
+    paymentMethod: expense.paymentMethod === null ? "" : String(expense.paymentMethod),
+    description: expense.description ?? "",
+  };
+}
 
 /** Gider girişi ve listesi — ADMIN ve EMPLOYEE birlikte kullanır (bkz. proje raporu 3.1). */
 export function ExpensesPage() {
   const { user } = useAuth();
   const isEmployee = user?.role === UserRole.Employee;
+  const [editing, setEditing] = useState<ExpenseDto | null>(null);
+  const [deleting, setDeleting] = useState<ExpenseDto | null>(null);
   const [filter, setFilter] = useState<ExpenseListFilter>({ fromDate: startOfMonthIso(todayIso()), toDate: todayIso() });
   const expenseTypes = useAsyncData(expenseTypeApi.getAll);
   const expenses = useAsyncData(() => expenseApi.getList(filter), JSON.stringify(filter));
@@ -48,27 +85,13 @@ export function ExpensesPage() {
         ) : (
           <EntityForm
             layout="inline"
-            fields={[
-              { name: "expenseTypeId", label: "Gider türü", type: "select", required: true, options: typeOptions },
-              { name: "amount", label: "Tutar (₺)", type: "number", required: true, min: 0 },
-              { name: "quantity", label: "Miktar (opsiyonel)", type: "number", min: 0 },
-              { name: "expenseDate", label: "Tarih", type: "date", required: true },
-              { name: "paymentMethod", label: "Ödeme şekli", type: "select", options: toOptions(PAYMENT_METHOD_LABELS) },
-              { name: "description", label: "Açıklama", type: "textarea" },
-            ]}
+            fields={expenseFields(typeOptions)}
             initialValues={{ expenseTypeId: "", amount: "", quantity: "", expenseDate: todayIso(), paymentMethod: "0", description: "" }}
             submitLabel="Gider ekle"
             submitIcon={Plus}
             resetOnSuccess
             onSubmit={async (values) => {
-              await expenseApi.create({
-                expenseTypeId: formValue.text(values, "expenseTypeId"),
-                amount: formValue.number(values, "amount"),
-                quantity: formValue.optionalNumber(values, "quantity"),
-                expenseDate: formValue.text(values, "expenseDate"),
-                paymentMethod: formValue.optionalNumber(values, "paymentMethod") as PaymentMethod | null,
-                description: formValue.optionalText(values, "description"),
-              });
+              await expenseApi.create(toRequest(values));
               await expenses.reload();
             }}
           />
@@ -119,10 +142,47 @@ export function ExpensesPage() {
                 { header: "Ödeme", render: (row) => (row.paymentMethod === null ? "—" : PAYMENT_METHOD_LABELS[row.paymentMethod]) },
                 { header: "Açıklama", render: (row) => row.description || "—" },
               ]}
+              rowActions={(row) => (
+                <>
+                  <button type="button" className="ui-button secondary small" onClick={() => setEditing(row)}>
+                    <Pencil size={14} aria-hidden="true" />
+                    Düzenle
+                  </button>
+                  <DeleteButton onClick={() => setDeleting(row)} />
+                </>
+              )}
             />
           )}
         </AsyncState>
       </Section>
+
+      {editing && (
+        <Modal title={`${editing.expenseTypeName} — düzenle`} onClose={() => setEditing(null)}>
+          <EntityForm
+            fields={expenseFields((expenseTypes.data ?? []).map((t) => ({ value: t.id, label: `${t.name} (${t.unit})` })))}
+            initialValues={toFormValues(editing)}
+            submitLabel="Kaydet"
+            onCancel={() => setEditing(null)}
+            onSubmit={async (values) => {
+              await expenseApi.update(editing.id, toRequest(values));
+              setEditing(null);
+              await expenses.reload();
+            }}
+          />
+        </Modal>
+      )}
+
+      {deleting && (
+        <ConfirmDialog
+          title="Gider silinsin mi?"
+          message={`${formatDate(deleting.expenseDate)} tarihli ${formatMoney(deleting.amount)} tutarındaki "${deleting.expenseTypeName}" gideri silinecek.`}
+          onClose={() => setDeleting(null)}
+          onConfirm={async () => {
+            await expenseApi.remove(deleting.id);
+            await expenses.reload();
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -70,6 +70,12 @@ export const expenseApi = {
   async create(request: CreateExpenseRequest): Promise<ExpenseDto> {
     return (await httpClient.post<ExpenseDto>("/api/expenses", request)).data;
   },
+  async update(id: string, request: CreateExpenseRequest): Promise<ExpenseDto> {
+    return (await httpClient.put<ExpenseDto>(`/api/expenses/${id}`, request)).data;
+  },
+  async remove(id: string): Promise<void> {
+    await httpClient.delete(`/api/expenses/${id}`);
+  },
 };
 
 export const dishApi = {
@@ -81,6 +87,12 @@ export const dishApi = {
   },
   async update(dishId: string, request: UpdateDishRequest): Promise<DishDto> {
     return (await httpClient.put<DishDto>(`/api/dishes/${dishId}`, request)).data;
+  },
+  async remove(dishId: string): Promise<void> {
+    await httpClient.delete(`/api/dishes/${dishId}`);
+  },
+  async removeSize(dishId: string, sizeId: string): Promise<void> {
+    await httpClient.delete(`/api/dishes/${dishId}/sizes/${sizeId}`);
   },
   async addSize(dishId: string, request: CreateDishSizeRequest): Promise<DishSizeDto> {
     return (await httpClient.post<DishSizeDto>(`/api/dishes/${dishId}/sizes`, request)).data;
@@ -94,6 +106,9 @@ export const stockMovementApi = {
   async getAll(ingredientId?: string): Promise<StockMovementDto[]> {
     return (await httpClient.get<StockMovementDto[]>("/api/stock-movements", { params: toQueryParams({ ingredientId }) }))
       .data;
+  },
+  async remove(id: string): Promise<void> {
+    await httpClient.delete(`/api/stock-movements/${id}`);
   },
   async create(request: CreateStockMovementRequest): Promise<StockMovementDto> {
     return (await httpClient.post<StockMovementDto>("/api/stock-movements", request)).data;
@@ -134,6 +149,12 @@ export const dailySalesApi = {
   },
   async getExpectedSummary(date: string): Promise<ExpectedDaySummaryDto> {
     return (await httpClient.get<ExpectedDaySummaryDto>("/api/daily-sales/expected-summary", { params: { date } })).data;
+  },
+  async removeEntry(id: string): Promise<void> {
+    await httpClient.delete(`/api/daily-sales/entries/${id}`);
+  },
+  async removeByDate(date: string): Promise<number> {
+    return (await httpClient.delete<number>("/api/daily-sales/by-date", { params: { date } })).data;
   },
   async import(request: ImportDailySalesRequest): Promise<ImportDailySalesResult> {
     return (await httpClient.post<ImportDailySalesResult>("/api/daily-sales/import", request)).data;

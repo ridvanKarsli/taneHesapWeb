@@ -2,6 +2,7 @@ import { Pencil, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { adminApi } from "../../api/adminApi";
 import { AsyncState } from "../../components/ui/AsyncState";
+import { ConfirmDialog, DeleteButton } from "../../components/ui/ConfirmDialog";
 import { DataTable } from "../../components/ui/DataTable";
 import { EntityForm } from "../../components/ui/EntityForm";
 import { formValue } from "../../components/ui/formValues";
@@ -22,6 +23,7 @@ interface BusinessAdminsPanelProps {
 export function BusinessAdminsPanel({ businessId, businessName }: BusinessAdminsPanelProps) {
   const admins = useAsyncData(() => adminApi.getAll(businessId), businessId);
   const [editing, setEditing] = useState<AdminDto | null>(null);
+  const [deleting, setDeleting] = useState<AdminDto | null>(null);
 
   return (
     <div>
@@ -63,14 +65,29 @@ export function BusinessAdminsPanel({ businessId, businessName }: BusinessAdmins
               { header: "Durum", render: (row) => <ActiveBadge isActive={row.isActive} /> },
             ]}
             rowActions={(row) => (
-              <button type="button" className="ui-button secondary small" onClick={() => setEditing(row)}>
-                <Pencil size={14} aria-hidden="true" />
-                Düzenle
-              </button>
+              <>
+                <button type="button" className="ui-button secondary small" onClick={() => setEditing(row)}>
+                  <Pencil size={14} aria-hidden="true" />
+                  Düzenle
+                </button>
+                <DeleteButton onClick={() => setDeleting(row)} />
+              </>
             )}
           />
         )}
       </AsyncState>
+
+      {deleting && (
+        <ConfirmDialog
+          title="Yönetici silinsin mi?"
+          message={`"${deleting.fullName}" hesabı silinecek ve bir daha giriş yapamayacak. Girdiği kayıtlar geçmiş olarak kalır. Geçici olarak engellemek için pasif yapmayı da seçebilirsiniz.`}
+          onClose={() => setDeleting(null)}
+          onConfirm={async () => {
+            await adminApi.remove(businessId, deleting.id);
+            admins.setData((current) => current?.filter((a) => a.id !== deleting.id) ?? current);
+          }}
+        />
+      )}
 
       {editing && (
         <Modal title={`${editing.fullName} — düzenle`} onClose={() => setEditing(null)}>

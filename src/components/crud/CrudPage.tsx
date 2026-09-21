@@ -2,6 +2,7 @@ import { Pencil, Plus } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { useAsyncData } from "../../hooks/useAsyncData";
 import { AsyncState } from "../ui/AsyncState";
+import { ConfirmDialog, DeleteButton } from "../ui/ConfirmDialog";
 import { DataTable, type Column } from "../ui/DataTable";
 import { EntityForm, type FieldDef } from "../ui/EntityForm";
 import { type FormValues } from "../ui/formValues";
@@ -31,6 +32,11 @@ interface CrudPageProps<T extends { id: string }> {
   toEditValues?: (row: T) => FormValues;
   onUpdate?: (row: T, values: FormValues) => Promise<T>;
 
+  /** Verilirse her satırda "Sil" butonu çıkar; onaydan sonra çağrılır, başarılıysa satır listeden düşer. */
+  onDelete?: (row: T) => Promise<void>;
+  /** Onay penceresinde gösterilecek kayıt adı (örn. malzeme adı). */
+  describeRow?: (row: T) => string;
+
   rowActions?: (row: T, helpers: CrudRowHelpers<T>) => ReactNode;
   renderExpanded?: (row: T, helpers: CrudRowHelpers<T>) => ReactNode;
   rowClassName?: (row: T) => string | undefined;
@@ -47,6 +53,7 @@ interface CrudPageProps<T extends { id: string }> {
 export function CrudPage<T extends { id: string }>(props: CrudPageProps<T>) {
   const { data, error, isLoading, reload, setData } = useAsyncData(props.load);
   const [editing, setEditing] = useState<T | null>(null);
+  const [deleting, setDeleting] = useState<T | null>(null);
 
   function replaceRow(row: T) {
     setData((current) => current?.map((item) => (item.id === row.id ? row : item)) ?? current);
@@ -65,6 +72,7 @@ export function CrudPage<T extends { id: string }>(props: CrudPageProps<T>) {
             Düzenle
           </button>
         )}
+        {props.onDelete && <DeleteButton onClick={() => setDeleting(row)} />}
       </>
     );
   }
@@ -99,7 +107,7 @@ export function CrudPage<T extends { id: string }>(props: CrudPageProps<T>) {
               columns={props.columns}
               rows={rows}
               rowKey={(row) => row.id}
-              rowActions={props.rowActions || canEdit ? renderRowActions : undefined}
+              rowActions={props.rowActions || canEdit || props.onDelete ? renderRowActions : undefined}
               renderExpanded={props.renderExpanded ? (row) => props.renderExpanded!(row, helpers) : undefined}
               rowClassName={props.rowClassName}
             />
@@ -120,6 +128,17 @@ export function CrudPage<T extends { id: string }>(props: CrudPageProps<T>) {
             }}
           />
         </Modal>
+      )}
+      {deleting && props.onDelete && (
+        <ConfirmDialog
+          title="Silinsin mi?"
+          message={`"${props.describeRow?.(deleting) ?? "Bu kayıt"}" kalıcı olarak silinecek. Geçmiş kayıtlarda kullanılıyorsa silinemez; o durumda pasif yapabilirsiniz.`}
+          onClose={() => setDeleting(null)}
+          onConfirm={async () => {
+            await props.onDelete!(deleting);
+            setData((current) => current?.filter((item) => item.id !== deleting.id) ?? current);
+          }}
+        />
       )}
     </div>
   );

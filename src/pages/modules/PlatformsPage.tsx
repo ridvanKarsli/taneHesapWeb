@@ -32,6 +32,8 @@ export function PlatformsPage() {
       createFields={baseFields}
       createInitialValues={{ name: "", commissionPercentage: "" }}
       onCreate={(values) => platformApi.create(toRequest(values))}
+      onDelete={(row) => platformApi.remove(row.id)}
+      describeRow={(row) => row.name}
       editTitle={(row) => `${row.name} — düzenle`}
       editFields={[...baseFields, { name: "isActive", label: "Aktif", type: "checkbox" }]}
       toEditValues={(row) => ({ name: row.name, commissionPercentage: String(row.commissionPercentage), isActive: row.isActive })}

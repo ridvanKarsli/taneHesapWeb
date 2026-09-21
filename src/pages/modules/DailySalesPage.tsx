@@ -1,14 +1,15 @@
-import { Carrot, Coins, FileSpreadsheet, ListChecks, Plus, ReceiptText, Soup } from "lucide-react";
+import { Carrot, Coins, FileSpreadsheet, ListChecks, Plus, ReceiptText, Soup, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { dailySalesApi, dishApi, platformApi } from "../../api/moduleApis";
 import { AsyncState } from "../../components/ui/AsyncState";
+import { ConfirmDialog, DeleteButton } from "../../components/ui/ConfirmDialog";
 import { DataTable } from "../../components/ui/DataTable";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Section } from "../../components/ui/Section";
 import { StatGrid, StatTile } from "../../components/ui/StatTile";
 import { useAsyncData } from "../../hooks/useAsyncData";
 import { formatDate, formatMoney, formatNumber, todayIso } from "../../lib/format";
-import type { ImportDailySalesResult, ImportRowRequest } from "../../types/dailySales";
+import type { DailySalesEntryDto, ImportDailySalesResult, ImportRowRequest } from "../../types/dailySales";
 import { PAYMENT_METHOD_LABELS, SALES_CHANNEL_LABELS } from "../../types/enums";
 import { DateFilter } from "../../components/ui/DateFilter";
 import { SalesEntryForm } from "./SalesEntryForm";
@@ -22,6 +23,7 @@ import "./modules.css";
 export function DailySalesPage() {
   const [date, setDate] = useState(todayIso());
   const [lastResult, setLastResult] = useState<ImportDailySalesResult | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<DailySalesEntryDto | "day" | null>(null);
   const dishes = useAsyncData(dishApi.getAll);
   const platforms = useAsyncData(platformApi.getAll);
   const entries = useAsyncData(() => dailySalesApi.getByDate(date), date);
@@ -76,8 +78,40 @@ export function DailySalesPage() {
         </AsyncState>
       </Section>
 
+      {pendingDelete && (
+        <ConfirmDialog
+          title={pendingDelete === "day" ? "Günün tüm satışları silinsin mi?" : "Satış satırı silinsin mi?"}
+          message={
+            pendingDelete === "day"
+              ? `${formatDate(date)} tarihine ait ${entries.data?.length ?? 0} satış satırı silinecek (örn. aynı dosya iki kez yüklendiyse). Platform komisyonu giderleri yeniden hesaplanır. Gün sonu kapanışı yapıldıysa kapanışı yeniden gönderin.`
+              : `"${pendingDelete.dishName} — ${pendingDelete.sizeName}" × ${pendingDelete.quantity} (${formatMoney(pendingDelete.totalAmount)}) satırı silinecek. Platform komisyonu yeniden hesaplanır.`
+          }
+          onClose={() => setPendingDelete(null)}
+          onConfirm={async () => {
+            if (pendingDelete === "day") {
+              await dailySalesApi.removeByDate(date);
+            } else {
+              await dailySalesApi.removeEntry(pendingDelete.id);
+            }
+            setLastResult(null);
+            await Promise.all([entries.reload(), summary.reload()]);
+          }}
+        />
+      )}
+
       <div className="ui-two-columns">
-        <Section title="Girilen satışlar" icon={ListChecks}>
+        <Section
+          title="Girilen satışlar"
+          icon={ListChecks}
+          actions={
+            (entries.data?.length ?? 0) > 0 && (
+              <button type="button" className="ui-button secondary small" onClick={() => setPendingDelete("day")}>
+                <Trash2 size={14} aria-hidden="true" />
+                Günün satışlarını sil
+              </button>
+            )
+          }
+        >
           <AsyncState {...entries} isEmpty={(rows) => rows.length === 0} emptyText="Bu tarih için satış girilmemiş.">
             {(rows) => (
               <DataTable
@@ -90,6 +124,7 @@ export function DailySalesPage() {
                   { header: "Ödeme", render: (row) => PAYMENT_METHOD_LABELS[row.paymentMethod] },
                   { header: "Kanal", render: (row) => row.platformName ?? SALES_CHANNEL_LABELS[row.channel] },
                 ]}
+                rowActions={(row) => <DeleteButton onClick={() => setPendingDelete(row)} />}
               />
             )}
           </AsyncState>

@@ -74,6 +74,8 @@ export function SuppliersPage() {
       createFields={baseFields}
       createInitialValues={{ name: "", contactInfo: "" }}
       onCreate={(values) => supplierApi.create(toRequest(values))}
+      onDelete={(row) => supplierApi.remove(row.id)}
+      describeRow={(row) => row.name}
       editTitle={(row) => `${row.name} — düzenle`}
       editFields={[...baseFields, { name: "isActive", label: "Aktif", type: "checkbox" }]}
       toEditValues={(row) => ({ name: row.name, contactInfo: row.contactInfo ?? "", isActive: row.isActive })}

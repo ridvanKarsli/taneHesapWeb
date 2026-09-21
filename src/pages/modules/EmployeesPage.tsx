@@ -31,6 +31,8 @@ export function EmployeesPage() {
           password: String(values.password),
         })
       }
+      onDelete={(row) => employeeApi.remove(row.id)}
+      describeRow={(row) => row.fullName}
       editTitle={(row) => `${row.fullName} — düzenle`}
       editFields={[
         { name: "fullName", label: "Ad soyad", required: true },

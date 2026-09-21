@@ -2,6 +2,7 @@ import { ListChecks, Pencil, Plus, UtensilsCrossed } from "lucide-react";
 import { useState } from "react";
 import { dishApi, ingredientApi } from "../../api/moduleApis";
 import { AsyncState } from "../../components/ui/AsyncState";
+import { ConfirmDialog, DeleteButton } from "../../components/ui/ConfirmDialog";
 import { DataTable } from "../../components/ui/DataTable";
 import { EntityForm } from "../../components/ui/EntityForm";
 import { formValue } from "../../components/ui/formValues";
@@ -27,6 +28,7 @@ export function DishesPage() {
   const [sizeDialog, setSizeDialog] = useState<SizeDialog | null>(null);
   const [openRecipeId, setOpenRecipeId] = useState<string | null>(null);
   const [editingDish, setEditingDish] = useState<DishDto | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{ dish: DishDto; size?: DishSizeDto } | null>(null);
 
   const activeIngredients = (ingredients.data ?? []).filter((i) => i.isActive);
 
@@ -76,6 +78,7 @@ export function DishesPage() {
                     <Plus size={14} aria-hidden="true" />
                     Boy ekle
                   </button>
+                  <DeleteButton label="Ürünü sil" onClick={() => setPendingDelete({ dish })} />
                 </div>
               }
             >
@@ -109,6 +112,7 @@ export function DishesPage() {
                         <Pencil size={14} aria-hidden="true" />
                         Düzenle
                       </button>
+                      <DeleteButton label="Boyu sil" onClick={() => setPendingDelete({ dish, size })} />
                     </>
                   )}
                   renderExpanded={(size) =>
@@ -134,6 +138,27 @@ export function DishesPage() {
           ))
         }
       </AsyncState>
+
+      {pendingDelete && (
+        <ConfirmDialog
+          title={pendingDelete.size ? "Boy silinsin mi?" : "Ürün silinsin mi?"}
+          message={
+            pendingDelete.size
+              ? `"${pendingDelete.dish.name} — ${pendingDelete.size.name}" boyu ve reçetesi silinecek. Satışı yapılmışsa silinemez; pasif yapabilirsiniz.`
+              : `"${pendingDelete.dish.name}" ürünü tüm boyları ve reçeteleriyle silinecek. Satışı yapılmışsa silinemez; pasif yapabilirsiniz.`
+          }
+          onClose={() => setPendingDelete(null)}
+          onConfirm={async () => {
+            const { dish, size } = pendingDelete;
+            if (size) {
+              await dishApi.removeSize(dish.id, size.id);
+            } else {
+              await dishApi.remove(dish.id);
+            }
+            await dishes.reload();
+          }}
+        />
+      )}
 
       {editingDish && (
         <Modal title={`${editingDish.name} — düzenle`} onClose={() => setEditingDish(null)}>

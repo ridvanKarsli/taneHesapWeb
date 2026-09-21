@@ -17,6 +17,10 @@ export const adminApi = {
     return response.data;
   },
 
+  async remove(businessId: string, adminId: string): Promise<void> {
+    await httpClient.delete(`/api/businesses/${businessId}/admins/${adminId}`);
+  },
+
   async update(businessId: string, adminId: string, request: UpdateAdminRequest): Promise<AdminDto> {
     const response = await httpClient.put<AdminDto>(`/api/businesses/${businessId}/admins/${adminId}`, request);
     return response.data;

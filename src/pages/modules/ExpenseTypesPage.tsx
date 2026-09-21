@@ -38,6 +38,8 @@ export function ExpenseTypesPage() {
       createFields={baseFields}
       createInitialValues={{ name: "", unit: "", category: "0" }}
       onCreate={(values) => expenseTypeApi.create(toRequest(values))}
+      onDelete={(row) => expenseTypeApi.remove(row.id)}
+      describeRow={(row) => row.name}
       editTitle={(row) => `${row.name} — düzenle`}
       editFields={[...baseFields, { name: "isActive", label: "Aktif", type: "checkbox" }]}
       toEditValues={(row) => ({ name: row.name, unit: row.unit, category: String(row.category), isActive: row.isActive })}

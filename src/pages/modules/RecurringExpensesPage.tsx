@@ -63,6 +63,8 @@ export function RecurringExpensesPage() {
         createFields={[...baseFields, { name: "startDate", label: "Başlangıç tarihi", type: "date", required: true }]}
         createInitialValues={{ name: "", amount: "", period: "1", startDate: todayIso() }}
         onCreate={(values) => recurringExpenseApi.create({ ...toBaseRequest(values), startDate: formValue.text(values, "startDate") })}
+        onDelete={(row) => recurringExpenseApi.remove(row.id)}
+        describeRow={(row) => row.name}
         editTitle={(row) => `${row.name} — düzenle`}
         editFields={[...baseFields, { name: "isActive", label: "Aktif", type: "checkbox" }]}
         toEditValues={(row) => ({ name: row.name, amount: String(row.amount), period: String(row.period), isActive: row.isActive })}

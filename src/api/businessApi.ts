@@ -13,6 +13,10 @@ export const businessApi = {
     return response.data;
   },
 
+  async remove(id: string): Promise<void> {
+    await httpClient.delete(`/api/businesses/${id}`);
+  },
+
   async update(id: string, request: UpdateBusinessRequest): Promise<BusinessDto> {
     const response = await httpClient.put<BusinessDto>(`/api/businesses/${id}`, request);
     return response.data;

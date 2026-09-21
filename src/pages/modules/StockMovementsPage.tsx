@@ -2,6 +2,7 @@ import { History, Plus } from "lucide-react";
 import { useState } from "react";
 import { ingredientApi, stockMovementApi } from "../../api/moduleApis";
 import { AsyncState } from "../../components/ui/AsyncState";
+import { ConfirmDialog, DeleteButton } from "../../components/ui/ConfirmDialog";
 import { DataTable } from "../../components/ui/DataTable";
 import { EntityForm } from "../../components/ui/EntityForm";
 import { formValue } from "../../components/ui/formValues";
@@ -11,12 +12,18 @@ import { StatusBadge } from "../../components/ui/StatusBadge";
 import { useAsyncData } from "../../hooks/useAsyncData";
 import { formatDateTime, formatNumber } from "../../lib/format";
 import { STOCK_MOVEMENT_TYPE_LABELS, StockMovementType } from "../../types/enums";
+import type { StockMovementDto } from "../../types/stock";
 
 /** Manuel girilebilen hareket tipleri — alış (Tedarikçiler) ve satış tüketimi (Gün Sonu) otomatik oluşur. */
 const MANUAL_TYPE_OPTIONS = [
   { value: String(StockMovementType.ManualAdjustment), label: STOCK_MOVEMENT_TYPE_LABELS[StockMovementType.ManualAdjustment] },
   { value: String(StockMovementType.Waste), label: STOCK_MOVEMENT_TYPE_LABELS[StockMovementType.Waste] },
 ];
+
+/** Sadece elle girilen hareketler silinebilir; alış ve satış tüketimi kendi modüllerinden yönetilir. */
+function isManual(type: StockMovementType): boolean {
+  return type === StockMovementType.ManualAdjustment || type === StockMovementType.Waste;
+}
 
 /** Fire her zaman stoktan düşer; sayım düzeltmesinde işaret kullanıcıya bırakılır (+ ekler, − düşer). */
 function toQuantityChange(type: StockMovementType, quantity: number): number {
@@ -26,6 +33,7 @@ function toQuantityChange(type: StockMovementType, quantity: number): number {
 /** Stok hareketleri geçmişi ve manuel düzeltme/fire girişi (bkz. proje raporu 3.9). */
 export function StockMovementsPage() {
   const [ingredientFilter, setIngredientFilter] = useState("");
+  const [deleting, setDeleting] = useState<StockMovementDto | null>(null);
   const ingredients = useAsyncData(ingredientApi.getAll);
   const movements = useAsyncData(() => stockMovementApi.getAll(ingredientFilter || undefined), ingredientFilter);
 
@@ -109,10 +117,23 @@ export function StockMovementsPage() {
                 { header: "Sonraki stok", align: "right", render: (row) => formatNumber(row.resultingStockQuantity) },
                 { header: "Not", render: (row) => row.note || "—" },
               ]}
+              rowActions={(row) => (isManual(row.movementType) ? <DeleteButton onClick={() => setDeleting(row)} /> : null)}
             />
           )}
         </AsyncState>
       </Section>
+
+      {deleting && (
+        <ConfirmDialog
+          title="Hareket silinsin mi?"
+          message={`${deleting.ingredientName} için ${formatNumber(deleting.quantityChange)} birimlik "${STOCK_MOVEMENT_TYPE_LABELS[deleting.movementType]}" hareketi silinecek ve stok geri alınacak.`}
+          onClose={() => setDeleting(null)}
+          onConfirm={async () => {
+            await stockMovementApi.remove(deleting.id);
+            await Promise.all([movements.reload(), ingredients.reload()]);
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -48,6 +48,8 @@ export function BusinessesPage() {
       createFields={baseFields}
       createInitialValues={{ name: "", address: "" }}
       onCreate={(values) => businessApi.create(toRequest(values))}
+      onDelete={(row) => businessApi.remove(row.id)}
+      describeRow={(row) => row.name}
       editTitle={(row) => `${row.name} — düzenle`}
       editFields={[...baseFields, { name: "isActive", label: "Aktif", type: "checkbox" }]}
       toEditValues={(row) => ({ name: row.name, address: row.address ?? "", isActive: row.isActive })}

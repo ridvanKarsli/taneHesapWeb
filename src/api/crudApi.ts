@@ -9,6 +9,7 @@ export interface CrudApi<TDto, TCreate, TUpdate> {
   getAll(): Promise<TDto[]>;
   create(request: TCreate): Promise<TDto>;
   update(id: string, request: TUpdate): Promise<TDto>;
+  remove(id: string): Promise<void>;
 }
 
 export function createCrudApi<TDto, TCreate, TUpdate>(basePath: string): CrudApi<TDto, TCreate, TUpdate> {
@@ -21,6 +22,9 @@ export function createCrudApi<TDto, TCreate, TUpdate>(basePath: string): CrudApi
     },
     async update(id, request) {
       return (await httpClient.put<TDto>(`${basePath}/${id}`, request)).data;
+    },
+    async remove(id) {
+      await httpClient.delete(`${basePath}/${id}`);
     },
   };
 }
