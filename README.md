@@ -85,6 +85,22 @@ npm run dev
 - `npm run build` — tip kontrolü (`tsc -b`) + üretim derlemesi + PWA manifest/service worker üretimi.
 - `npm run lint` — oxlint.
 
+## Yayına alma (Vercel)
+
+`vercel.json` Vite çıktısını (`dist`) yayınlar ve tüm uygulama içi adresleri (`/giderler` vb.)
+`index.html`'e yönlendirir — aksi halde sayfa yenilendiğinde 404 alınır. Vercel projesinde tek
+ortam değişkeni gerekir: `VITE_API_BASE_URL` = Railway'deki API adresi (örn.
+`https://tanehesap-api.up.railway.app`). Backend tarafında da bu Vercel adresi
+`Cors__AllowedOrigins__0` olarak tanımlanmalı (bkz. backend README "Yayına alma").
+
+## Excel ile gün sonu yükleme
+
+"Gün Sonu Satışları" sayfasında **Şablonu indir** o anki ürün/boy ve platform listesiyle bir `.xlsx`
+üretir (Satışlar + Liste sayfaları). Doldurulan dosya tarayıcıda okunur (`lib/salesExcel.ts`),
+satır satır doğrulanır, önizlenir ve geçerli satırlar mevcut `POST /api/daily-sales/import` uç
+noktasına gönderilir. Kolonlar: Tarih, Saat, Ürün, Boy, Adet, Tutar (boşsa fiyat × adet), Ödeme
+(Nakit/Kart), Kanal (Dükkan içi/Paket servis), Platform, İndirim.
+
 ## Durum
 
 Tüm backend API'leri arayüze bağlı: Auth, İşletmeler + Yöneticiler (SUPER_ADMIN), Giderler, Gider

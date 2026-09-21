@@ -12,6 +12,16 @@ export interface PeriodReportDto {
   totalExpense: number;
   netProfit: number;
   expenseByCategory: { category: ExpenseCategory; amount: number }[];
+  /** Tabak (boy) bazlı satış; maliyet güncel malzeme fiyatlarıyla tahminidir. */
+  salesByDish: {
+    dishSizeId: string;
+    dishName: string;
+    sizeName: string;
+    quantity: number;
+    revenue: number;
+    estimatedCost: number;
+    estimatedProfit: number;
+  }[];
   revenueByPlatform: {
     platformId: string;
     platformName: string;

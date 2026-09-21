@@ -1,4 +1,4 @@
-import { Banknote, Bike, Coins, CreditCard, PieChart, Store, TrendingDown, TrendingUp, TriangleAlert, Wallet } from "lucide-react";
+import { Banknote, Bike, Coins, CreditCard, PieChart, Store, TrendingDown, TrendingUp, TriangleAlert, UtensilsCrossed, Wallet } from "lucide-react";
 import { useState } from "react";
 import { dailyClosingApi, reportApi } from "../../api/moduleApis";
 import { AsyncState } from "../../components/ui/AsyncState";
@@ -111,6 +111,29 @@ export function ReportsPage() {
           </>
         )}
       </AsyncState>
+
+      {report.data && report.data.salesByDish.length > 0 && (
+        <Section title="Tabak bazlı satış ve kârlılık" icon={UtensilsCrossed}>
+          <p className="ui-muted">Maliyet, reçete × malzemelerin güncel birim fiyatıyla hesaplanan tahmini değerdir.</p>
+          <DataTable
+            rows={report.data.salesByDish}
+            rowKey={(row) => row.dishSizeId}
+            columns={[
+              { header: "Ürün", render: (row) => <span className="ui-cell-strong">{`${row.dishName} — ${row.sizeName}`}</span> },
+              { header: "Adet", align: "right", render: (row) => String(row.quantity) },
+              { header: "Ciro", align: "right", render: (row) => formatMoney(row.revenue) },
+              { header: "Tahmini maliyet", align: "right", render: (row) => formatMoney(row.estimatedCost) },
+              {
+                header: "Tahmini kâr",
+                align: "right",
+                render: (row) => (
+                  <span className={row.estimatedProfit < 0 ? "ui-text-negative" : "ui-text-positive"}>{formatMoney(row.estimatedProfit)}</span>
+                ),
+              },
+            ]}
+          />
+        </Section>
+      )}
 
       <Section title="Günlük fire / kayıp özetleri" icon={TriangleAlert}>
         <AsyncState {...lossReports} isEmpty={(rows) => rows.length === 0} emptyText="Bu aralıkta gün sonu kapanışı yapılmamış.">

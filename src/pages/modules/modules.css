@@ -93,3 +93,21 @@
     grid-column: 1 / -1;
   }
 }
+
+.excel-actions {
+  margin: 0.75rem 0;
+}
+
+.excel-preview {
+  margin-top: 0.5rem;
+}
+
+.excel-errors {
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.import-result {
+  display: block;
+  margin-bottom: 1.25rem;
+}

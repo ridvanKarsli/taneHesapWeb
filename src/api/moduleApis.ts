@@ -17,6 +17,7 @@ import type {
   CreateDishSizeRequest,
   DishDto,
   DishSizeDto,
+  UpdateDishRequest,
   UpdateDishSizeRequest,
 } from "../types/dish";
 import type { CreateEmployeeRequest, EmployeeDto, UpdateEmployeeRequest } from "../types/employee";
@@ -77,6 +78,9 @@ export const dishApi = {
   },
   async create(request: CreateDishRequest): Promise<DishDto> {
     return (await httpClient.post<DishDto>("/api/dishes", request)).data;
+  },
+  async update(dishId: string, request: UpdateDishRequest): Promise<DishDto> {
+    return (await httpClient.put<DishDto>(`/api/dishes/${dishId}`, request)).data;
   },
   async addSize(dishId: string, request: CreateDishSizeRequest): Promise<DishSizeDto> {
     return (await httpClient.post<DishSizeDto>(`/api/dishes/${dishId}/sizes`, request)).data;

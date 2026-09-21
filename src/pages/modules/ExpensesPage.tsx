@@ -1,6 +1,7 @@
 import { Hash, ListChecks, Plus, Wallet } from "lucide-react";
 import { useState } from "react";
 import { expenseApi, expenseTypeApi } from "../../api/moduleApis";
+import { useAuth } from "../../auth/useAuth";
 import { AsyncState } from "../../components/ui/AsyncState";
 import { DataTable } from "../../components/ui/DataTable";
 import { EntityForm } from "../../components/ui/EntityForm";
@@ -11,10 +12,13 @@ import { StatGrid, StatTile } from "../../components/ui/StatTile";
 import { useAsyncData } from "../../hooks/useAsyncData";
 import { formatDate, formatMoney, formatNumber, startOfMonthIso, todayIso } from "../../lib/format";
 import { PAYMENT_METHOD_LABELS, toOptions, type PaymentMethod } from "../../types/enums";
+import { UserRole } from "../../types/auth";
 import type { ExpenseListFilter } from "../../types/expense";
 
 /** Gider girişi ve listesi — ADMIN ve EMPLOYEE birlikte kullanır (bkz. proje raporu 3.1). */
 export function ExpensesPage() {
+  const { user } = useAuth();
+  const isEmployee = user?.role === UserRole.Employee;
   const [filter, setFilter] = useState<ExpenseListFilter>({ fromDate: startOfMonthIso(todayIso()), toDate: todayIso() });
   const expenseTypes = useAsyncData(expenseTypeApi.getAll);
   const expenses = useAsyncData(() => expenseApi.getList(filter), JSON.stringify(filter));
@@ -29,7 +33,14 @@ export function ExpensesPage() {
 
   return (
     <div>
-      <PageHeader title="Giderler" description="Gider türünü seçip tutarı girin; her kayıt denetim kaydına işlenir." />
+      <PageHeader
+        title="Giderler"
+        description={
+          isEmployee
+            ? "Gider türünü seçip tutarı girin. Listede sadece sizin girdiğiniz giderler görünür."
+            : "Gider türünü seçip tutarı girin; her kayıt denetim kaydına işlenir."
+        }
+      />
 
       <Section title="Yeni gider" icon={Plus}>
         {expenseTypes.data && activeTypes.length === 0 ? (
@@ -65,7 +76,7 @@ export function ExpensesPage() {
       </Section>
 
       <Section
-        title="Gider listesi"
+        title={isEmployee ? "Girdiğim giderler" : "Gider listesi"}
         icon={ListChecks}
         actions={
           <div className="ui-toolbar">

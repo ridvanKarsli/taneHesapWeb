@@ -26,6 +26,7 @@ export function DishesPage() {
   const ingredients = useAsyncData(ingredientApi.getAll);
   const [sizeDialog, setSizeDialog] = useState<SizeDialog | null>(null);
   const [openRecipeId, setOpenRecipeId] = useState<string | null>(null);
+  const [editingDish, setEditingDish] = useState<DishDto | null>(null);
 
   const activeIngredients = (ingredients.data ?? []).filter((i) => i.isActive);
 
@@ -65,10 +66,17 @@ export function DishesPage() {
               title={dish.name}
               icon={UtensilsCrossed}
               actions={
-                <button type="button" className="ui-button small" onClick={() => setSizeDialog({ dish })}>
-                  <Plus size={14} aria-hidden="true" />
-                  Boy ekle
-                </button>
+                <div className="ui-form-actions">
+                  {!dish.isActive && <ActiveBadge isActive={false} />}
+                  <button type="button" className="ui-button secondary small" onClick={() => setEditingDish(dish)}>
+                    <Pencil size={14} aria-hidden="true" />
+                    Ürünü düzenle
+                  </button>
+                  <button type="button" className="ui-button small" onClick={() => setSizeDialog({ dish })}>
+                    <Plus size={14} aria-hidden="true" />
+                    Boy ekle
+                  </button>
+                </div>
               }
             >
               {dish.description && <p className="ui-muted">{dish.description}</p>}
@@ -126,6 +134,30 @@ export function DishesPage() {
           ))
         }
       </AsyncState>
+
+      {editingDish && (
+        <Modal title={`${editingDish.name} — düzenle`} onClose={() => setEditingDish(null)}>
+          <EntityForm
+            fields={[
+              { name: "name", label: "Ürün adı", required: true },
+              { name: "description", label: "Açıklama" },
+              { name: "isActive", label: "Aktif (pasif ürünler satış girişinde görünmez)", type: "checkbox" },
+            ]}
+            initialValues={{ name: editingDish.name, description: editingDish.description ?? "", isActive: editingDish.isActive }}
+            submitLabel="Kaydet"
+            onCancel={() => setEditingDish(null)}
+            onSubmit={async (values) => {
+              const updated = await dishApi.update(editingDish.id, {
+                name: formValue.text(values, "name"),
+                description: formValue.optionalText(values, "description"),
+                isActive: formValue.bool(values, "isActive"),
+              });
+              dishes.setData((current) => current?.map((d) => (d.id === updated.id ? updated : d)) ?? current);
+              setEditingDish(null);
+            }}
+          />
+        </Modal>
+      )}
 
       {sizeDialog && (
         <Modal

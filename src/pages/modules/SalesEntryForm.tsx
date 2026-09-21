@@ -46,7 +46,7 @@ export function SalesEntryForm({ date, dishes, platforms, onSubmit }: SalesEntry
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const sizes = dishes.flatMap((dish) =>
+  const sizes = dishes.filter((dish) => dish.isActive).flatMap((dish) =>
     dish.sizes.filter((size) => size.isActive).map((size) => ({ ...size, label: `${dish.name} — ${size.name}` })),
   );
   const priceOf = (sizeId: string) => sizes.find((size) => size.id === sizeId)?.salePrice ?? 0;

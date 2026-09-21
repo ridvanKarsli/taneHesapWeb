@@ -30,6 +30,10 @@ export interface CreateDishRequest {
   description: string | null;
 }
 
+export interface UpdateDishRequest extends CreateDishRequest {
+  isActive: boolean;
+}
+
 export interface RecipeItemRequest {
   ingredientId: string;
   quantity: number;
