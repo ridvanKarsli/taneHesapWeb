@@ -17,7 +17,11 @@ interface DataTableProps<T> {
   rowClassName?: (row: T) => string | undefined;
 }
 
-/** Tüm modül listelerinin ortak tablo bileşeni — kolonlar sayfa tarafından tanımlanır (Open/Closed). */
+/**
+ * Tüm modül listelerinin ortak tablo bileşeni — kolonlar sayfa tarafından tanımlanır (Open/Closed).
+ * Hücreler `data-label` taşır; mobilde (ui.css) tablo, her satırı "başlık — değer" kartı olan bir
+ * listeye dönüşür.
+ */
 export function DataTable<T>({ columns, rows, rowKey, rowActions, renderExpanded, rowClassName }: DataTableProps<T>) {
   const columnCount = columns.length + (rowActions ? 1 : 0);
 
@@ -41,11 +45,19 @@ export function DataTable<T>({ columns, rows, rowKey, rowActions, renderExpanded
               <Fragment key={rowKey(row)}>
                 <tr className={rowClassName?.(row)}>
                   {columns.map((column) => (
-                    <td key={column.header} className={column.align === "right" ? "ui-align-right" : undefined}>
+                    <td
+                      key={column.header}
+                      data-label={column.header}
+                      className={column.align === "right" ? "ui-align-right" : undefined}
+                    >
                       {column.render(row)}
                     </td>
                   ))}
-                  {rowActions && <td className="ui-row-actions">{rowActions(row)}</td>}
+                  {rowActions && (
+                    <td className="ui-row-actions">
+                      <div className="ui-row-actions-inner">{rowActions(row)}</div>
+                    </td>
+                  )}
                 </tr>
                 {expanded && (
                   <tr className="ui-table-expanded">

@@ -1,3 +1,4 @@
+import { ChevronUp, PackageOpen, Scale } from "lucide-react";
 import { useState } from "react";
 import { supplierApi } from "../../api/moduleApis";
 import { CrudPage } from "../../components/crud/CrudPage";
@@ -27,12 +28,13 @@ export function SuppliersPage() {
 
   return (
     <CrudPage<SupplierDto>
-      icon="🚚"
       title="Tedarikçiler"
       description="Alış girildiğinde malzemenin stoğu artar ve birim fiyatı güncellenir; ödemeler borçtan düşülür."
       summary={
         <StatGrid>
           <StatTile
+            icon={Scale}
+            iconTone="rose"
             label="Toplam açık borç"
             value={totalDebt.data === null ? "…" : formatMoney(totalDebt.data)}
             tone={totalDebt.data ? "negative" : undefined}
@@ -53,6 +55,7 @@ export function SuppliersPage() {
       ]}
       rowActions={(row) => (
         <button type="button" className="ui-button small" onClick={() => setExpandedId((id) => (id === row.id ? null : row.id))}>
+          {expandedId === row.id ? <ChevronUp size={14} aria-hidden="true" /> : <PackageOpen size={14} aria-hidden="true" />}
           {expandedId === row.id ? "Alışları gizle" : "Alışlar"}
         </button>
       )}

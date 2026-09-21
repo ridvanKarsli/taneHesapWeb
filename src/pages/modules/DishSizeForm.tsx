@@ -1,5 +1,7 @@
+import { Plus, Trash2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { extractErrorMessage } from "../../api/apiError";
+import { ErrorMessage } from "../../components/ui/AsyncState";
 import type { DishSizeDto, RecipeItemRequest } from "../../types/dish";
 import type { IngredientDto } from "../../types/ingredient";
 
@@ -110,16 +112,17 @@ export function DishSizeForm({ ingredients, initial, onSubmit, onCancel }: DishS
             <span className="recipe-unit">{unitOf(row.ingredientId)}</span>
             <button
               type="button"
-              className="ui-button ghost"
+              className="ui-button danger-ghost"
               onClick={() => setRows((current) => current.filter((_, i) => i !== index))}
               aria-label="Satırı sil"
             >
-              ✕
+              <Trash2 size={17} />
             </button>
           </div>
         ))}
         <button type="button" className="ui-button secondary small" onClick={() => setRows((c) => [...c, { ingredientId: "", quantity: "" }])}>
-          + Malzeme ekle
+          <Plus size={15} aria-hidden="true" />
+          Malzeme ekle
         </button>
       </div>
 
@@ -131,7 +134,7 @@ export function DishSizeForm({ ingredients, initial, onSubmit, onCancel }: DishS
           Vazgeç
         </button>
       </div>
-      {error && <p className="ui-error">{error}</p>}
+      {error && <ErrorMessage message={error} />}
     </form>
   );
 }

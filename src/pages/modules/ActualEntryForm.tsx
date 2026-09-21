@@ -1,5 +1,7 @@
+import { MoonStar, Plus, Trash2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { extractErrorMessage } from "../../api/apiError";
+import { ErrorMessage } from "../../components/ui/AsyncState";
 import { formatNumber } from "../../lib/format";
 import type { SubmitDailyActualEntryRequest } from "../../types/dailyClosing";
 import type { IngredientDto } from "../../types/ingredient";
@@ -103,8 +105,8 @@ export function ActualEntryForm({ date, ingredients, initialRevenue, initialNote
                 placeholder={`Gerçek (${ingredient?.unit ?? "birim"})`}
                 aria-label="Gerçek tüketim"
               />
-              <button type="button" className="ui-button ghost" onClick={() => setRows((c) => c.filter((_, i) => i !== index))} aria-label="Satırı sil">
-                ✕
+              <button type="button" className="ui-button danger-ghost" onClick={() => setRows((c) => c.filter((_, i) => i !== index))} aria-label="Satırı sil">
+                <Trash2 size={17} />
               </button>
             </div>
           );
@@ -114,16 +116,18 @@ export function ActualEntryForm({ date, ingredients, initialRevenue, initialNote
           className="ui-button secondary small"
           onClick={() => setRows((c) => [...c, { ingredientId: "", expectedQuantity: null, actualQuantity: "" }])}
         >
-          + Malzeme ekle
+          <Plus size={15} aria-hidden="true" />
+          Malzeme ekle
         </button>
       </div>
 
       <div className="ui-form-actions">
         <button type="submit" className="ui-button" disabled={isSubmitting}>
+          <MoonStar size={17} aria-hidden="true" />
           {isSubmitting ? "Kaydediliyor…" : "Gün sonunu kapat ve raporla"}
         </button>
       </div>
-      {error && <p className="ui-error">{error}</p>}
+      {error && <ErrorMessage message={error} />}
     </form>
   );
 }

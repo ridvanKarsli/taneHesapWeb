@@ -1,3 +1,4 @@
+import { Banknote, Plus } from "lucide-react";
 import { useState } from "react";
 import { ingredientApi, supplierApi } from "../../api/moduleApis";
 import { AsyncState } from "../../components/ui/AsyncState";
@@ -44,6 +45,7 @@ export function SupplierPurchasesPanel({ supplierId, onChanged }: SupplierPurcha
         ]}
         initialValues={{ ingredientId: "", quantity: "", unitPrice: "", purchaseDate: todayIso() }}
         submitLabel="Alış ekle"
+        submitIcon={Plus}
         resetOnSuccess
         onSubmit={async (values) => {
           const created = await supplierApi.addPurchase(supplierId, {
@@ -83,6 +85,7 @@ export function SupplierPurchasesPanel({ supplierId, onChanged }: SupplierPurcha
             rowActions={(row) =>
               row.isFullyPaid ? null : (
                 <button type="button" className="ui-button small" onClick={() => setPaying(row)}>
+                  <Banknote size={14} aria-hidden="true" />
                   Ödeme yap
                 </button>
               )

@@ -1,3 +1,4 @@
+import { Smartphone, X } from "lucide-react";
 import { useState } from "react";
 import { isIosSafari, useInstallPrompt } from "./useInstallPrompt";
 import "./InstallPromptBanner.css";
@@ -44,8 +45,8 @@ export function InstallPromptBanner() {
 
   return (
     <div className="install-banner" role="status">
-      <span className="install-banner-icon" aria-hidden="true">
-        📲
+      <span className="brand-mark install-banner-icon" aria-hidden="true">
+        <Smartphone size={20} />
       </span>
       <div className="install-banner-text">
         <strong>taneHesap&apos;ı ana ekranına ekle</strong>
@@ -62,7 +63,7 @@ export function InstallPromptBanner() {
           </button>
         )}
         <button type="button" className="install-banner-dismiss" onClick={handleDismiss} aria-label="Kapat">
-          ✕
+          <X size={18} />
         </button>
       </div>
     </div>

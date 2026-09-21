@@ -1,17 +1,28 @@
+import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
+import type { NavTone } from "../../config/navigation";
 import "./ui.css";
 
 interface StatTileProps {
   label: string;
   value: string;
   tone?: "positive" | "negative";
+  icon?: LucideIcon;
+  iconTone?: NavTone;
 }
 
-export function StatTile({ label, value, tone }: StatTileProps) {
+export function StatTile({ label, value, tone, icon: Icon, iconTone = "saffron" }: StatTileProps) {
   return (
     <div className="ui-stat-tile">
-      <span>{label}</span>
-      <strong className={tone}>{value}</strong>
+      {Icon && (
+        <span className={`tone-badge tone-${iconTone}`} aria-hidden="true">
+          <Icon size={20} strokeWidth={1.9} />
+        </span>
+      )}
+      <div className="ui-stat-tile-body">
+        <span>{label}</span>
+        <strong className={tone}>{value}</strong>
+      </div>
     </div>
   );
 }

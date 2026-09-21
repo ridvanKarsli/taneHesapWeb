@@ -1,3 +1,4 @@
+import { Carrot, Coins, ListChecks, Plus, ReceiptText, Soup } from "lucide-react";
 import { useState } from "react";
 import { dailySalesApi, dishApi, platformApi } from "../../api/moduleApis";
 import { AsyncState } from "../../components/ui/AsyncState";
@@ -28,19 +29,18 @@ export function DailySalesPage() {
   return (
     <div>
       <PageHeader
-        icon="🧾"
         title="Gün Sonu Satışları"
         description="Günün siparişlerini girin. Aynı satırları tekrar gönderirseniz iki kez sayılır. Paket servis komisyonları otomatik gider olarak işlenir."
         actions={<DateFilter id="sales-date" label="Tarih" value={date} onChange={setDate} />}
       />
 
       <StatGrid>
-        <StatTile label="Beklenen gelir" value={summary.data ? formatMoney(summary.data.expectedRevenue) : "…"} />
-        <StatTile label="Satış satırı" value={String(entries.data?.length ?? 0)} />
-        <StatTile label="Satılan adet" value={String((entries.data ?? []).reduce((sum, e) => sum + e.quantity, 0))} />
+        <StatTile icon={Coins} label="Beklenen gelir" value={summary.data ? formatMoney(summary.data.expectedRevenue) : "…"} />
+        <StatTile icon={ReceiptText} iconTone="blue" label="Satış satırı" value={String(entries.data?.length ?? 0)} />
+        <StatTile icon={Soup} iconTone="green" label="Satılan adet" value={String((entries.data ?? []).reduce((sum, e) => sum + e.quantity, 0))} />
       </StatGrid>
 
-      <Section title={`${formatDate(date)} — satış girişi`}>
+      <Section title={`${formatDate(date)} — satış girişi`} icon={Plus}>
         <AsyncState data={dishes.data && platforms.data ? { dishes: dishes.data, platforms: platforms.data } : null} error={dishes.error ?? platforms.error} isLoading={dishes.isLoading || platforms.isLoading}>
           {(catalog) => (
             <SalesEntryForm
@@ -56,7 +56,7 @@ export function DailySalesPage() {
           )}
         </AsyncState>
         {lastResult && (
-          <div className={lastResult.errorCount > 0 ? "ui-error" : "ui-muted"}>
+          <div className={lastResult.errorCount > 0 ? "ui-error" : "ui-success"} style={{ display: "block", marginTop: "0.9rem" }}>
             {lastResult.successCount} satır kaydedildi{lastResult.errorCount > 0 && `, ${lastResult.errorCount} satır hatalı:`}
             {lastResult.errors.map((message) => (
               <div key={message}>{message}</div>
@@ -66,7 +66,7 @@ export function DailySalesPage() {
       </Section>
 
       <div className="ui-two-columns">
-        <Section title="Girilen satışlar">
+        <Section title="Girilen satışlar" icon={ListChecks}>
           <AsyncState {...entries} isEmpty={(rows) => rows.length === 0} emptyText="Bu tarih için satış girilmemiş.">
             {(rows) => (
               <DataTable
@@ -84,7 +84,7 @@ export function DailySalesPage() {
           </AsyncState>
         </Section>
 
-        <Section title="Beklenen malzeme tüketimi">
+        <Section title="Beklenen malzeme tüketimi" icon={Carrot}>
           <AsyncState {...summary} isEmpty={(s) => s.expectedConsumption.length === 0} emptyText="Satış girildikçe reçeteye göre hesaplanır.">
             {(s) => (
               <DataTable

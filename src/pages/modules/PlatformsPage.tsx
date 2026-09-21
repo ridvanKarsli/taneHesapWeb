@@ -19,7 +19,6 @@ function toRequest(values: FormValues) {
 export function PlatformsPage() {
   return (
     <CrudPage<PlatformDto>
-      icon="🛵"
       title="Paket Servis Platformları"
       description="Gün sonu satışlarında bu platformlardan gelen siparişlerin komisyonu otomatik olarak gider kaydına dönüşür."
       load={platformApi.getAll}

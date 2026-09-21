@@ -1,3 +1,4 @@
+import { ListChecks, Pencil, Plus, UtensilsCrossed } from "lucide-react";
 import { useState } from "react";
 import { dishApi, ingredientApi } from "../../api/moduleApis";
 import { AsyncState } from "../../components/ui/AsyncState";
@@ -31,12 +32,11 @@ export function DishesPage() {
   return (
     <div>
       <PageHeader
-        icon="🍚"
         title="Ürünler / Tabaklar"
         description="Her ürünün boylarını ve reçetesini tanımlayın; maliyet ve kâr güncel malzeme fiyatlarından hesaplanır."
       />
 
-      <Section title="Yeni ürün">
+      <Section title="Yeni ürün" icon={Plus}>
         <EntityForm
           layout="inline"
           fields={[
@@ -45,6 +45,7 @@ export function DishesPage() {
           ]}
           initialValues={{ name: "", description: "" }}
           submitLabel="Ürün ekle"
+          submitIcon={Plus}
           resetOnSuccess
           onSubmit={async (values) => {
             const created = await dishApi.create({
@@ -62,9 +63,11 @@ export function DishesPage() {
             <Section
               key={dish.id}
               title={dish.name}
+              icon={UtensilsCrossed}
               actions={
                 <button type="button" className="ui-button small" onClick={() => setSizeDialog({ dish })}>
-                  + Boy ekle
+                  <Plus size={14} aria-hidden="true" />
+                  Boy ekle
                 </button>
               }
             >
@@ -91,9 +94,11 @@ export function DishesPage() {
                   rowActions={(size) => (
                     <>
                       <button type="button" className="ui-button secondary small" onClick={() => setOpenRecipeId((id) => (id === size.id ? null : size.id))}>
+                        <ListChecks size={14} aria-hidden="true" />
                         Reçete
                       </button>
                       <button type="button" className="ui-button secondary small" onClick={() => setSizeDialog({ dish, size })}>
+                        <Pencil size={14} aria-hidden="true" />
                         Düzenle
                       </button>
                     </>

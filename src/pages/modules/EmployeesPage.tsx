@@ -8,7 +8,6 @@ import type { EmployeeDto } from "../../types/employee";
 export function EmployeesPage() {
   return (
     <CrudPage<EmployeeDto>
-      icon="🧑‍🍳"
       title="Çalışanlar"
       description="Çalışanlar bu kullanıcı adı/şifre ile giriş yapıp sadece gider girebilir."
       load={employeeApi.getAll}

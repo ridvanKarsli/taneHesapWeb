@@ -1,3 +1,4 @@
+import { ClipboardCheck, Coins, Scale, Target, TrendingDown, TrendingUp, TriangleAlert } from "lucide-react";
 import { useState } from "react";
 import { dailyClosingApi, dailySalesApi, ingredientApi } from "../../api/moduleApis";
 import { AsyncState } from "../../components/ui/AsyncState";
@@ -57,7 +58,6 @@ export function DailyClosingPage() {
   return (
     <div>
       <PageHeader
-        icon="🌙"
         title="Gün Sonu Kapanışı"
         description="Önce o günün satışlarını girin. Sonra kasadaki gerçek geliri ve sayıma göre gerçek tüketimi girip kapatın — sistem farkı raporlar."
         actions={<DateFilter id="closing-date" label="Tarih" value={date} onChange={setDate} />}
@@ -70,7 +70,7 @@ export function DailyClosingPage() {
       >
         {(data) => (
           <>
-            <Section title={`${formatDate(date)} — gerçekleşen değerler${data.entry ? " (kaydedildi, güncelleyebilirsiniz)" : ""}`}>
+            <Section title={`${formatDate(date)} — gerçekleşen değerler${data.entry ? " (kaydedildi, güncelleyebilirsiniz)" : ""}`} icon={ClipboardCheck}>
               <p className="ui-muted">Sistemin beklediği gelir: {formatMoney(data.expected.expectedRevenue)}</p>
               <ActualEntryForm
                 key={`${date}-${data.entry?.id ?? "new"}`}
@@ -98,16 +98,20 @@ function LossReport({ report }: { report: DailyLossReportDto }) {
   const totalVarianceCost = report.items.reduce((sum, item) => sum + item.varianceCost, 0);
 
   return (
-    <Section title="Fire / kayıp raporu">
+    <Section title="Fire / kayıp raporu" icon={TriangleAlert}>
       <StatGrid>
-        <StatTile label="Beklenen gelir" value={formatMoney(report.expectedRevenue)} />
-        <StatTile label="Gerçekleşen gelir" value={formatMoney(report.actualRevenue)} />
+        <StatTile icon={Target} iconTone="slate" label="Beklenen gelir" value={formatMoney(report.expectedRevenue)} />
+        <StatTile icon={Coins} label="Gerçekleşen gelir" value={formatMoney(report.actualRevenue)} />
         <StatTile
+          icon={report.revenueVarianceAmount < 0 ? TrendingDown : TrendingUp}
+          iconTone={report.revenueVarianceAmount < 0 ? "rose" : "green"}
           label="Gelir farkı"
           value={formatMoney(report.revenueVarianceAmount)}
           tone={report.revenueVarianceAmount < 0 ? "negative" : "positive"}
         />
         <StatTile
+          icon={Scale}
+          iconTone="amber"
           label="Malzeme fark maliyeti"
           value={formatMoney(totalVarianceCost)}
           tone={totalVarianceCost > 0 ? "negative" : "positive"}

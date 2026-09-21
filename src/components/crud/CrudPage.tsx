@@ -1,3 +1,4 @@
+import { Pencil, Plus } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { useAsyncData } from "../../hooks/useAsyncData";
 import { AsyncState } from "../ui/AsyncState";
@@ -14,7 +15,6 @@ export interface CrudRowHelpers<T> {
 }
 
 interface CrudPageProps<T extends { id: string }> {
-  icon: string;
   title: string;
   description?: string;
   load: () => Promise<T[]>;
@@ -61,6 +61,7 @@ export function CrudPage<T extends { id: string }>(props: CrudPageProps<T>) {
         {props.rowActions?.(row, helpers)}
         {canEdit && (
           <button type="button" className="ui-button secondary small" onClick={() => setEditing(row)}>
+            <Pencil size={14} aria-hidden="true" />
             Düzenle
           </button>
         )}
@@ -70,17 +71,18 @@ export function CrudPage<T extends { id: string }>(props: CrudPageProps<T>) {
 
   return (
     <div>
-      <PageHeader icon={props.icon} title={props.title} description={props.description} />
+      <PageHeader title={props.title} description={props.description} />
 
       {props.summary}
 
       {props.createFields && props.onCreate && (
-        <Section title={props.createTitle ?? "Yeni kayıt"}>
+        <Section title={props.createTitle ?? "Yeni kayıt"} icon={Plus}>
           <EntityForm
             layout="inline"
             fields={props.createFields}
             initialValues={props.createInitialValues ?? {}}
             submitLabel="Ekle"
+            submitIcon={Plus}
             resetOnSuccess
             onSubmit={async (values) => {
               const created = await props.onCreate!(values);

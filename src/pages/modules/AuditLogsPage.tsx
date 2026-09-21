@@ -1,3 +1,4 @@
+import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { auditLogApi } from "../../api/moduleApis";
 import { AsyncState } from "../../components/ui/AsyncState";
@@ -69,7 +70,6 @@ export function AuditLogsPage() {
   return (
     <div>
       <PageHeader
-        icon="🛡️"
         title="Denetim Kayıtları"
         description="Sistemdeki her kayıt değişikliği otomatik loglanır; kayıtlar değiştirilemez."
         actions={
@@ -109,6 +109,7 @@ export function AuditLogsPage() {
               ]}
               rowActions={(row) => (
                 <button type="button" className="ui-button secondary small" onClick={() => setOpenId((id) => (id === row.id ? null : row.id))}>
+                  {openId === row.id ? <EyeOff size={14} aria-hidden="true" /> : <Eye size={14} aria-hidden="true" />}
                   {openId === row.id ? "Gizle" : "Detay"}
                 </button>
               )}

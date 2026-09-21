@@ -33,7 +33,6 @@ function isBelowThreshold(row: IngredientDto): boolean {
 export function IngredientsPage() {
   return (
     <CrudPage<IngredientDto>
-      icon="🥕"
       title="Malzemeler"
       description="Tabak maliyetleri bu birim fiyatlardan hesaplanır. Eşiğin altına düşen malzemeler vurgulanır ve bildirim üretir."
       load={ingredientApi.getAll}

@@ -1,3 +1,4 @@
+import { Hash, ListChecks, Plus, Wallet } from "lucide-react";
 import { useState } from "react";
 import { expenseApi, expenseTypeApi } from "../../api/moduleApis";
 import { AsyncState } from "../../components/ui/AsyncState";
@@ -28,9 +29,9 @@ export function ExpensesPage() {
 
   return (
     <div>
-      <PageHeader icon="💸" title="Giderler" description="Gider türünü seçip tutarı girin; her kayıt denetim kaydına işlenir." />
+      <PageHeader title="Giderler" description="Gider türünü seçip tutarı girin; her kayıt denetim kaydına işlenir." />
 
-      <Section title="Yeni gider">
+      <Section title="Yeni gider" icon={Plus}>
         {expenseTypes.data && activeTypes.length === 0 ? (
           <p className="ui-muted">Önce işletme sahibinin "Gider Türleri" sayfasından en az bir gider türü tanımlaması gerekiyor.</p>
         ) : (
@@ -46,6 +47,7 @@ export function ExpensesPage() {
             ]}
             initialValues={{ expenseTypeId: "", amount: "", quantity: "", expenseDate: todayIso(), paymentMethod: "0", description: "" }}
             submitLabel="Gider ekle"
+            submitIcon={Plus}
             resetOnSuccess
             onSubmit={async (values) => {
               await expenseApi.create({
@@ -64,6 +66,7 @@ export function ExpensesPage() {
 
       <Section
         title="Gider listesi"
+        icon={ListChecks}
         actions={
           <div className="ui-toolbar">
             <div className="ui-filter">
@@ -89,8 +92,8 @@ export function ExpensesPage() {
         }
       >
         <StatGrid>
-          <StatTile label="Seçili aralıkta toplam" value={formatMoney(total)} />
-          <StatTile label="Kayıt sayısı" value={String(expenses.data?.length ?? 0)} />
+          <StatTile icon={Wallet} iconTone="rose" label="Seçili aralıkta toplam" value={formatMoney(total)} />
+          <StatTile icon={Hash} iconTone="slate" label="Kayıt sayısı" value={String(expenses.data?.length ?? 0)} />
         </StatGrid>
         <AsyncState {...expenses} isEmpty={(rows) => rows.length === 0} emptyText="Bu aralıkta gider yok.">
           {(rows) => (

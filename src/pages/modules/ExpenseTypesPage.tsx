@@ -24,7 +24,6 @@ function toRequest(values: FormValues) {
 export function ExpenseTypesPage() {
   return (
     <CrudPage<ExpenseTypeDto>
-      icon="🗂️"
       title="Gider Türleri"
       description="Giderler bu türlere göre girilir. Çalışanlar sadece aktif türleri seçebilir."
       load={expenseTypeApi.getAll}

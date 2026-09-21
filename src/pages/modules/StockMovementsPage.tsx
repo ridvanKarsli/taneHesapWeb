@@ -1,3 +1,4 @@
+import { History, Plus } from "lucide-react";
 import { useState } from "react";
 import { ingredientApi, stockMovementApi } from "../../api/moduleApis";
 import { AsyncState } from "../../components/ui/AsyncState";
@@ -33,12 +34,11 @@ export function StockMovementsPage() {
   return (
     <div>
       <PageHeader
-        icon="📦"
         title="Stok Hareketleri"
         description="Alışlar tedarikçi modülünden, satış tüketimi gün sonu kapanışından otomatik gelir. Burada sayım düzeltmesi ve fire girilir."
       />
 
-      <Section title="Manuel stok hareketi">
+      <Section title="Manuel stok hareketi" icon={Plus}>
         <EntityForm
           layout="inline"
           fields={[
@@ -65,6 +65,7 @@ export function StockMovementsPage() {
 
       <Section
         title="Hareket geçmişi"
+        icon={History}
         actions={
           <div className="ui-filter">
             <label htmlFor="stock-ingredient">Malzeme</label>

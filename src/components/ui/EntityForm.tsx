@@ -1,5 +1,7 @@
+import type { LucideIcon } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { extractErrorMessage } from "../../api/apiError";
+import { ErrorMessage } from "./AsyncState";
 import type { FormValues } from "./formValues";
 import "./ui.css";
 
@@ -20,6 +22,7 @@ interface EntityFormProps {
   initialValues: FormValues;
   onSubmit: (values: FormValues) => Promise<void>;
   submitLabel: string;
+  submitIcon?: LucideIcon;
   onCancel?: () => void;
   /** Başarılı gönderimden sonra formu başlangıç değerlerine döndür (oluşturma formları için). */
   resetOnSuccess?: boolean;
@@ -36,6 +39,7 @@ export function EntityForm({
   initialValues,
   onSubmit,
   submitLabel,
+  submitIcon: SubmitIcon,
   onCancel,
   resetOnSuccess,
   layout = "stacked",
@@ -71,6 +75,7 @@ export function EntityForm({
       ))}
       <div className="ui-form-actions">
         <button type="submit" className="ui-button" disabled={isSubmitting}>
+          {SubmitIcon && <SubmitIcon size={17} aria-hidden="true" />}
           {isSubmitting ? "Kaydediliyor…" : submitLabel}
         </button>
         {onCancel && (
@@ -79,7 +84,11 @@ export function EntityForm({
           </button>
         )}
       </div>
-      {error && <p className="ui-error ui-form-error">{error}</p>}
+      {error && (
+        <div className="ui-form-error">
+          <ErrorMessage message={error} />
+        </div>
+      )}
     </form>
   );
 }

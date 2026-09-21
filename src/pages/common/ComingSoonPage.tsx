@@ -1,22 +1,21 @@
+import type { NavItem } from "../../config/navigation";
+
 interface ComingSoonPageProps {
-  title: string;
-  icon: string;
+  item: NavItem;
 }
 
 /**
- * `config/navigation.ts`'teki modüllerden henüz sayfası yazılmamış olanlar için tek, paylaşılan
- * yer tutucu. Her modül için neredeyse aynı olan 10+ ayrı bileşen yazmak yerine (bloat/tekrar),
- * gezinme yapısı burada tek noktadan sağlanır; gerçek sayfa yazıldığında sadece ilgili route
- * `AppRoutes.tsx`'te bu bileşenden gerçek sayfaya değiştirilir.
+ * `routes/AppRoutes.tsx`'teki `PAGE_COMPONENTS` eşlemesinde karşılığı olmayan (yeni eklenmiş) bir
+ * modül için güvenli varsayılan yer tutucu.
  */
-export function ComingSoonPage({ title, icon }: ComingSoonPageProps) {
+export function ComingSoonPage({ item }: ComingSoonPageProps) {
   return (
     <div className="coming-soon-page">
-      <span className="coming-soon-page-icon" aria-hidden="true">
-        {icon}
+      <span className={`tone-badge tone-${item.tone}`} aria-hidden="true">
+        <item.icon size={26} />
       </span>
-      <h1>{title}</h1>
-      <p>Bu modülün arayüzü henüz eklenmedi. Backend API'si hazır (bkz. proje raporu bölüm 10).</p>
+      <h1>{item.label}</h1>
+      <p>Bu modülün arayüzü henüz eklenmedi.</p>
     </div>
   );
 }

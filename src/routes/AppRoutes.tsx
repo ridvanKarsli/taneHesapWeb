@@ -77,7 +77,7 @@ export function AppRoutes() {
               >
                 <Route
                   index
-                  element={PageComponent ? <PageComponent /> : <ComingSoonPage title={item.label} icon={item.icon} />}
+                  element={PageComponent ? <PageComponent /> : <ComingSoonPage item={item} />}
                 />
               </Route>
             );

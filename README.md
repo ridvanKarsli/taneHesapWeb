@@ -35,18 +35,19 @@ geri bağımlı değil. Yeni bir modül eklemek için:
 
 ## Tasarım sistemi ("tatlı ve kurumsal")
 
-Tüm renk/radius/gölge değerleri `src/index.css`'te CSS custom property olarak tek noktada
-tanımlı (`--color-*`, `--radius-*`, `--shadow-*`); bileşenler bu token'lara `var(--...)` ile
-başvurur, doğrudan hex/px değeri yazmaz. Bu sayede marka rengi veya köşe yuvarlaklığı gibi bir
-karar değişirse tek değişiklik noktası `index.css` olur (SOLID: Open/Closed — bileşenleri
-değiştirmeden temayı genişletmek/değiştirmek mümkün).
+Tüm renk/radius/gölge değerleri `src/index.css`'te CSS custom property olarak tek noktada tanımlı
+(`--color-*`, `--tone-*`, `--radius-*`, `--shadow-*`); bileşenler bu token'lara `var(--...)` ile
+başvurur, doğrudan hex/px yazmaz — tema tek dosyadan değişir (Open/Closed).
 
-- Palet: sıcak safran/pilav tonları (Meydan Pilavcısı temasına uygun), kurumsal his için
-  ölçülü kontrast ve tutarlı köşe yuvarlaklığı/gölge ölçeği.
-- Yazı tipi: Google Fonts üzerinden "Plus Jakarta Sans" (bkz. `index.html`).
-- Her modülün kenar çubuğunda ve panel kısayol kartlarında aynı emoji ikon kullanılır
-  (`config/navigation.ts` → `icon` alanı, tek kaynak — `AppLayout` ve `DashboardPage` aynı
-  listeyi okur).
+- Palet: sıcak safran/pilav tonları + sakin kurumsal nötrler; her modülün kendi renk tonu var
+  (`NavItem.tone` → `.tone-*` rozetleri).
+- İkonlar: emoji yerine `lucide-react` SVG ikonları. Her modülün ikonu, rengi, adı ve açıklaması
+  `config/navigation.ts`'te tek yerde; kenar çubuğu, sayfa başlığı (`PageHeader` mevcut rotadan
+  otomatik okur) ve panel kartları aynı kaynağı kullanır.
+- Yazı tipi: Google Fonts "Plus Jakarta Sans" (bkz. `index.html`).
+- Mobil uyum: ≤ 960px'te kenar çubuğu hamburger ile açılan çekmeceye dönüşür; ≤ 720px'te tablolar
+  "başlık — değer" kartlarına (hücrelerdeki `data-label` ile), diyaloglar alttan açılan sayfaya,
+  formlar tek sütuna döner. Hiçbir sayfada yatay kaydırma yoktur (390px'te test edildi).
 
 ## PWA — "Ana ekrana ekle"
 

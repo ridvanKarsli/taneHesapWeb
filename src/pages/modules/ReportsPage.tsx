@@ -1,3 +1,4 @@
+import { Banknote, Bike, Coins, CreditCard, PieChart, Store, TrendingDown, TrendingUp, TriangleAlert, Wallet } from "lucide-react";
 import { useState } from "react";
 import { dailyClosingApi, reportApi } from "../../api/moduleApis";
 import { AsyncState } from "../../components/ui/AsyncState";
@@ -34,20 +35,21 @@ export function ReportsPage() {
   return (
     <div>
       <PageHeader
-        icon="📊"
         title="Raporlar"
         actions={
           <>
-            {PRESETS.map((preset) => (
-              <button
-                key={preset.label}
-                type="button"
-                className={`ui-button small ${preset.range.fromDate === range.fromDate && preset.range.toDate === range.toDate ? "" : "secondary"}`}
-                onClick={() => setRange(preset.range)}
-              >
-                {preset.label}
-              </button>
-            ))}
+            <div className="ui-chip-group" role="group" aria-label="Hazır aralıklar">
+              {PRESETS.map((preset) => (
+                <button
+                  key={preset.label}
+                  type="button"
+                  className={`ui-button small ${preset.range.fromDate === range.fromDate && preset.range.toDate === range.toDate ? "" : "ghost"}`}
+                  onClick={() => setRange(preset.range)}
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
             <DateFilter id="report-from" label="Başlangıç" value={range.fromDate} onChange={(fromDate) => setRange((r) => ({ ...r, fromDate }))} />
             <DateFilter id="report-to" label="Bitiş" value={range.toDate} onChange={(toDate) => setRange((r) => ({ ...r, toDate }))} />
           </>
@@ -58,17 +60,23 @@ export function ReportsPage() {
         {(data) => (
           <>
             <StatGrid>
-              <StatTile label="Toplam gelir" value={formatMoney(data.totalRevenue)} />
-              <StatTile label="Toplam gider" value={formatMoney(data.totalExpense)} />
-              <StatTile label="Net kâr" value={formatMoney(data.netProfit)} tone={data.netProfit < 0 ? "negative" : "positive"} />
-              <StatTile label="Nakit gelir" value={formatMoney(data.cashRevenue)} />
-              <StatTile label="Kart gelir" value={formatMoney(data.cardRevenue)} />
-              <StatTile label="Dükkan içi" value={formatMoney(data.inStoreRevenue)} />
-              <StatTile label="Paket servis" value={formatMoney(data.platformRevenue)} />
+              <StatTile icon={Coins} label="Toplam gelir" value={formatMoney(data.totalRevenue)} />
+              <StatTile icon={Wallet} iconTone="rose" label="Toplam gider" value={formatMoney(data.totalExpense)} />
+              <StatTile
+                icon={data.netProfit < 0 ? TrendingDown : TrendingUp}
+                iconTone={data.netProfit < 0 ? "rose" : "green"}
+                label="Net kâr"
+                value={formatMoney(data.netProfit)}
+                tone={data.netProfit < 0 ? "negative" : "positive"}
+              />
+              <StatTile icon={Banknote} iconTone="green" label="Nakit gelir" value={formatMoney(data.cashRevenue)} />
+              <StatTile icon={CreditCard} iconTone="blue" label="Kart gelir" value={formatMoney(data.cardRevenue)} />
+              <StatTile icon={Store} iconTone="amber" label="Dükkan içi" value={formatMoney(data.inStoreRevenue)} />
+              <StatTile icon={Bike} iconTone="violet" label="Paket servis" value={formatMoney(data.platformRevenue)} />
             </StatGrid>
 
             <div className="ui-two-columns">
-              <Section title="Gider kategorileri">
+              <Section title="Gider kategorileri" icon={PieChart}>
                 {data.expenseByCategory.length === 0 ? (
                   <p className="ui-muted">Bu aralıkta gider yok.</p>
                 ) : (
@@ -83,7 +91,7 @@ export function ReportsPage() {
                 )}
               </Section>
 
-              <Section title="Platform gelirleri">
+              <Section title="Platform gelirleri" icon={Bike}>
                 {data.revenueByPlatform.length === 0 ? (
                   <p className="ui-muted">Bu aralıkta paket servis satışı yok.</p>
                 ) : (
@@ -104,7 +112,7 @@ export function ReportsPage() {
         )}
       </AsyncState>
 
-      <Section title="Günlük fire / kayıp özetleri">
+      <Section title="Günlük fire / kayıp özetleri" icon={TriangleAlert}>
         <AsyncState {...lossReports} isEmpty={(rows) => rows.length === 0} emptyText="Bu aralıkta gün sonu kapanışı yapılmamış.">
           {(rows) => (
             <DataTable

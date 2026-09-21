@@ -1,3 +1,4 @@
+import { ArrowRight, BellRing, TriangleAlert } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ingredientApi, recurringExpenseApi } from "../../api/moduleApis";
 import { Section } from "../../components/ui/Section";
@@ -9,17 +10,17 @@ export function AdminAlerts() {
   const lowStock = useAsyncData(ingredientApi.getBelowThreshold);
   const dueExpenses = useAsyncData(recurringExpenseApi.getDueForReminder);
 
-  const hasLowStock = (lowStock.data?.length ?? 0) > 0;
-  const hasDue = (dueExpenses.data?.length ?? 0) > 0;
-  if (!hasLowStock && !hasDue) {
+  const lowStockItems = lowStock.data ?? [];
+  const dueItems = dueExpenses.data ?? [];
+  if (lowStockItems.length === 0 && dueItems.length === 0) {
     return null;
   }
 
   return (
-    <div className="ui-two-columns dashboard-alerts">
-      {hasLowStock && (
-        <Section title="⚠️ Stoğu azalan malzemeler" actions={<Link to="/malzemeler">Malzemeler →</Link>}>
-          {lowStock.data!.map((i) => (
+    <div className="ui-two-columns">
+      {lowStockItems.length > 0 && (
+        <Section title="Stoğu azalan malzemeler" icon={TriangleAlert} actions={<AlertLink to="/malzemeler" />}>
+          {lowStockItems.map((i) => (
             <p key={i.id} className="dashboard-alert-row">
               <strong>{i.name}</strong>
               <span>
@@ -29,9 +30,9 @@ export function AdminAlerts() {
           ))}
         </Section>
       )}
-      {hasDue && (
-        <Section title="🔔 Ödenmemiş düzenli giderler" actions={<Link to="/duzenli-giderler">Düzenli Giderler →</Link>}>
-          {dueExpenses.data!.map((e) => (
+      {dueItems.length > 0 && (
+        <Section title="Ödenmemiş düzenli giderler" icon={BellRing} actions={<AlertLink to="/duzenli-giderler" />}>
+          {dueItems.map((e) => (
             <p key={e.id} className="dashboard-alert-row">
               <strong>{e.name}</strong>
               <span>
@@ -42,5 +43,13 @@ export function AdminAlerts() {
         </Section>
       )}
     </div>
+  );
+}
+
+function AlertLink({ to }: { to: string }) {
+  return (
+    <Link to={to} className="dashboard-alert-link">
+      Görüntüle <ArrowRight size={15} aria-hidden="true" />
+    </Link>
   );
 }

@@ -1,5 +1,7 @@
+import { Check, Plus, Trash2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { extractErrorMessage } from "../../api/apiError";
+import { ErrorMessage } from "../../components/ui/AsyncState";
 import type { ImportRowRequest } from "../../types/dailySales";
 import type { DishDto } from "../../types/dish";
 import { PAYMENT_METHOD_LABELS, PaymentMethod, SALES_CHANNEL_LABELS, SalesChannel } from "../../types/enums";
@@ -128,8 +130,8 @@ export function SalesEntryForm({ date, dishes, platforms, onSubmit }: SalesEntry
                 </option>
               ))}
             </select>
-            <input className="ui-input" type="number" min={1} step={1} value={row.quantity} onChange={(e) => updateRow(index, { quantity: e.target.value })} aria-label="Adet" />
-            <input className="ui-input" type="number" min={0} step="any" value={row.totalAmount} onChange={(e) => updateRow(index, { totalAmount: e.target.value })} aria-label="Tutar" />
+            <input className="ui-input" type="number" min={1} step={1} value={row.quantity} onChange={(e) => updateRow(index, { quantity: e.target.value })} aria-label="Adet" placeholder="Adet" />
+            <input className="ui-input" type="number" min={0} step="any" value={row.totalAmount} onChange={(e) => updateRow(index, { totalAmount: e.target.value })} aria-label="Tutar" placeholder="Tutar ₺" />
             <select className="ui-input" value={row.paymentMethod} onChange={(e) => updateRow(index, { paymentMethod: e.target.value })} aria-label="Ödeme şekli">
               {Object.entries(PAYMENT_METHOD_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>
@@ -159,22 +161,24 @@ export function SalesEntryForm({ date, dishes, platforms, onSubmit }: SalesEntry
                 </option>
               ))}
             </select>
-            <input className="ui-input" type="number" min={0} step="any" value={row.discountAmount} onChange={(e) => updateRow(index, { discountAmount: e.target.value })} aria-label="İndirim" placeholder="0" />
-            <button type="button" className="ui-button ghost" onClick={() => setRows((c) => c.filter((_, i) => i !== index))} aria-label="Satırı sil">
-              ✕
+            <input className="ui-input" type="number" min={0} step="any" value={row.discountAmount} onChange={(e) => updateRow(index, { discountAmount: e.target.value })} aria-label="İndirim" placeholder="İndirim" />
+            <button type="button" className="ui-button danger-ghost" onClick={() => setRows((c) => c.filter((_, i) => i !== index))} aria-label="Satırı sil">
+              <Trash2 size={17} />
             </button>
           </div>
         );
       })}
       <div className="ui-form-actions">
         <button type="button" className="ui-button secondary small" onClick={() => setRows((c) => [...c, { ...emptyRow }])}>
-          + Satır ekle
+          <Plus size={15} aria-hidden="true" />
+          Satır ekle
         </button>
         <button type="submit" className="ui-button" disabled={isSubmitting}>
+          <Check size={17} aria-hidden="true" />
           {isSubmitting ? "Gönderiliyor…" : "Satışları kaydet"}
         </button>
       </div>
-      {error && <p className="ui-error">{error}</p>}
+      {error && <ErrorMessage message={error} />}
     </form>
   );
 }

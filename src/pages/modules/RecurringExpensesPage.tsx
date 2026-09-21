@@ -1,3 +1,4 @@
+import { CircleCheck } from "lucide-react";
 import { useState } from "react";
 import { recurringExpenseApi } from "../../api/moduleApis";
 import { CrudPage } from "../../components/crud/CrudPage";
@@ -30,7 +31,6 @@ export function RecurringExpensesPage() {
   return (
     <>
       <CrudPage<RecurringExpenseDto>
-        icon="🔁"
         title="Düzenli Giderler"
         description="Sistem her gider için güncel dönemi hesaplar; dönem ödenmeden biterse bildirim gelir."
         load={recurringExpenseApi.getAll}
@@ -54,6 +54,7 @@ export function RecurringExpensesPage() {
         rowActions={(row, helpers) =>
           row.isCurrentPeriodPaid || !row.isActive ? null : (
             <button type="button" className="ui-button small" onClick={() => setPaying({ row, onPaid: helpers.replaceRow })}>
+              <CircleCheck size={14} aria-hidden="true" />
               Ödendi işaretle
             </button>
           )

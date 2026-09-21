@@ -10,10 +10,10 @@
   max-width: 420px;
   margin: 0 auto;
   padding: 0.85rem 1rem;
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  box-shadow: 0 12px 32px rgba(43, 35, 32, 0.16);
+  box-shadow: var(--shadow-lg);
   animation: install-banner-rise 0.35s ease;
 }
 
@@ -29,9 +29,8 @@
 }
 
 .install-banner-icon {
-  font-size: 1.6rem;
-  line-height: 1;
-  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
 }
 
 .install-banner-text {
@@ -71,11 +70,15 @@
 }
 
 .install-banner-dismiss {
+  display: inline-flex;
   border: none;
   background: transparent;
   color: var(--color-text-muted);
-  font-size: 0.9rem;
   cursor: pointer;
-  padding: 0.3rem;
-  line-height: 1;
+  padding: 0.35rem;
+  border-radius: 8px;
+}
+
+.install-banner-dismiss:hover {
+  background: var(--color-surface-alt);
 }

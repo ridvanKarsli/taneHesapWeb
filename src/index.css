@@ -1,38 +1,67 @@
+/*
+ * Tasarım token'ları — tek tema kaynağı. Bileşenler renk/gölge/radius değerlerine doğrudan değil
+ * bu değişkenlere başvurur; marka veya köşe yuvarlaklığı değişirse tek değişiklik noktası burasıdır.
+ * Palet: sıcak safran/pilav tonları (Meydan Pilavcısı) + sakin, kurumsal nötrler.
+ */
 :root {
-  /* Sıcak, misafirperver ama düzenli/kurumsal bir palet — Meydan Pilavcısı temasına (safran/
-     pilav tonları) göre seçildi. Bileşenler renklere doğrudan değil bu token'lara başvurur, böylece
-     marka rengi değişirse tek değişiklik noktası burasıdır. */
-  --color-bg: #fbf6ec;
+  --color-bg: #faf6f1;
   --color-surface: #ffffff;
-  --color-surface-alt: #fdf3e3;
-  --color-border: #ece0cb;
-  --color-text: #2b2320;
-  --color-text-muted: #8a7a68;
+  --color-surface-alt: #f7f1e9;
+  --color-surface-sunken: #f3ece2;
+  --color-border: #ede4d8;
+  --color-border-strong: #ddd0bf;
+  --color-text: #2a211c;
+  --color-text-muted: #7c6d61;
+  --color-text-subtle: #a3968a;
 
-  --color-primary: #b5651d;
-  --color-primary-dark: #7a4213;
-  --color-primary-soft: #f3ddb8;
-  --color-accent: #e8a33d;
-  --color-danger: #c0392b;
-  --color-danger-soft: #f6dedb;
-  --color-success: #3f7a3d;
+  --color-primary: #c8691f;
+  --color-primary-dark: #9c4f14;
+  --color-primary-soft: #fcecd9;
+  --color-primary-ring: rgba(200, 105, 31, 0.22);
+  --color-accent: #f0b64a;
 
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
+  --color-success: #2e8656;
+  --color-success-soft: #e2f3e8;
+  --color-danger: #c64336;
+  --color-danger-soft: #fbe6e3;
+  --color-warning: #a8700f;
+  --color-warning-soft: #fdf1d6;
+
+  /* Modül ikon tonları (arka plan / ön plan) */
+  --tone-saffron-bg: #fdebd6;
+  --tone-saffron-fg: #b85d16;
+  --tone-green-bg: #e1f3e6;
+  --tone-green-fg: #2e8656;
+  --tone-blue-bg: #e3edfb;
+  --tone-blue-fg: #2f63b5;
+  --tone-rose-bg: #fce4e6;
+  --tone-rose-fg: #c23d53;
+  --tone-violet-bg: #eee7fb;
+  --tone-violet-fg: #6a47b8;
+  --tone-teal-bg: #dff3f1;
+  --tone-teal-fg: #1f7f76;
+  --tone-amber-bg: #fdf1d4;
+  --tone-amber-fg: #a8700f;
+  --tone-slate-bg: #ebeef2;
+  --tone-slate-fg: #4b5563;
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
   --radius-pill: 999px;
 
-  --shadow-sm: 0 1px 2px rgba(43, 35, 32, 0.07);
-  --shadow-md: 0 8px 24px rgba(43, 35, 32, 0.1);
-  --shadow-lg: 0 20px 48px rgba(43, 35, 32, 0.16);
+  --shadow-xs: 0 1px 2px rgba(42, 33, 28, 0.05);
+  --shadow-sm: 0 1px 2px rgba(42, 33, 28, 0.04), 0 2px 8px rgba(42, 33, 28, 0.05);
+  --shadow-md: 0 4px 12px rgba(42, 33, 28, 0.06), 0 12px 32px rgba(42, 33, 28, 0.08);
+  --shadow-lg: 0 12px 28px rgba(42, 33, 28, 0.1), 0 32px 64px rgba(42, 33, 28, 0.14);
 
-  font-family:
-    "Plus Jakarta Sans",
-    "Segoe UI",
-    system-ui,
-    -apple-system,
-    sans-serif;
+  --sidebar-width: 264px;
+  --topbar-height: 68px;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  font-family: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
   color-scheme: light;
+  -webkit-tap-highlight-color: transparent;
 }
 
 * {
@@ -49,24 +78,76 @@ body {
   margin: 0;
   background: var(--color-bg);
   color: var(--color-text);
+  font-size: 15px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 h1,
 h2,
 h3 {
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
 }
 
-button {
+a {
+  color: var(--color-primary-dark);
+}
+
+button,
+input,
+select,
+textarea {
   font-family: inherit;
+  font-size: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-primary-ring);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--color-primary-soft);
+}
+
+/* Her modülün ikon rozeti — `NavItem.tone` ile renklenir. */
+.tone-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 12px;
+}
+
+.tone-saffron { background: var(--tone-saffron-bg); color: var(--tone-saffron-fg); }
+.tone-green { background: var(--tone-green-bg); color: var(--tone-green-fg); }
+.tone-blue { background: var(--tone-blue-bg); color: var(--tone-blue-fg); }
+.tone-rose { background: var(--tone-rose-bg); color: var(--tone-rose-fg); }
+.tone-violet { background: var(--tone-violet-bg); color: var(--tone-violet-fg); }
+.tone-teal { background: var(--tone-teal-bg); color: var(--tone-teal-fg); }
+.tone-amber { background: var(--tone-amber-bg); color: var(--tone-amber-fg); }
+.tone-slate { background: var(--tone-slate-bg); color: var(--tone-slate-fg); }
+
+/* Marka rozeti (logo) */
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 12px;
+  color: white;
+  background: linear-gradient(145deg, var(--color-accent), var(--color-primary) 70%);
+  box-shadow: 0 6px 14px rgba(200, 105, 31, 0.28);
 }
 
 .page-loading {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.6rem;
   height: 100vh;
   color: var(--color-text-muted);
 }
@@ -77,31 +158,32 @@ button {
   align-items: center;
   justify-content: center;
   background:
-    radial-gradient(circle at 15% 20%, rgba(232, 163, 61, 0.16), transparent 45%),
-    radial-gradient(circle at 85% 80%, rgba(181, 101, 29, 0.14), transparent 45%),
+    radial-gradient(circle at 12% 18%, rgba(240, 182, 74, 0.2), transparent 42%),
+    radial-gradient(circle at 88% 82%, rgba(200, 105, 31, 0.14), transparent 45%),
     var(--color-bg);
   padding: 1.5rem;
 }
 
 .not-found-page .coming-soon-page {
-  max-width: 380px;
+  max-width: 400px;
   box-shadow: var(--shadow-lg);
   border-style: solid;
 }
 
 .coming-soon-page {
-  padding: 2.5rem 2rem;
+  padding: 2.75rem 2rem;
   border-radius: var(--radius-lg);
   background: var(--color-surface);
-  border: 1px dashed var(--color-border);
+  border: 1px dashed var(--color-border-strong);
   color: var(--color-text-muted);
   text-align: center;
 }
 
-.coming-soon-page-icon {
-  font-size: 2.5rem;
-  display: block;
-  margin-bottom: 0.75rem;
+.coming-soon-page .tone-badge,
+.coming-soon-page .brand-mark {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 1rem;
 }
 
 .coming-soon-page h1 {
@@ -111,7 +193,6 @@ button {
 }
 
 .coming-soon-page p {
-  margin: 0;
+  margin: 0 auto;
   max-width: 420px;
-  margin-inline: auto;
 }

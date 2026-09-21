@@ -1,3 +1,4 @@
+import { X } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
 import "./ui.css";
 
@@ -25,7 +26,7 @@ export function Modal({ title, onClose, children }: ModalProps) {
         <div className="ui-modal-header">
           <h2>{title}</h2>
           <button type="button" className="ui-button ghost" onClick={onClose} aria-label="Kapat">
-            ✕
+            <X size={20} />
           </button>
         </div>
         {children}
