@@ -28,5 +28,5 @@ export const NAV_ITEMS: NavItem[] = [
   { path: "/platformlar", label: "Paket Servis Platformları", icon: "🛵", roles: [UserRole.Admin] },
   { path: "/calisanlar", label: "Çalışanlar", icon: "🧑‍🍳", roles: [UserRole.Admin] },
   { path: "/raporlar", label: "Raporlar", icon: "📊", roles: [UserRole.Admin] },
-  { path: "/denetim-kayitlari", label: "Denetim Kayıtları", icon: "🛡️", roles: [UserRole.Admin] },
+  { path: "/denetim-kayitlari", label: "Denetim Kayıtları", icon: "🛡️", roles: [UserRole.Admin, UserRole.SuperAdmin] },
 ];

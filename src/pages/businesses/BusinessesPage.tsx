@@ -1,6 +1,7 @@
-import { Fragment, useEffect, useState, type FormEvent } from "react";
+import { Fragment, useState, type FormEvent } from "react";
 import { businessApi } from "../../api/businessApi";
-import { extractErrorMessage } from "../../api/authApi";
+import { extractErrorMessage } from "../../api/apiError";
+import { useAsyncData } from "../../hooks/useAsyncData";
 import type { BusinessDto } from "../../types/business";
 import { BusinessAdminsPanel } from "./BusinessAdminsPanel";
 import "./BusinessesPage.css";
@@ -22,8 +23,7 @@ function toEditDraft(business: BusinessDto): EditDraft {
  * kısıtlı — burada ayrıca rol kontrolü tekrar edilmez (DRY).
  */
 export function BusinessesPage() {
-  const [businesses, setBusinesses] = useState<BusinessDto[] | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const { data: businesses, error: loadError, setData: setBusinesses } = useAsyncData(() => businessApi.getAll());
 
   const [newName, setNewName] = useState("");
   const [newAddress, setNewAddress] = useState("");
@@ -40,19 +40,6 @@ export function BusinessesPage() {
   function toggleAdminsPanel(businessId: string) {
     setExpandedBusinessId((current) => (current === businessId ? null : businessId));
   }
-
-  async function loadBusinesses() {
-    try {
-      setBusinesses(await businessApi.getAll());
-      setLoadError(null);
-    } catch (error) {
-      setLoadError(extractErrorMessage(error));
-    }
-  }
-
-  useEffect(() => {
-    void loadBusinesses();
-  }, []);
 
   async function handleCreate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

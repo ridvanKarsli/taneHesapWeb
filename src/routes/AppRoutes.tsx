@@ -9,10 +9,39 @@ import { BusinessesPage } from "../pages/businesses/BusinessesPage";
 import { ComingSoonPage } from "../pages/common/ComingSoonPage";
 import { NotFoundPage } from "../pages/common/NotFoundPage";
 import { DashboardPage } from "../pages/dashboard/DashboardPage";
+import { AuditLogsPage } from "../pages/modules/AuditLogsPage";
+import { DailyClosingPage } from "../pages/modules/DailyClosingPage";
+import { DailySalesPage } from "../pages/modules/DailySalesPage";
+import { DishesPage } from "../pages/modules/DishesPage";
+import { EmployeesPage } from "../pages/modules/EmployeesPage";
+import { ExpensesPage } from "../pages/modules/ExpensesPage";
+import { ExpenseTypesPage } from "../pages/modules/ExpenseTypesPage";
+import { IngredientsPage } from "../pages/modules/IngredientsPage";
+import { PlatformsPage } from "../pages/modules/PlatformsPage";
+import { RecurringExpensesPage } from "../pages/modules/RecurringExpensesPage";
+import { ReportsPage } from "../pages/modules/ReportsPage";
+import { StockMovementsPage } from "../pages/modules/StockMovementsPage";
+import { SuppliersPage } from "../pages/modules/SuppliersPage";
 
-/** `navigation.ts`'teki path'lerden gerçek sayfası yazılmış olanlar — geri kalanı `ComingSoonPage` kullanır. */
+/**
+ * `navigation.ts`'teki path → sayfa bileşeni eşlemesi. Burada karşılığı olmayan bir path
+ * `ComingSoonPage` ile açılır (yeni modül eklerken güvenli varsayılan).
+ */
 const PAGE_COMPONENTS: Partial<Record<string, ComponentType>> = {
   "/isletmeler": BusinessesPage,
+  "/gun-sonu/satislar": DailySalesPage,
+  "/gun-sonu/kapanis": DailyClosingPage,
+  "/giderler": ExpensesPage,
+  "/gider-turleri": ExpenseTypesPage,
+  "/urunler": DishesPage,
+  "/malzemeler": IngredientsPage,
+  "/stok-hareketleri": StockMovementsPage,
+  "/tedarikciler": SuppliersPage,
+  "/duzenli-giderler": RecurringExpensesPage,
+  "/platformlar": PlatformsPage,
+  "/calisanlar": EmployeesPage,
+  "/raporlar": ReportsPage,
+  "/denetim-kayitlari": AuditLogsPage,
 };
 
 /**

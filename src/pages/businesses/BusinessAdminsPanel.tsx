@@ -1,6 +1,7 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { adminApi } from "../../api/adminApi";
-import { extractErrorMessage } from "../../api/authApi";
+import { extractErrorMessage } from "../../api/apiError";
+import { useAsyncData } from "../../hooks/useAsyncData";
 import type { AdminDto } from "../../types/admin";
 
 interface BusinessAdminsPanelProps {
@@ -25,8 +26,7 @@ function toEditDraft(admin: AdminDto): EditDraft {
  * şişmesini önler (Single Responsibility).
  */
 export function BusinessAdminsPanel({ businessId }: BusinessAdminsPanelProps) {
-  const [admins, setAdmins] = useState<AdminDto[] | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const { data: admins, error: loadError, setData: setAdmins } = useAsyncData(() => adminApi.getAll(businessId), businessId);
 
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -38,21 +38,6 @@ export function BusinessAdminsPanel({ businessId }: BusinessAdminsPanelProps) {
   const [editDraft, setEditDraft] = useState<EditDraft | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-
-  async function loadAdmins() {
-    try {
-      setAdmins(await adminApi.getAll(businessId));
-      setLoadError(null);
-    } catch (error) {
-      setLoadError(extractErrorMessage(error));
-    }
-  }
-
-  useEffect(() => {
-    void loadAdmins();
-    // businessId değişince (farklı bir işletme paneli açılınca) yeniden yüklenir.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [businessId]);
 
   async function handleCreate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

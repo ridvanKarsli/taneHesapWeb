@@ -5,3 +5,12 @@ export interface NotificationPush {
   message: string;
   createdAtUtc: string;
 }
+
+/** Backend `NotificationDto` (kalıcı kayıt, `GET /api/notifications`) ile birebir eşleşir. */
+export interface NotificationDto {
+  id: string;
+  type: number;
+  message: string;
+  isRead: boolean;
+  createdAtUtc: string;
+}

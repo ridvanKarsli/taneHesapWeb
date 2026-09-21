@@ -43,3 +43,27 @@
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }
+
+.dashboard-alerts {
+  margin-top: 1.5rem;
+}
+
+.dashboard-alerts a {
+  color: var(--color-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.dashboard-alert-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0.35rem 0;
+  font-size: 0.9rem;
+}
+
+.dashboard-alert-row span {
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}

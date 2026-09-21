@@ -14,8 +14,13 @@ src/
   layout/         AppLayout — kenar çubuğu, üst bar, bildirim zili, çıkış.
   routes/         AppRoutes — navigation.ts'ten üretilen rota tablosu.
   realtime/       useNotificationsHub — SignalR (/hubs/notifications) bağlantısı.
-  components/     Paylaşılan küçük bileşenler (NotificationsBell).
-  pages/          auth/ (giriş), dashboard/ (panel), common/ (ComingSoonPage, NotFoundPage).
+  api/moduleApis  Tüm işletme modüllerinin backend istemcileri; basit CRUD'lar `crudApi.ts` fabrikasıyla.
+  hooks/          useAsyncData — yükleme/hata/yeniden yükleme döngüsü (her sayfada tekrar yazılmaz).
+  lib/            format.ts — para/sayı/tarih biçimlendirme (tr-TR) ve tarih yardımcıları.
+  components/     ui/ (PageHeader, Section, DataTable, EntityForm, Modal, StatTile…), crud/CrudPage,
+                  NotificationsBell (kalıcı bildirimler + SignalR + okundu işaretleme).
+  pages/          auth/, dashboard/ (panel + ADMIN uyarıları), businesses/ (SUPER_ADMIN),
+                  modules/ (tüm işletme modülleri), common/ (ComingSoonPage, NotFoundPage).
   pwa/            useInstallPrompt + InstallPromptBanner — "ana ekrana ekle" istemi (bkz. aşağı).
 ```
 
@@ -23,8 +28,10 @@ Bağımlılık yönü: `pages`/`layout` → `auth`/`api`/`config` → hiçbiri R
 geri bağımlı değil. Yeni bir modül eklemek için:
 
 1. `config/navigation.ts`'e path/label/ikon/roller eklenir (tek kaynak).
-2. `routes/AppRoutes.tsx` bu listeyi otomatik okuduğu için ekstra bir şey gerekmez —
-   `ComingSoonPage` yerine gerçek sayfa bileşenini yazıp route'ta değiştirmek yeterli.
+2. Sayfa bileşeni yazılıp `routes/AppRoutes.tsx`'teki `PAGE_COMPONENTS` eşlemesine tek satır eklenir
+   (eşlemesi olmayan path `ComingSoonPage` ile açılır). "Liste + oluştur + düzenle" modülleri için
+   `components/crud/CrudPage` kullanılır — sayfa sadece kolonları, form alanlarını ve form
+   değerlerinin backend isteğine dönüşümünü tanımlar.
 
 ## Tasarım sistemi ("tatlı ve kurumsal")
 
@@ -63,9 +70,8 @@ proje raporunda kararlaştırılan httpOnly+secure cookie'ye taşınmadı — bk
 içindeki not). Bu yüzden frontend pragmatik olarak `localStorage` kullanıyor; backend ileride
 cookie'ye geçerse değişiklik sadece `api/tokenStore.ts` ve `api/httpClient.ts`'te olur.
 
-SUPER_ADMIN/ADMIN girişinde authenticator (TOTP) kodu zorunludur; EMPLOYEE'de yoktur. Giriş formu
-önce kullanıcı adı/şifre ile dener, backend "Authenticator kodu gereklidir." derse ikinci adımda
-kod alanını gösterir (bkz. `pages/auth/LoginPage.tsx`).
+Tüm roller sadece kullanıcı adı/şifre ile giriş yapar (authenticator/2FA kaldırıldı — bkz. proje
+raporu bölüm 2, 7).
 
 ## Kurulum (yerelde)
 
@@ -80,8 +86,9 @@ npm run dev
 
 ## Durum
 
-Auth (giriş, TOTP, otomatik token yenileme, çıkış), rol bazlı rota koruması, kenar çubuğu/panel
-kabuğu, SignalR bildirim entegrasyonu, "tatlı ve kurumsal" görsel tema ve PWA "ana ekrana ekle"
-özelliği çalışır durumda. Diğer modüllerin (Giderler, Stok, Gün Sonu, Raporlar vb.) backend
-API'leri hazır (bkz. proje raporu bölüm 10); bu modüllerin arayüzleri `ComingSoonPage`
-yer tutucusuyla `config/navigation.ts`'te tanımlı, sırayla gerçek sayfalarla değiştirilecek.
+Tüm backend API'leri arayüze bağlı: Auth, İşletmeler + Yöneticiler (SUPER_ADMIN), Giderler, Gider
+Türleri, Ürünler/Tabaklar (boy + reçete + otomatik maliyet/kâr), Malzemeler, Stok Hareketleri,
+Tedarikçiler (alış + kısmi ödeme + borç), Düzenli Giderler (dönem ödeme), Paket Servis Platformları,
+Çalışanlar, Gün Sonu Satışları (satır satır giriş — Excel şablonu netleşince dosya yükleme eklenecek),
+Gün Sonu Kapanışı (gerçek giriş + fire/kayıp raporu), Raporlar, Denetim Kayıtları ve bildirimler
+(kalıcı + anlık). ADMIN panelinde düşük stok ve ödenmemiş düzenli gider uyarıları gösterilir.

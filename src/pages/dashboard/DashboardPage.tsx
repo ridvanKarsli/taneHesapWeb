@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../../auth/useAuth";
 import { NAV_ITEMS } from "../../config/navigation";
-import { ROLE_LABELS } from "../../types/auth";
+import { ROLE_LABELS, UserRole } from "../../types/auth";
+import { AdminAlerts } from "./AdminAlerts";
 import "./DashboardPage.css";
 
 export function DashboardPage() {
@@ -16,6 +17,8 @@ export function DashboardPage() {
     <div>
       <h1>Merhaba, {user.fullName}</h1>
       <p className="dashboard-role">{ROLE_LABELS[user.role]} olarak giriş yaptınız.</p>
+
+      {user.role === UserRole.Admin && <AdminAlerts />}
 
       <div className="dashboard-grid">
         {shortcuts.map((item) => (

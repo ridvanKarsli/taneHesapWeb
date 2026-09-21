@@ -1,40 +1,72 @@
 import { useState } from "react";
+import { notificationApi } from "../api/moduleApis";
 import { useAuth } from "../auth/useAuth";
+import { useAsyncData } from "../hooks/useAsyncData";
 import { useNotificationsHub } from "../realtime/useNotificationsHub";
 import { UserRole } from "../types/auth";
 import "./NotificationsBell.css";
 
-/** Backend `NotificationsHub` yalnızca `Admin` rolüne izin verir (`[Authorize(Roles = "Admin")]`). */
+interface BellItem {
+  id: string;
+  message: string;
+  createdAtUtc: string;
+}
+
+/**
+ * ADMIN bildirimleri: açılışta kalıcı okunmamış bildirimler (`GET /api/notifications`) yüklenir,
+ * sonrasında gelenler SignalR ile anlık eklenir; "okundu" işaretlenen bildirim listeden düşer.
+ * Backend bildirim uçları ve hub'ı yalnızca `Admin` rolüne açıktır.
+ */
 export function NotificationsBell() {
   const { user } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
-  const notifications = useNotificationsHub(user?.role === UserRole.Admin);
+  const isAdmin = user?.role === UserRole.Admin;
+  return isAdmin ? <AdminNotificationsBell /> : null;
+}
 
-  if (user?.role !== UserRole.Admin) {
-    return null;
+function AdminNotificationsBell() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [readIds, setReadIds] = useState<Set<string>>(new Set());
+  const persisted = useAsyncData(() => notificationApi.getAll(true));
+  const pushed = useNotificationsHub(true);
+
+  const byId = new Map<string, BellItem>();
+  for (const item of [...pushed, ...(persisted.data ?? [])]) {
+    if (!readIds.has(item.id) && !byId.has(item.id)) {
+      byId.set(item.id, item);
+    }
+  }
+  const items = [...byId.values()].sort((a, b) => b.createdAtUtc.localeCompare(a.createdAtUtc));
+
+  async function markAsRead(id: string) {
+    setReadIds((current) => new Set(current).add(id));
+    try {
+      await notificationApi.markAsRead(id);
+    } catch {
+      // Başarısız olursa bir sonraki yüklemede bildirim tekrar görünür; kullanıcı akışı bozulmaz.
+    }
   }
 
   return (
     <div className="notifications-bell">
-      <button
-        type="button"
-        className="notifications-bell-toggle"
-        onClick={() => setIsOpen((open) => !open)}
-        aria-label="Bildirimler"
-      >
+      <button type="button" className="notifications-bell-toggle" onClick={() => setIsOpen((open) => !open)} aria-label="Bildirimler">
         🔔
-        {notifications.length > 0 && <span className="notifications-bell-badge">{notifications.length}</span>}
+        {items.length > 0 && <span className="notifications-bell-badge">{items.length}</span>}
       </button>
 
       {isOpen && (
         <div className="notifications-bell-dropdown">
-          {notifications.length === 0 ? (
-            <p className="notifications-bell-empty">Yeni bildirim yok.</p>
+          {items.length === 0 ? (
+            <p className="notifications-bell-empty">Okunmamış bildirim yok.</p>
           ) : (
-            notifications.map((notification) => (
-              <div key={notification.id} className="notifications-bell-item">
-                <p>{notification.message}</p>
-                <time>{new Date(notification.createdAtUtc).toLocaleString("tr-TR")}</time>
+            items.map((item) => (
+              <div key={item.id} className="notifications-bell-item">
+                <p>{item.message}</p>
+                <div className="notifications-bell-meta">
+                  <time>{new Date(item.createdAtUtc).toLocaleString("tr-TR")}</time>
+                  <button type="button" onClick={() => void markAsRead(item.id)}>
+                    Okundu
+                  </button>
+                </div>
               </div>
             ))
           )}

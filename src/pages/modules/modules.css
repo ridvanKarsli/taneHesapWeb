@@ -1,0 +1,44 @@
+/* Modül sayfalarına özgü birkaç küçük stil (ortak stiller: components/ui/ui.css). */
+
+.recipe-row,
+.entry-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) 3rem auto;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.recipe-unit {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+.entry-row {
+  grid-template-columns: minmax(0, 2.2fr) 5rem 7rem 7rem 8rem minmax(0, 1.4fr) 6rem auto;
+}
+
+.entry-row-header {
+  font-size: 0.74rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-text-muted);
+}
+
+.consumption-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.45rem;
+}
+
+@media (max-width: 900px) {
+  .entry-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .entry-row-header {
+    display: none;
+  }
+}

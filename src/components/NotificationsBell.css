@@ -77,3 +77,20 @@
   font-size: 0.72rem;
   color: var(--color-text-muted);
 }
+
+.notifications-bell-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.notifications-bell-meta button {
+  border: none;
+  background: none;
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
