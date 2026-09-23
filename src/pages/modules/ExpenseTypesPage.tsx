@@ -24,17 +24,15 @@ function toRequest(values: FormValues) {
 export function ExpenseTypesPage() {
   return (
     <CrudPage<ExpenseTypeDto>
-      title="Gider Türleri"
-      description="Giderler bu türlere göre girilir. Çalışanlar sadece aktif türleri seçebilir."
       load={expenseTypeApi.getAll}
-      emptyText="Henüz gider türü yok — ilk türü yukarıdan ekleyin."
+      emptyText="Henüz gider türü yok — ilk türü sağ üstteki düğmeyle ekleyin."
       columns={[
         { header: "Ad", render: (row) => row.name },
         { header: "Birim", render: (row) => row.unit },
         { header: "Kategori", render: (row) => EXPENSE_CATEGORY_LABELS[row.category] },
         { header: "Durum", render: (row) => <ActiveBadge isActive={row.isActive} /> },
       ]}
-      createTitle="Yeni gider türü"
+      createLabel="Yeni gider türü"
       createFields={baseFields}
       createInitialValues={{ name: "", unit: "", category: "0" }}
       onCreate={(values) => expenseTypeApi.create(toRequest(values))}

@@ -70,7 +70,6 @@ export function AuditLogsPage() {
   return (
     <div>
       <PageHeader
-        title="Denetim Kayıtları"
         description="Sistemdeki her kayıt değişikliği otomatik loglanır; kayıtlar değiştirilemez."
         actions={
           <>

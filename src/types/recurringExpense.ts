@@ -1,4 +1,4 @@
-import type { RecurringPeriod } from "./enums";
+import type { PaymentMethod, RecurringPeriod } from "./enums";
 
 /** Backend `RecurringExpenseDto` ve ilişkili istekler ile birebir eşleşir. */
 export interface RecurringExpenseDto {
@@ -27,9 +27,12 @@ export interface UpdateRecurringExpenseRequest {
   isActive: boolean;
 }
 
+/** Ödeme, ödeme şekline göre kasadan/karttan düşen otomatik bir gider olarak da işlenir (bkz. proje raporu 3.8, 3.15). */
 export interface MarkPeriodPaidRequest {
   periodStartDate: string;
   periodEndDate: string;
   paidAmount: number;
   paidDate: string;
+  paymentMethod: PaymentMethod;
+  paymentCardId: string | null;
 }

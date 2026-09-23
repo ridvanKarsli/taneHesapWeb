@@ -24,10 +24,9 @@ export function PaymentCardsSection({ onChanged }: PaymentCardsSectionProps) {
   return (
     <CrudPage<PaymentCardDto>
       embedded
-      title="Kartlar"
       listTitle="Kredi kartları"
       load={treasuryApi.getAll}
-      emptyText="Henüz kart tanımlı değil — giderleri kartla ödüyorsanız kartı yukarıdan ekleyin."
+      emptyText="Henüz kart tanımlı değil — giderleri kartla ödüyorsanız kartı sağ üstteki düğmeyle ekleyin."
       columns={[
         { header: "Kart", render: (row) => <span className="ui-cell-strong">{row.name}</span> },
         { header: "Limit", align: "right", render: (row) => formatMoney(row.limit) },
@@ -40,8 +39,7 @@ export function PaymentCardsSection({ onChanged }: PaymentCardsSectionProps) {
         { header: "Durum", render: (row) => <ActiveBadge isActive={row.isActive} /> },
       ]}
       rowClassName={(row) => (row.availableLimit < 0 ? "warning" : undefined)}
-      createTitle="Yeni kart"
-      onCreateLabel="Kart ekle"
+      createLabel="Yeni kart"
       createFields={baseFields}
       createInitialValues={{ name: "", limit: "" }}
       onCreate={async (values) => {

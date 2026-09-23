@@ -1,11 +1,11 @@
-import { History, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useState } from "react";
 import { ingredientApi, stockMovementApi } from "../../api/moduleApis";
 import { AsyncState } from "../../components/ui/AsyncState";
 import { ConfirmDialog, DeleteButton } from "../../components/ui/ConfirmDialog";
 import { DataTable } from "../../components/ui/DataTable";
-import { EntityForm } from "../../components/ui/EntityForm";
 import { formValue } from "../../components/ui/formValues";
+import { ModalFormButton } from "../../components/ui/ModalFormButton";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Section } from "../../components/ui/Section";
 import { StatusBadge } from "../../components/ui/StatusBadge";
@@ -42,38 +42,34 @@ export function StockMovementsPage() {
   return (
     <div>
       <PageHeader
-        title="Stok Hareketleri"
-        description="Alışlar tedarikçi modülünden, satış tüketimi gün sonu kapanışından otomatik gelir. Burada sayım düzeltmesi ve fire girilir."
+        actions={
+          <ModalFormButton
+            label="Sayım düzeltmesi / fire"
+            title="Manuel stok hareketi"
+            icon={Plus}
+            intro={<p className="ui-muted">Alışlar tedarikçi modülünden, satış tüketimi satış girişinden otomatik gelir. Burada yalnızca sayım düzeltmesi ve fire girilir.</p>}
+            fields={[
+              { name: "ingredientId", label: "Malzeme", type: "select", required: true, options: ingredientOptions },
+              { name: "movementType", label: "Hareket tipi", type: "select", required: true, options: MANUAL_TYPE_OPTIONS },
+              { name: "quantity", label: "Miktar (düzeltmede − stoktan düşer)", type: "number", required: true },
+              { name: "note", label: "Not", type: "textarea" },
+            ]}
+            initialValues={{ ingredientId: "", movementType: String(StockMovementType.ManualAdjustment), quantity: "", note: "" }}
+            onSubmit={async (values) => {
+              const movementType = formValue.number(values, "movementType") as StockMovementType;
+              await stockMovementApi.create({
+                ingredientId: formValue.text(values, "ingredientId"),
+                movementType,
+                quantityChange: toQuantityChange(movementType, formValue.number(values, "quantity")),
+                note: formValue.optionalText(values, "note"),
+              });
+              await Promise.all([movements.reload(), ingredients.reload()]);
+            }}
+          />
+        }
       />
 
-      <Section title="Manuel stok hareketi" icon={Plus}>
-        <EntityForm
-          layout="inline"
-          fields={[
-            { name: "ingredientId", label: "Malzeme", type: "select", required: true, options: ingredientOptions },
-            { name: "movementType", label: "Hareket tipi", type: "select", required: true, options: MANUAL_TYPE_OPTIONS },
-            { name: "quantity", label: "Miktar (düzeltmede − stoktan düşer)", type: "number", required: true },
-            { name: "note", label: "Not", type: "textarea" },
-          ]}
-          initialValues={{ ingredientId: "", movementType: String(StockMovementType.ManualAdjustment), quantity: "", note: "" }}
-          submitLabel="Kaydet"
-          resetOnSuccess
-          onSubmit={async (values) => {
-            const movementType = formValue.number(values, "movementType") as StockMovementType;
-            await stockMovementApi.create({
-              ingredientId: formValue.text(values, "ingredientId"),
-              movementType,
-              quantityChange: toQuantityChange(movementType, formValue.number(values, "quantity")),
-              note: formValue.optionalText(values, "note"),
-            });
-            await Promise.all([movements.reload(), ingredients.reload()]);
-          }}
-        />
-      </Section>
-
       <Section
-        title="Hareket geçmişi"
-        icon={History}
         actions={
           <div className="ui-filter">
             <label htmlFor="stock-ingredient">Malzeme</label>

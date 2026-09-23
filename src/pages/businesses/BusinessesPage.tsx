@@ -27,10 +27,8 @@ export function BusinessesPage() {
 
   return (
     <CrudPage<BusinessDto>
-      title="İşletmeler"
-      description="Yeni işletme açın ve her işletmeye giriş yapabilecek bir yönetici (işletme sahibi) atayın."
       load={businessApi.getAll}
-      emptyText="Henüz işletme yok — ilk işletmeyi yukarıdan ekleyin."
+      emptyText="Henüz işletme yok — sağ üstteki düğmeyle ekleyin."
       columns={[
         { header: "Ad", render: (row) => <span className="ui-cell-strong">{row.name}</span> },
         { header: "Adres", render: (row) => row.address || "—" },
@@ -44,7 +42,7 @@ export function BusinessesPage() {
         </button>
       )}
       renderExpanded={(row) => (expandedId === row.id ? <BusinessAdminsPanel businessId={row.id} businessName={row.name} /> : null)}
-      createTitle="Yeni işletme"
+      createLabel="Yeni işletme"
       createFields={baseFields}
       createInitialValues={{ name: "", address: "" }}
       onCreate={(values) => businessApi.create(toRequest(values))}

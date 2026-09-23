@@ -7,7 +7,7 @@ import { EmployeeWalletPanel } from "./EmployeeWalletPanel";
 export function MyWalletPage() {
   return (
     <div>
-      <PageHeader title="Cüzdanım" description="Çalıştığınız saatlere göre hak edişiniz, size yapılan ödemeler ve kalan bakiyeniz." />
+      <PageHeader />
       <Section>
         <EmployeeWalletPanel load={myWalletApi.get} />
       </Section>

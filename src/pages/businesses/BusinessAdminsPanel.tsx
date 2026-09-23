@@ -7,6 +7,7 @@ import { DataTable } from "../../components/ui/DataTable";
 import { EntityForm } from "../../components/ui/EntityForm";
 import { formValue } from "../../components/ui/formValues";
 import { Modal } from "../../components/ui/Modal";
+import { ModalFormButton } from "../../components/ui/ModalFormButton";
 import { ActiveBadge } from "../../components/ui/StatusBadge";
 import { useAsyncData } from "../../hooks/useAsyncData";
 import type { AdminDto } from "../../types/admin";
@@ -27,29 +28,29 @@ export function BusinessAdminsPanel({ businessId, businessName }: BusinessAdmins
 
   return (
     <div>
-      <p className="ui-subheading">{businessName} — yeni yönetici</p>
-      <EntityForm
-        layout="inline"
-        fields={[
-          { name: "fullName", label: "Ad soyad", required: true },
-          { name: "username", label: "Kullanıcı adı", required: true },
-          { name: "password", label: "Şifre", type: "password", required: true },
-        ]}
-        initialValues={{ fullName: "", username: "", password: "" }}
-        submitLabel="Yönetici ekle"
-        submitIcon={UserPlus}
-        resetOnSuccess
-        onSubmit={async (values) => {
-          const created = await adminApi.create(businessId, {
-            fullName: formValue.text(values, "fullName"),
-            username: formValue.text(values, "username"),
-            password: String(values.password),
-          });
-          admins.setData((current) => [...(current ?? []), created]);
-        }}
-      />
-
-      <p className="ui-subheading">Yöneticiler</p>
+      <div className="wallet-toolbar">
+        <p className="ui-subheading">{businessName} — yöneticiler</p>
+        <ModalFormButton
+          label="Yönetici ekle"
+          icon={UserPlus}
+          buttonClassName="ui-button small"
+          fields={[
+            { name: "fullName", label: "Ad soyad", required: true },
+            { name: "username", label: "Kullanıcı adı", required: true },
+            { name: "password", label: "Şifre", type: "password", required: true },
+          ]}
+          initialValues={{ fullName: "", username: "", password: "" }}
+          submitLabel="Yönetici ekle"
+          onSubmit={async (values) => {
+            const created = await adminApi.create(businessId, {
+              fullName: formValue.text(values, "fullName"),
+              username: formValue.text(values, "username"),
+              password: String(values.password),
+            });
+            admins.setData((current) => [...(current ?? []), created]);
+          }}
+        />
+      </div>
       <AsyncState
         {...admins}
         isEmpty={(rows) => rows.length === 0}

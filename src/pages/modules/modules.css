@@ -122,3 +122,25 @@
 .wallet-panel .ui-two-columns > div {
   min-width: 0;
 }
+
+/* Panel içi araç çubuğu: alt başlık solda, eylem düğmeleri sağda */
+.wallet-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  flex-wrap: wrap;
+  margin: 0.25rem 0 0.5rem;
+}
+
+.wallet-toolbar .ui-subheading,
+.wallet-toolbar .ui-muted {
+  margin: 0;
+}
+
+.ui-inline-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+}

@@ -7,6 +7,7 @@ import { DataTable, type Column } from "../ui/DataTable";
 import { EntityForm, type FieldDef } from "../ui/EntityForm";
 import { type FormValues } from "../ui/formValues";
 import { Modal } from "../ui/Modal";
+import { ModalFormButton } from "../ui/ModalFormButton";
 import { PageHeader } from "../ui/PageHeader";
 import { Section } from "../ui/Section";
 
@@ -16,13 +17,14 @@ export interface CrudRowHelpers<T> {
 }
 
 interface CrudPageProps<T extends { id: string }> {
-  title: string;
+  /** Sayfa açıklaması; verilmezse `navigation.ts`'teki sayfa açıklaması kullanılır. */
   description?: string;
   load: () => Promise<T[]>;
   columns: Column<T>[];
   emptyText: string;
 
-  createTitle?: string;
+  /** "+ {createLabel}" düğmesi sayfa girişinde durur ve formu bir pencerede açar. */
+  createLabel?: string;
   createFields?: FieldDef[];
   createInitialValues?: FormValues;
   onCreate?: (values: FormValues) => Promise<T>;
@@ -40,21 +42,21 @@ interface CrudPageProps<T extends { id: string }> {
   rowActions?: (row: T, helpers: CrudRowHelpers<T>) => ReactNode;
   renderExpanded?: (row: T, helpers: CrudRowHelpers<T>) => ReactNode;
   rowClassName?: (row: T) => string | undefined;
-  /** Başlığın altında, tablonun üstünde gösterilecek ek içerik (örn. toplam borç kutusu). */
+  /** Girişin altında, tablonun üstünde gösterilecek ek içerik (örn. toplam borç kutusu). */
   summary?: ReactNode;
-  /** true ise sayfa başlığı basılmaz — başka bir sayfanın içine bölüm olarak gömülür (örn. Kasa → Kartlar). */
-  embedded?: boolean;
-  /** Liste bölümünün başlığı (gömülü kullanımda). */
+  /** Sayfa girişindeki ek eylemler (oluştur düğmesinin yanında). */
+  extraActions?: ReactNode;
+  /** Liste bölümünün başlığı. */
   listTitle?: string;
-  /** Silme onayında "silinemez" uyarısını değiştirmek için (örn. kart hareketi olan kart). */
-  onCreateLabel?: string;
+  /** true ise sayfa girişi (açıklama + düğme) basılmaz; düğme `listTitle` yanında durur — başka bir sayfaya gömülü kullanım. */
+  embedded?: boolean;
 }
 
 /**
- * "Liste + oluştur + düzenle" deseni izleyen tüm modül sayfalarının ortak iskeleti (Gider Türleri,
- * Malzemeler, Platformlar, Çalışanlar, Tedarikçiler, Düzenli Giderler). Sayfalar yalnızca kolonları,
- * form alanlarını ve form değerlerinin backend isteğine nasıl çevrileceğini tanımlar — veri yükleme,
- * hata gösterimi, düzenleme diyaloğu burada tek kez yazılır (DRY, Open/Closed).
+ * "Liste + oluştur + düzenle + sil" deseni izleyen tüm modül sayfalarının ortak iskeleti. Sayfalar yalnızca
+ * kolonları, form alanlarını ve form değerlerinin backend isteğine nasıl çevrileceğini tanımlar — veri
+ * yükleme, hata gösterimi, oluşturma/düzenleme pencereleri ve silme onayı burada tek kez yazılır.
+ * Oluşturma formu sayfada sürekli açık durmaz; "+ Yeni" düğmesiyle pencerede açılır (derli toplu görünüm).
  */
 export function CrudPage<T extends { id: string }>(props: CrudPageProps<T>) {
   const { data, error, isLoading, reload, setData } = useAsyncData(props.load);
@@ -67,6 +69,19 @@ export function CrudPage<T extends { id: string }>(props: CrudPageProps<T>) {
 
   const helpers: CrudRowHelpers<T> = { replaceRow, reload };
   const canEdit = props.editFields && props.toEditValues && props.onUpdate;
+
+  const createButton = props.createFields && props.onCreate && (
+    <ModalFormButton
+      label={props.createLabel ?? "Yeni"}
+      icon={Plus}
+      fields={props.createFields}
+      initialValues={props.createInitialValues ?? {}}
+      onSubmit={async (values) => {
+        const created = await props.onCreate!(values);
+        setData((current) => [...(current ?? []), created]);
+      }}
+    />
+  );
 
   function renderRowActions(row: T) {
     return (
@@ -85,28 +100,23 @@ export function CrudPage<T extends { id: string }>(props: CrudPageProps<T>) {
 
   return (
     <div>
-      {!props.embedded && <PageHeader title={props.title} description={props.description} />}
+      {!props.embedded && (
+        <PageHeader
+          description={props.description}
+          actions={
+            createButton || props.extraActions ? (
+              <>
+                {props.extraActions}
+                {createButton}
+              </>
+            ) : undefined
+          }
+        />
+      )}
 
       {props.summary}
 
-      {props.createFields && props.onCreate && (
-        <Section title={props.createTitle ?? "Yeni kayıt"} icon={Plus}>
-          <EntityForm
-            layout="inline"
-            fields={props.createFields}
-            initialValues={props.createInitialValues ?? {}}
-            submitLabel={props.onCreateLabel ?? "Ekle"}
-            submitIcon={Plus}
-            resetOnSuccess
-            onSubmit={async (values) => {
-              const created = await props.onCreate!(values);
-              setData((current) => [...(current ?? []), created]);
-            }}
-          />
-        </Section>
-      )}
-
-      <Section title={props.listTitle}>
+      <Section title={props.listTitle} actions={props.embedded ? createButton : undefined}>
         <AsyncState data={data} error={error} isLoading={isLoading} isEmpty={(rows) => rows.length === 0} emptyText={props.emptyText}>
           {(rows) => (
             <DataTable

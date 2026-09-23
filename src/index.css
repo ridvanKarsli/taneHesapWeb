@@ -17,12 +17,14 @@
   --color-primary: #c8691f;
   --color-primary-dark: #9c4f14;
   --color-primary-soft: #fcecd9;
+  --color-primary-soft-2: #f8dcb8;
   --color-primary-ring: rgba(200, 105, 31, 0.22);
   --color-accent: #f0b64a;
 
   --color-success: #2e8656;
   --color-success-soft: #e2f3e8;
   --color-danger: #c64336;
+  --color-danger-dark: #a8352a;
   --color-danger-soft: #fbe6e3;
   --color-warning: #a8700f;
   --color-warning-soft: #fdf1d6;
@@ -45,6 +47,20 @@
   --tone-slate-bg: #ebeef2;
   --tone-slate-fg: #4b5563;
 
+  --color-overlay: rgba(42, 33, 28, 0.4);
+  --color-bg-translucent: rgba(250, 246, 241, 0.85);
+
+  /* Panel karşılama alanı */
+  --hero-bg:
+    radial-gradient(circle at 85% 20%, rgba(255, 255, 255, 0.55), transparent 40%),
+    linear-gradient(120deg, #fde7c8 0%, #fbd7a6 55%, #f6c283 100%);
+  --hero-border: #f3cf9d;
+  --hero-text: #3b2410;
+  --hero-text-muted: #7a4d24;
+  --hero-chip-bg: rgba(255, 255, 255, 0.65);
+  --hero-chip-text: #9c4f14;
+  --hero-art: rgba(156, 79, 20, 0.16);
+
   --radius-sm: 10px;
   --radius-md: 14px;
   --radius-lg: 20px;
@@ -62,6 +78,74 @@
   font-family: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
   color-scheme: light;
   -webkit-tap-highlight-color: transparent;
+}
+
+/*
+ * Koyu tema — aynı token adları, farklı değerler. `applyTheme` `<html data-theme="dark">` yazar; tercih
+ * yoksa sistem ayarı (main.tsx). Bileşenlerin hiçbiri sabit renk kullanmaz, bu yüzden tek blok yeter.
+ */
+:root[data-theme="dark"] {
+  --color-bg: #17130f;
+  --color-surface: #211b16;
+  --color-surface-alt: #2a221c;
+  --color-surface-sunken: #1c1612;
+  --color-border: #332a23;
+  --color-border-strong: #4a3d33;
+  --color-text: #f1e9e0;
+  --color-text-muted: #b3a294;
+  --color-text-subtle: #7f7166;
+
+  --color-primary: #e8853a;
+  --color-primary-dark: #f2a462;
+  --color-primary-soft: #3a2616;
+  --color-primary-soft-2: #4a2f18;
+  --color-primary-ring: rgba(232, 133, 58, 0.32);
+  --color-accent: #f0b64a;
+
+  --color-success: #5cc48a;
+  --color-success-soft: #1d3327;
+  --color-danger: #f07a6e;
+  --color-danger-dark: #d95c4f;
+  --color-danger-soft: #3d221f;
+  --color-warning: #e8b45a;
+  --color-warning-soft: #3a2c15;
+
+  --tone-saffron-bg: #3a2616;
+  --tone-saffron-fg: #f0a25d;
+  --tone-green-bg: #1d3327;
+  --tone-green-fg: #6fd39c;
+  --tone-blue-bg: #1c2a42;
+  --tone-blue-fg: #7fa9ee;
+  --tone-rose-bg: #3d1f26;
+  --tone-rose-fg: #f08497;
+  --tone-violet-bg: #2b2140;
+  --tone-violet-fg: #b39cf0;
+  --tone-teal-bg: #16302e;
+  --tone-teal-fg: #63c9bd;
+  --tone-amber-bg: #3a2c15;
+  --tone-amber-fg: #f0c25a;
+  --tone-slate-bg: #262b33;
+  --tone-slate-fg: #aab4c3;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35), 0 12px 32px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.45), 0 32px 64px rgba(0, 0, 0, 0.5);
+
+  --color-overlay: rgba(0, 0, 0, 0.6);
+  --color-bg-translucent: rgba(23, 19, 15, 0.85);
+
+  --hero-bg:
+    radial-gradient(circle at 85% 20%, rgba(255, 255, 255, 0.06), transparent 40%),
+    linear-gradient(120deg, #3a2616 0%, #4a2f18 55%, #5c3a1c 100%);
+  --hero-border: #5c3f22;
+  --hero-text: #f7e9d8;
+  --hero-text-muted: #d3b493;
+  --hero-chip-bg: rgba(0, 0, 0, 0.25);
+  --hero-chip-text: #f2a462;
+  --hero-art: rgba(240, 182, 74, 0.14);
+
+  color-scheme: dark;
 }
 
 * {

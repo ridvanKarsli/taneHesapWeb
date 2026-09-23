@@ -17,6 +17,8 @@ export interface ExpenseDto {
   employeeUserId: string | null;
   employeeName: string | null;
   description: string | null;
+  /** Doluysa gider sistem tarafından üretildi (komisyon, düzenli gider, tedarikçi ödemesi) ve kaynağından yönetilir. */
+  sourceReferenceType: string | null;
   createdByUserId: string | null;
   createdAtUtc: string;
 }

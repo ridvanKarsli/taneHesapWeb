@@ -5,6 +5,8 @@ import { CrudPage } from "../../components/crud/CrudPage";
 import { EntityForm, type FieldDef } from "../../components/ui/EntityForm";
 import { formValue, type FormValues } from "../../components/ui/formValues";
 import { Modal } from "../../components/ui/Modal";
+import { paymentFields, paymentInitialValues, readPayment } from "../../components/ui/paymentFields";
+import { usePaymentCards } from "../../hooks/usePaymentCards";
 import { ActiveBadge, StatusBadge } from "../../components/ui/StatusBadge";
 import { formatDate, formatMoney, todayIso } from "../../lib/format";
 import { RECURRING_PERIOD_LABELS, toOptions, type RecurringPeriod } from "../../types/enums";
@@ -27,14 +29,13 @@ function toBaseRequest(values: FormValues) {
 /** Kira/elektrik gibi periyodik giderler; ödenmeyen dönemler için hatırlatma üretilir (bkz. proje raporu 3.8). */
 export function RecurringExpensesPage() {
   const [paying, setPaying] = useState<{ row: RecurringExpenseDto; onPaid: (row: RecurringExpenseDto) => void } | null>(null);
+  const { cards } = usePaymentCards();
 
   return (
     <>
       <CrudPage<RecurringExpenseDto>
-        title="Düzenli Giderler"
-        description="Sistem her gider için güncel dönemi hesaplar; dönem ödenmeden biterse bildirim gelir."
         load={recurringExpenseApi.getAll}
-        emptyText="Henüz düzenli gider yok — kira, elektrik gibi giderleri yukarıdan ekleyin."
+        emptyText="Henüz düzenli gider yok — kira, elektrik gibi giderleri sağ üstteki düğmeyle ekleyin."
         rowClassName={(row) => (row.isActive && !row.isCurrentPeriodPaid ? "warning" : undefined)}
         columns={[
           { header: "Ad", render: (row) => row.name },
@@ -59,7 +60,7 @@ export function RecurringExpensesPage() {
             </button>
           )
         }
-        createTitle="Yeni düzenli gider"
+        createLabel="Yeni düzenli gider"
         createFields={[...baseFields, { name: "startDate", label: "Başlangıç tarihi", type: "date", required: true }]}
         createInitialValues={{ name: "", amount: "", period: "1", startDate: todayIso() }}
         onCreate={(values) => recurringExpenseApi.create({ ...toBaseRequest(values), startDate: formValue.text(values, "startDate") })}
@@ -76,14 +77,15 @@ export function RecurringExpensesPage() {
       {paying && (
         <Modal title={`${paying.row.name} — dönemi ödendi işaretle`} onClose={() => setPaying(null)}>
           <p className="ui-muted">
-            Dönem: {formatDate(paying.row.currentPeriodStartDate)} – {formatDate(paying.row.currentPeriodEndDate)}
+            Dönem: {formatDate(paying.row.currentPeriodStartDate)} – {formatDate(paying.row.currentPeriodEndDate)}. Ödeme, seçilen kasadan/karttan düşen bir gider olarak da işlenir.
           </p>
           <EntityForm
             fields={[
               { name: "paidAmount", label: "Ödenen tutar (₺)", type: "number", required: true, min: 0 },
               { name: "paidDate", label: "Ödeme tarihi", type: "date", required: true },
+              ...paymentFields(cards),
             ]}
-            initialValues={{ paidAmount: String(paying.row.amount), paidDate: todayIso() }}
+            initialValues={{ paidAmount: String(paying.row.amount), paidDate: todayIso(), ...paymentInitialValues }}
             submitLabel="Kaydet"
             onCancel={() => setPaying(null)}
             onSubmit={async (values) => {
@@ -92,6 +94,7 @@ export function RecurringExpensesPage() {
                 periodEndDate: paying.row.currentPeriodEndDate,
                 paidAmount: formValue.number(values, "paidAmount"),
                 paidDate: formValue.text(values, "paidDate"),
+                ...readPayment(values),
               });
               paying.onPaid(updated);
               setPaying(null);

@@ -6,8 +6,12 @@ import { DataTable } from "../../components/ui/DataTable";
 import { EntityForm } from "../../components/ui/EntityForm";
 import { formValue } from "../../components/ui/formValues";
 import { Modal } from "../../components/ui/Modal";
+import { ModalFormButton } from "../../components/ui/ModalFormButton";
+import { paymentFields, paymentInitialValues, readPayment } from "../../components/ui/paymentFields";
 import { StatusBadge } from "../../components/ui/StatusBadge";
 import { useAsyncData } from "../../hooks/useAsyncData";
+import { usePaymentCards } from "../../hooks/usePaymentCards";
+import { PAYMENT_METHOD_LABELS } from "../../types/enums";
 import { formatDate, formatMoney, formatNumber, todayIso } from "../../lib/format";
 import type { SupplierPurchaseDto } from "../../types/supplier";
 
@@ -21,6 +25,7 @@ interface SupplierPurchasesPanelProps {
 export function SupplierPurchasesPanel({ supplierId, onChanged }: SupplierPurchasesPanelProps) {
   const purchases = useAsyncData(() => supplierApi.getPurchases(supplierId), supplierId);
   const ingredients = useAsyncData(ingredientApi.getAll);
+  const { cards } = usePaymentCards();
   const [paying, setPaying] = useState<SupplierPurchaseDto | null>(null);
 
   function replacePurchase(updated: SupplierPurchaseDto) {
@@ -34,32 +39,33 @@ export function SupplierPurchasesPanel({ supplierId, onChanged }: SupplierPurcha
 
   return (
     <div>
-      <h3 className="ui-subheading">Yeni alış</h3>
-      <EntityForm
-        layout="inline"
-        fields={[
-          { name: "ingredientId", label: "Malzeme", type: "select", required: true, options: ingredientOptions },
-          { name: "quantity", label: "Miktar", type: "number", required: true, min: 0 },
-          { name: "unitPrice", label: "Birim fiyat (₺)", type: "number", required: true, min: 0 },
-          { name: "purchaseDate", label: "Tarih", type: "date", required: true },
-        ]}
-        initialValues={{ ingredientId: "", quantity: "", unitPrice: "", purchaseDate: todayIso() }}
-        submitLabel="Alış ekle"
-        submitIcon={Plus}
-        resetOnSuccess
-        onSubmit={async (values) => {
-          const created = await supplierApi.addPurchase(supplierId, {
-            ingredientId: formValue.text(values, "ingredientId"),
-            quantity: formValue.number(values, "quantity"),
-            unitPrice: formValue.number(values, "unitPrice"),
-            purchaseDate: formValue.text(values, "purchaseDate"),
-          });
-          purchases.setData((current) => [created, ...(current ?? [])]);
-          onChanged();
-        }}
-      />
-
-      <h3 className="ui-subheading">Alış geçmişi</h3>
+      <div className="wallet-toolbar">
+        <h3 className="ui-subheading">Alış geçmişi</h3>
+        <ModalFormButton
+          label="Yeni alış"
+          icon={Plus}
+          buttonClassName="ui-button small"
+          intro={<p className="ui-muted">Alış kaydedilince malzemenin stoğu artar ve birim fiyatı bu alışa göre güncellenir. Ödeme ayrıca girilir.</p>}
+          fields={[
+            { name: "ingredientId", label: "Malzeme", type: "select", required: true, options: ingredientOptions },
+            { name: "quantity", label: "Miktar", type: "number", required: true, min: 0 },
+            { name: "unitPrice", label: "Birim fiyat (₺)", type: "number", required: true, min: 0 },
+            { name: "purchaseDate", label: "Tarih", type: "date", required: true },
+          ]}
+          initialValues={{ ingredientId: "", quantity: "", unitPrice: "", purchaseDate: todayIso() }}
+          submitLabel="Alışı kaydet"
+          onSubmit={async (values) => {
+            const created = await supplierApi.addPurchase(supplierId, {
+              ingredientId: formValue.text(values, "ingredientId"),
+              quantity: formValue.number(values, "quantity"),
+              unitPrice: formValue.number(values, "unitPrice"),
+              purchaseDate: formValue.text(values, "purchaseDate"),
+            });
+            purchases.setData((current) => [created, ...(current ?? [])]);
+            onChanged();
+          }}
+        />
+      </div>
       <AsyncState {...purchases} isEmpty={(rows) => rows.length === 0} emptyText="Bu tedarikçiden henüz alış yok.">
         {(rows) => (
           <DataTable
@@ -71,7 +77,14 @@ export function SupplierPurchasesPanel({ supplierId, onChanged }: SupplierPurcha
               { header: "Miktar", align: "right", render: (row) => formatNumber(row.quantity) },
               { header: "Birim fiyat", align: "right", render: (row) => formatMoney(row.unitPrice) },
               { header: "Tutar", align: "right", render: (row) => formatMoney(row.totalAmount) },
-              { header: "Ödenen", align: "right", render: (row) => formatMoney(row.paidAmount) },
+              {
+                header: "Ödenen",
+                align: "right",
+                render: (row) =>
+                  row.payments.length === 0
+                    ? formatMoney(row.paidAmount)
+                    : `${formatMoney(row.paidAmount)} (${row.payments.map((p) => (p.paymentMethod === null ? "—" : PAYMENT_METHOD_LABELS[p.paymentMethod])).join(", ")})`,
+              },
               {
                 header: "Durum",
                 render: (row) =>
@@ -96,13 +109,14 @@ export function SupplierPurchasesPanel({ supplierId, onChanged }: SupplierPurcha
 
       {paying && (
         <Modal title={`${paying.ingredientName} alışı — ödeme`} onClose={() => setPaying(null)}>
-          <p className="ui-muted">Kalan borç: {formatMoney(paying.remainingAmount)}</p>
+          <p className="ui-muted">Kalan borç: {formatMoney(paying.remainingAmount)}. Ödeme, seçilen kasadan/karttan düşen bir Malzeme gideri olarak da işlenir.</p>
           <EntityForm
             fields={[
               { name: "amount", label: "Ödeme tutarı (₺)", type: "number", required: true, min: 0 },
               { name: "paymentDate", label: "Ödeme tarihi", type: "date", required: true },
+              ...paymentFields(cards),
             ]}
-            initialValues={{ amount: String(paying.remainingAmount), paymentDate: todayIso() }}
+            initialValues={{ amount: String(paying.remainingAmount), paymentDate: todayIso(), ...paymentInitialValues }}
             submitLabel="Ödemeyi kaydet"
             onCancel={() => setPaying(null)}
             onSubmit={async (values) => {
@@ -110,6 +124,7 @@ export function SupplierPurchasesPanel({ supplierId, onChanged }: SupplierPurcha
                 await supplierApi.addPayment(paying.id, {
                   amount: formValue.number(values, "amount"),
                   paymentDate: formValue.text(values, "paymentDate"),
+                  ...readPayment(values),
                 }),
               );
               setPaying(null);

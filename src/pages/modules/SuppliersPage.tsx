@@ -28,8 +28,6 @@ export function SuppliersPage() {
 
   return (
     <CrudPage<SupplierDto>
-      title="Tedarikçiler"
-      description="Alış girildiğinde malzemenin stoğu artar ve birim fiyatı güncellenir; ödemeler borçtan düşülür."
       summary={
         <StatGrid>
           <StatTile
@@ -42,7 +40,7 @@ export function SuppliersPage() {
         </StatGrid>
       }
       load={supplierApi.getAll}
-      emptyText="Henüz tedarikçi yok — ilk tedarikçiyi yukarıdan ekleyin."
+      emptyText="Henüz tedarikçi yok — ilk tedarikçiyi sağ üstteki düğmeyle ekleyin."
       columns={[
         { header: "Ad", render: (row) => row.name },
         { header: "İletişim", render: (row) => row.contactInfo || "—" },
@@ -70,7 +68,7 @@ export function SuppliersPage() {
           />
         ) : null
       }
-      createTitle="Yeni tedarikçi"
+      createLabel="Yeni tedarikçi"
       createFields={baseFields}
       createInitialValues={{ name: "", contactInfo: "" }}
       onCreate={(values) => supplierApi.create(toRequest(values))}

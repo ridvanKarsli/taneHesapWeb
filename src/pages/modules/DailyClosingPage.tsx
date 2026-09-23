@@ -58,7 +58,6 @@ export function DailyClosingPage() {
   return (
     <div>
       <PageHeader
-        title="Gün Sonu Kapanışı"
         description="Önce o günün satışlarını girin. Sonra kasadaki gerçek geliri ve sayıma göre gerçek tüketimi girip kapatın — sistem farkı raporlar."
         actions={<DateFilter id="closing-date" label="Tarih" value={date} onChange={setDate} />}
       />

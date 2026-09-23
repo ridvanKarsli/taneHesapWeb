@@ -1,44 +1,41 @@
-import { Hash, ListChecks, Pencil, Plus, Wallet } from "lucide-react";
+import { Bot, Hash, Pencil, Plus, Wallet } from "lucide-react";
 import { useState } from "react";
-import { employeeApi, expenseApi, expenseTypeApi, treasuryApi } from "../../api/moduleApis";
+import { employeeApi, expenseApi, expenseTypeApi } from "../../api/moduleApis";
 import { useAuth } from "../../auth/useAuth";
 import { AsyncState } from "../../components/ui/AsyncState";
 import { DataTable } from "../../components/ui/DataTable";
 import { ConfirmDialog, DeleteButton } from "../../components/ui/ConfirmDialog";
 import { EntityForm, type FieldDef } from "../../components/ui/EntityForm";
 import { Modal } from "../../components/ui/Modal";
+import { ModalFormButton } from "../../components/ui/ModalFormButton";
 import { formValue, type FormValues } from "../../components/ui/formValues";
 import { PageHeader } from "../../components/ui/PageHeader";
+import { paymentFields, paymentInitialValues, readOptionalPayment } from "../../components/ui/paymentFields";
 import { Section } from "../../components/ui/Section";
 import { StatGrid, StatTile } from "../../components/ui/StatTile";
 import { useAsyncData } from "../../hooks/useAsyncData";
+import { usePaymentCards } from "../../hooks/usePaymentCards";
 import { formatDate, formatMoney, formatNumber, startOfMonthIso, todayIso } from "../../lib/format";
-import {
-  EXPENSE_PAYMENT_METHOD_LABELS,
-  ExpenseCategory,
-  PAYMENT_METHOD_LABELS,
-  PaymentMethod,
-  toOptions,
-} from "../../types/enums";
+import { ExpenseCategory, PAYMENT_METHOD_LABELS } from "../../types/enums";
 import { UserRole } from "../../types/auth";
 import type { CreateExpenseRequest, ExpenseDto, ExpenseListFilter } from "../../types/expense";
 import type { ExpenseTypeDto } from "../../types/expenseType";
+import type { PaymentCardDto } from "../../types/treasury";
 
 type Option = { value: string; label: string };
 
 interface ExpenseFieldSources {
   types: ExpenseTypeDto[];
-  cards: Option[];
+  cards: PaymentCardDto[];
   /** ADMIN için çalışan listesi; EMPLOYEE'de boş (çalışan seçimi gösterilmez). */
   employees: Option[];
 }
 
 /**
- * Kart seçimi yalnızca "Kredi kartı" ödemesinde, çalışan seçimi yalnızca Personel kategorisindeki türlerde
- * görünür (bkz. proje raporu 3.15, 3.7) — kural formda tek yerde, backend de aynı kuralı doğrular.
+ * Ödeme şekli/kart alanları ortak `paymentFields`'tan; çalışan seçimi yalnızca Personel kategorisindeki
+ * türlerde görünür (bkz. proje raporu 3.15, 3.7) — kural formda tek yerde, backend de aynı kuralı doğrular.
  */
 function expenseFields({ types, cards, employees }: ExpenseFieldSources): FieldDef[] {
-  const isCard = (values: FormValues) => String(values.paymentMethod) === String(PaymentMethod.Card);
   const isPersonnel = (values: FormValues) =>
     types.find((t) => t.id === values.expenseTypeId)?.category === ExpenseCategory.Personnel;
 
@@ -47,8 +44,7 @@ function expenseFields({ types, cards, employees }: ExpenseFieldSources): FieldD
     { name: "amount", label: "Tutar (₺)", type: "number", required: true, min: 0 },
     { name: "quantity", label: "Miktar (opsiyonel)", type: "number", min: 0 },
     { name: "expenseDate", label: "Tarih", type: "date", required: true },
-    { name: "paymentMethod", label: "Ödeme şekli", type: "select", options: toOptions(EXPENSE_PAYMENT_METHOD_LABELS) },
-    { name: "paymentCardId", label: "Hangi kart", type: "select", required: true, options: cards, visibleWhen: isCard },
+    ...paymentFields(cards, { required: false }),
     ...(employees.length > 0
       ? [{ name: "employeeUserId", label: "Çalışan", type: "select" as const, options: employees, visibleWhen: isPersonnel }]
       : []),
@@ -61,15 +57,13 @@ function typeOption(t: ExpenseTypeDto): Option {
 }
 
 function toRequest(values: FormValues, types: ExpenseTypeDto[]): CreateExpenseRequest {
-  const paymentMethod = formValue.optionalNumber(values, "paymentMethod") as PaymentMethod | null;
   const isPersonnel = types.find((t) => t.id === values.expenseTypeId)?.category === ExpenseCategory.Personnel;
   return {
     expenseTypeId: formValue.text(values, "expenseTypeId"),
     amount: formValue.number(values, "amount"),
     quantity: formValue.optionalNumber(values, "quantity"),
     expenseDate: formValue.text(values, "expenseDate"),
-    paymentMethod,
-    paymentCardId: paymentMethod === PaymentMethod.Card ? formValue.optionalText(values, "paymentCardId") : null,
+    ...readOptionalPayment(values),
     employeeUserId: isPersonnel ? formValue.optionalText(values, "employeeUserId") : null,
     description: formValue.optionalText(values, "description"),
   };
@@ -102,15 +96,18 @@ export function ExpensesPage() {
   const [deleting, setDeleting] = useState<ExpenseDto | null>(null);
   const [filter, setFilter] = useState<ExpenseListFilter>({ fromDate: startOfMonthIso(todayIso()), toDate: todayIso() });
   const expenseTypes = useAsyncData(expenseTypeApi.getAll);
-  const cards = useAsyncData(treasuryApi.getAll);
+  const { cards, reload: reloadCards } = usePaymentCards();
   const employees = useAsyncData(() => (isEmployee ? Promise.resolve([]) : employeeApi.getAll()), String(isEmployee));
   const expenses = useAsyncData(() => expenseApi.getList(filter), JSON.stringify(filter));
 
   const allTypes = expenseTypes.data ?? [];
   const activeTypes = allTypes.filter((t) => t.isActive);
-  const cardOptions = (cards.data ?? []).filter((c) => c.isActive).map((c) => ({ value: c.id, label: `${c.name} (kullanılabilir ${formatMoney(c.availableLimit)})` }));
   const employeeOptions = (employees.data ?? []).map((e) => ({ value: e.id, label: e.fullName }));
   const total = (expenses.data ?? []).reduce((sum, e) => sum + e.amount, 0);
+
+  async function refresh() {
+    await Promise.all([expenses.reload(), reloadCards()]);
+  }
 
   function updateFilter(patch: Partial<ExpenseListFilter>) {
     setFilter((current) => ({ ...current, ...patch }));
@@ -119,36 +116,31 @@ export function ExpensesPage() {
   return (
     <div>
       <PageHeader
-        title="Giderler"
         description={
           isEmployee
             ? "Gider türünü seçip tutarı girin. Listede sadece sizin girdiğiniz giderler görünür."
-            : "Gider türünü seçip tutarı girin; her kayıt denetim kaydına işlenir."
+            : "Elle girilen giderler ve sistemin ürettiği otomatik giderler (komisyon, düzenli gider, tedarikçi ve personel ödemeleri) burada toplanır."
         }
-      />
-
-      <Section title="Yeni gider" icon={Plus}>
-        {expenseTypes.data && activeTypes.length === 0 ? (
-          <p className="ui-muted">Önce işletme sahibinin "Gider Türleri" sayfasından en az bir gider türü tanımlaması gerekiyor.</p>
-        ) : (
-          <EntityForm
-            layout="inline"
-            fields={expenseFields({ types: activeTypes, cards: cardOptions, employees: employeeOptions })}
-            initialValues={{ expenseTypeId: "", amount: "", quantity: "", expenseDate: todayIso(), paymentMethod: "0", paymentCardId: "", employeeUserId: "", description: "" }}
+        actions={
+          <ModalFormButton
+            label="Yeni gider"
+            icon={Plus}
+            disabled={activeTypes.length === 0}
+            fields={expenseFields({ types: activeTypes, cards, employees: employeeOptions })}
+            initialValues={{ expenseTypeId: "", amount: "", quantity: "", expenseDate: todayIso(), ...paymentInitialValues, employeeUserId: "", description: "" }}
             submitLabel="Gider ekle"
-            submitIcon={Plus}
-            resetOnSuccess
             onSubmit={async (values) => {
               await expenseApi.create(toRequest(values, allTypes));
-              await Promise.all([expenses.reload(), cards.reload()]);
+              await refresh();
             }}
           />
-        )}
-      </Section>
+        }
+      />
+      {expenseTypes.data && activeTypes.length === 0 && (
+        <p className="ui-muted">Önce işletme sahibinin Tanımlar → Gider Türleri sayfasından en az bir gider türü tanımlaması gerekiyor.</p>
+      )}
 
       <Section
-        title={isEmployee ? "Girdiğim giderler" : "Gider listesi"}
-        icon={ListChecks}
         actions={
           <div className="ui-toolbar">
             <div className="ui-filter">
@@ -190,15 +182,21 @@ export function ExpensesPage() {
                 { header: "Ödeme", render: (row) => paymentLabel(row) },
                 { header: "Açıklama", render: (row) => (row.employeeName ? `${row.employeeName} — ${row.description ?? ""}` : row.description || "—") },
               ]}
-              rowActions={(row) => (
-                <>
-                  <button type="button" className="ui-button secondary small" onClick={() => setEditing(row)}>
-                    <Pencil size={14} aria-hidden="true" />
-                    Düzenle
-                  </button>
-                  <DeleteButton onClick={() => setDeleting(row)} />
-                </>
-              )}
+              rowActions={(row) =>
+                row.sourceReferenceType ? (
+                  <span className="ui-muted ui-inline-note" title="Kaynağındaki kayıttan yönetilir">
+                    <Bot size={14} aria-hidden="true" /> Otomatik
+                  </span>
+                ) : (
+                  <>
+                    <button type="button" className="ui-button secondary small" onClick={() => setEditing(row)}>
+                      <Pencil size={14} aria-hidden="true" />
+                      Düzenle
+                    </button>
+                    <DeleteButton onClick={() => setDeleting(row)} />
+                  </>
+                )
+              }
             />
           )}
         </AsyncState>
@@ -207,14 +205,14 @@ export function ExpensesPage() {
       {editing && (
         <Modal title={`${editing.expenseTypeName} — düzenle`} onClose={() => setEditing(null)}>
           <EntityForm
-            fields={expenseFields({ types: allTypes, cards: cardOptions, employees: employeeOptions })}
+            fields={expenseFields({ types: allTypes, cards, employees: employeeOptions })}
             initialValues={toFormValues(editing)}
             submitLabel="Kaydet"
             onCancel={() => setEditing(null)}
             onSubmit={async (values) => {
               await expenseApi.update(editing.id, toRequest(values, allTypes));
               setEditing(null);
-              await Promise.all([expenses.reload(), cards.reload()]);
+              await refresh();
             }}
           />
         </Modal>
@@ -227,7 +225,7 @@ export function ExpensesPage() {
           onClose={() => setDeleting(null)}
           onConfirm={async () => {
             await expenseApi.remove(deleting.id);
-            await Promise.all([expenses.reload(), cards.reload()]);
+            await refresh();
           }}
         />
       )}

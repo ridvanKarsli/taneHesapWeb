@@ -19,16 +19,14 @@ function toRequest(values: FormValues) {
 export function PlatformsPage() {
   return (
     <CrudPage<PlatformDto>
-      title="Paket Servis Platformları"
-      description="Gün sonu satışlarında bu platformlardan gelen siparişlerin komisyonu otomatik olarak gider kaydına dönüşür."
       load={platformApi.getAll}
-      emptyText="Henüz platform yok — ilk platformu yukarıdan ekleyin."
+      emptyText="Henüz platform yok — ilk platformu sağ üstteki düğmeyle ekleyin."
       columns={[
         { header: "Ad", render: (row) => row.name },
         { header: "Komisyon", align: "right", render: (row) => formatPercent(row.commissionPercentage) },
         { header: "Durum", render: (row) => <ActiveBadge isActive={row.isActive} /> },
       ]}
-      createTitle="Yeni platform"
+      createLabel="Yeni platform"
       createFields={baseFields}
       createInitialValues={{ name: "", commissionPercentage: "" }}
       onCreate={(values) => platformApi.create(toRequest(values))}

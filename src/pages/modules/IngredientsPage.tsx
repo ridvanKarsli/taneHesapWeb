@@ -33,10 +33,8 @@ function isBelowThreshold(row: IngredientDto): boolean {
 export function IngredientsPage() {
   return (
     <CrudPage<IngredientDto>
-      title="Malzemeler"
-      description="Tabak maliyetleri bu birim fiyatlardan hesaplanır. Eşiğin altına düşen malzemeler vurgulanır ve bildirim üretir."
       load={ingredientApi.getAll}
-      emptyText="Henüz malzeme yok — ilk malzemeyi yukarıdan ekleyin."
+      emptyText="Henüz malzeme yok — ilk malzemeyi sağ üstteki düğmeyle ekleyin."
       rowClassName={(row) => (isBelowThreshold(row) ? "warning" : undefined)}
       columns={[
         { header: "Ad", render: (row) => row.name },
@@ -49,7 +47,7 @@ export function IngredientsPage() {
             isBelowThreshold(row) ? <StatusBadge tone="danger">Stok düşük</StatusBadge> : <ActiveBadge isActive={row.isActive} />,
         },
       ]}
-      createTitle="Yeni malzeme"
+      createLabel="Yeni malzeme"
       createFields={baseFields}
       createInitialValues={{ name: "", unit: "kg", currentUnitPrice: "", minimumStockThreshold: "0" }}
       onCreate={(values) => ingredientApi.create(toRequest(values))}

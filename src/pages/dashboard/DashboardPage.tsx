@@ -1,7 +1,7 @@
 import { ChevronRight, Wheat } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../auth/useAuth";
-import { NAV_ITEMS } from "../../config/navigation";
+import { visibleGroups } from "../../config/navigation";
 import { ROLE_LABELS, UserRole } from "../../types/auth";
 import { AdminAlerts } from "./AdminAlerts";
 import { AdminKpis } from "./AdminKpis";
@@ -20,7 +20,14 @@ export function DashboardPage() {
     return null;
   }
 
-  const shortcuts = NAV_ITEMS.filter((item) => item.path !== "/" && item.roles.includes(user.role));
+  const shortcuts = visibleGroups(user.role)
+    .filter((group) => group.path !== "/")
+    .map((group) => ({
+      ...group,
+      to: group.pages.length === 1 ? group.pages[0].path : group.path,
+      label: group.pages.length === 1 ? group.pages[0].label : group.label,
+      description: group.pages.length === 1 ? (group.pages[0].description ?? group.description) : group.pages.map((p) => p.label).join(" · "),
+    }));
   const firstName = user.fullName.split(" ")[0];
 
   return (
@@ -46,7 +53,7 @@ export function DashboardPage() {
       <h2 className="dashboard-section-title">Hızlı erişim</h2>
       <div className="dashboard-grid">
         {shortcuts.map((item) => (
-          <Link key={item.path} to={item.path} className="dashboard-card">
+          <Link key={item.path} to={item.to} className="dashboard-card">
             <span className={`tone-badge tone-${item.tone} dashboard-card-icon`} aria-hidden="true">
               <item.icon size={22} strokeWidth={1.9} />
             </span>

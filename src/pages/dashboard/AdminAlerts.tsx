@@ -19,7 +19,7 @@ export function AdminAlerts() {
   return (
     <div className="ui-two-columns">
       {lowStockItems.length > 0 && (
-        <Section title="Stoğu azalan malzemeler" icon={TriangleAlert} actions={<AlertLink to="/malzemeler" />}>
+        <Section title="Stoğu azalan malzemeler" icon={TriangleAlert} actions={<AlertLink to="/mutfak/malzemeler" />}>
           {lowStockItems.map((i) => (
             <p key={i.id} className="dashboard-alert-row">
               <strong>{i.name}</strong>
@@ -31,7 +31,7 @@ export function AdminAlerts() {
         </Section>
       )}
       {dueItems.length > 0 && (
-        <Section title="Ödenmemiş düzenli giderler" icon={BellRing} actions={<AlertLink to="/duzenli-giderler" />}>
+        <Section title="Ödenmemiş düzenli giderler" icon={BellRing} actions={<AlertLink to="/finans/duzenli-giderler" />}>
           {dueItems.map((e) => (
             <p key={e.id} className="dashboard-alert-row">
               <strong>{e.name}</strong>

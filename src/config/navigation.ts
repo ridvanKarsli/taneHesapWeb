@@ -1,20 +1,10 @@
 import {
-  Bike,
-  Boxes,
   Building2,
-  Carrot,
   ChartColumn,
-  CookingPot,
-  HandCoins,
-  Landmark,
+  ChefHat,
   LayoutDashboard,
   MoonStar,
-  ReceiptText,
-  Repeat,
-  ShieldCheck,
-  Tags,
-  Truck,
-  Users,
+  Settings2,
   Wallet,
   type LucideIcon,
 } from "lucide-react";
@@ -23,42 +13,130 @@ import { UserRole } from "../types/auth";
 /** Modül ikonunun zemin tonu (panel kartları ve sayfa başlığında) — bkz. `index.css` `--tone-*`. */
 export type NavTone = "saffron" | "green" | "blue" | "rose" | "violet" | "teal" | "amber" | "slate";
 
-export interface NavItem {
+/** Bir grup içindeki sekme (alt sayfa). */
+export interface NavPage {
   path: string;
   label: string;
-  /** Kenar çubuğu, sayfa başlığı ve panel kartlarında kullanılan SVG ikon (lucide). */
-  icon: LucideIcon;
-  tone: NavTone;
-  /** Panel kartında gösterilen kısa açıklama. */
-  description: string;
   roles: UserRole[];
+  /** Sayfa girişinde gösterilen kısa açıklama. */
+  description?: string;
 }
 
 /**
- * Kenar çubuğu, rota koruması (`routes/AppRoutes.tsx`), sayfa başlıkları (`PageHeader`) ve panel
- * kartları burayı tek kaynak olarak kullanır — yeni bir modül eklemek tek satırlık bir değişikliktir
- * (Open/Closed); sayfalar kendi ikon/başlık/erişim listesini tekrar tanımlamaz (DRY).
+ * Kenar çubuğundaki bir menü öğesi. Birden fazla görünür sayfası varsa sayfa üstünde sekmeler çıkar;
+ * tek sayfası varsa kenar çubuğu doğrudan o sayfanın adıyla ve adresiyle bağlanır.
  */
-export const NAV_ITEMS: NavItem[] = [
-  { path: "/", label: "Panel", icon: LayoutDashboard, tone: "saffron", description: "Genel bakış", roles: [UserRole.SuperAdmin, UserRole.Admin, UserRole.Employee] },
-  { path: "/isletmeler", label: "İşletmeler", icon: Building2, tone: "saffron", description: "İşletme ve yöneticiler", roles: [UserRole.SuperAdmin] },
-  { path: "/gun-sonu/satislar", label: "Gün Sonu Satışları", icon: ReceiptText, tone: "saffron", description: "Günün siparişleri", roles: [UserRole.Admin] },
-  { path: "/gun-sonu/kapanis", label: "Gün Sonu Kapanışı", icon: MoonStar, tone: "violet", description: "Gerçekleşen ve fire", roles: [UserRole.Admin] },
-  { path: "/giderler", label: "Giderler", icon: Wallet, tone: "rose", description: "Gider girişi ve liste", roles: [UserRole.Admin, UserRole.Employee] },
-  { path: "/cuzdanim", label: "Cüzdanım", icon: HandCoins, tone: "green", description: "Hak ediş ve ödemeler", roles: [UserRole.Employee] },
-  { path: "/kasa", label: "Kasa", icon: Landmark, tone: "teal", description: "Nakit, kart kasası, kartlar", roles: [UserRole.Admin] },
-  { path: "/gider-turleri", label: "Gider Türleri", icon: Tags, tone: "amber", description: "Gider kataloğu", roles: [UserRole.Admin] },
-  { path: "/urunler", label: "Ürünler / Tabaklar", icon: CookingPot, tone: "saffron", description: "Boy, reçete, maliyet", roles: [UserRole.Admin] },
-  { path: "/malzemeler", label: "Malzemeler", icon: Carrot, tone: "green", description: "Fiyat ve stok eşiği", roles: [UserRole.Admin] },
-  { path: "/stok-hareketleri", label: "Stok Hareketleri", icon: Boxes, tone: "teal", description: "Sayım ve fire", roles: [UserRole.Admin] },
-  { path: "/tedarikciler", label: "Tedarikçiler", icon: Truck, tone: "blue", description: "Alış ve borç takibi", roles: [UserRole.Admin] },
-  { path: "/duzenli-giderler", label: "Düzenli Giderler", icon: Repeat, tone: "violet", description: "Kira, fatura, abonelik", roles: [UserRole.Admin] },
-  { path: "/platformlar", label: "Paket Servis", icon: Bike, tone: "rose", description: "Platform komisyonları", roles: [UserRole.Admin] },
-  { path: "/calisanlar", label: "Çalışanlar", icon: Users, tone: "blue", description: "Kullanıcı hesapları", roles: [UserRole.Admin] },
-  { path: "/raporlar", label: "Raporlar", icon: ChartColumn, tone: "green", description: "Gelir-gider analizi", roles: [UserRole.Admin] },
-  { path: "/denetim-kayitlari", label: "Denetim Kayıtları", icon: ShieldCheck, tone: "slate", description: "Değişiklik geçmişi", roles: [UserRole.Admin, UserRole.SuperAdmin] },
+export interface NavGroup {
+  path: string;
+  label: string;
+  icon: LucideIcon;
+  tone: NavTone;
+  description: string;
+  pages: NavPage[];
+}
+
+const ALL_ROLES = [UserRole.SuperAdmin, UserRole.Admin, UserRole.Employee];
+const ADMIN = [UserRole.Admin];
+
+/**
+ * Menü, rota tablosu, sekmeler, sayfa başlıkları ve panel kartları için tek kaynak. Menü bilinçli olarak
+ * az sayıda gruptan oluşur; işler grup içinde sekmelere ayrılır (Rıdvan'ın "daha az sayfa, sayfa içinde
+ * kategori" isteği). Yeni bir sayfa eklemek = ilgili gruba bir satır + `PAGE_COMPONENTS`'a bir eşleme.
+ */
+export const NAV_GROUPS: NavGroup[] = [
+  {
+    path: "/",
+    label: "Panel",
+    icon: LayoutDashboard,
+    tone: "saffron",
+    description: "Genel bakış",
+    pages: [{ path: "/", label: "Panel", roles: ALL_ROLES }],
+  },
+  {
+    path: "/isletmeler",
+    label: "İşletmeler",
+    icon: Building2,
+    tone: "saffron",
+    description: "İşletmeler ve yöneticileri",
+    pages: [{ path: "/isletmeler", label: "İşletmeler", roles: [UserRole.SuperAdmin], description: "Yeni işletme açın ve her işletmeye giriş yapabilecek bir yönetici atayın." }],
+  },
+  {
+    path: "/gun-sonu",
+    label: "Gün Sonu",
+    icon: MoonStar,
+    tone: "violet",
+    description: "Satışlar ve kapanış",
+    pages: [
+      { path: "/gun-sonu/satislar", label: "Satışlar", roles: ADMIN, description: "Günün siparişlerini Excel ile yükleyin veya tek tek girin." },
+      { path: "/gun-sonu/kapanis", label: "Kapanış", roles: ADMIN, description: "Gerçekleşen geliri ve sayılan malzeme tüketimini girin; fire raporu üretilir." },
+    ],
+  },
+  {
+    path: "/finans",
+    label: "Finans",
+    icon: Wallet,
+    tone: "rose",
+    description: "Giderler, kasa, düzenli giderler",
+    pages: [
+      { path: "/finans/giderler", label: "Giderler", roles: [UserRole.Admin, UserRole.Employee] },
+      { path: "/finans/cuzdanim", label: "Cüzdanım", roles: [UserRole.Employee], description: "Çalıştığınız saatlere göre hak edişiniz, size yapılan ödemeler ve kalan bakiyeniz." },
+      { path: "/finans/kasa", label: "Kasa", roles: ADMIN, description: "Nakit ve kart kasası satışlarla artar, giderlerle azalır. Kartla ödenen giderler kartın limitinden düşer." },
+      { path: "/finans/duzenli-giderler", label: "Düzenli Giderler", roles: ADMIN, description: "Kira, fatura gibi periyodik giderler; dönem ödenmeden biterse bildirim gelir, ödeme gider olarak işlenir." },
+    ],
+  },
+  {
+    path: "/mutfak",
+    label: "Mutfak ve Stok",
+    icon: ChefHat,
+    tone: "green",
+    description: "Ürünler, malzemeler, stok, tedarikçiler",
+    pages: [
+      { path: "/mutfak/urunler", label: "Ürünler", roles: ADMIN, description: "Ürün, tabak boyu, reçete ve otomatik maliyet." },
+      { path: "/mutfak/malzemeler", label: "Malzemeler", roles: ADMIN, description: "Birim fiyat, minimum stok eşiği ve güncel stok." },
+      { path: "/mutfak/stok", label: "Stok Hareketleri", roles: ADMIN, description: "Satıştan otomatik düşüm, sayım düzeltmesi ve fire." },
+      { path: "/mutfak/tedarikciler", label: "Tedarikçiler", roles: ADMIN, description: "Alışlar stoğu artırır; ödemeler kasadan düşer ve gider olarak işlenir." },
+    ],
+  },
+  {
+    path: "/raporlar",
+    label: "Raporlar",
+    icon: ChartColumn,
+    tone: "blue",
+    description: "Dönem, aylık ve fire raporları",
+    pages: [
+      { path: "/raporlar/donem", label: "Dönem", roles: ADMIN, description: "Seçili aralıkta gelir-gider, nakit/kart ve kanal kırılımı." },
+      { path: "/raporlar/aylik", label: "Aylık", roles: ADMIN, description: "Tabak başı genel maliyet ve malzeme verimliliği; ay bitince otomatik bildirilir." },
+      { path: "/raporlar/fire", label: "Fire / Kayıp", roles: ADMIN, description: "Gün sonu kapanışlarından üretilen günlük fire ve gelir farkı özetleri." },
+    ],
+  },
+  {
+    path: "/tanimlar",
+    label: "Tanımlar",
+    icon: Settings2,
+    tone: "slate",
+    description: "Gider türleri, platformlar, çalışanlar, denetim",
+    pages: [
+      { path: "/tanimlar/gider-turleri", label: "Gider Türleri", roles: ADMIN, description: "Gider girişinde kullanılan katalog: ad, birim, kategori." },
+      { path: "/tanimlar/platformlar", label: "Paket Servis", roles: ADMIN, description: "Platform komisyon oranları; komisyon satıştan otomatik gidere dönüşür." },
+      { path: "/tanimlar/calisanlar", label: "Çalışanlar", roles: ADMIN, description: "Çalışan hesapları, saatlik ücret ve cüzdan." },
+      { path: "/tanimlar/denetim", label: "Denetim Kayıtları", roles: [UserRole.Admin, UserRole.SuperAdmin], description: "Kim, ne zaman, neyi değiştirdi." },
+    ],
+  },
 ];
 
-export function findNavItem(path: string): NavItem | undefined {
-  return NAV_ITEMS.find((item) => item.path === path);
+/** Bir rolün görebildiği gruplar — içindeki sayfalar da role göre süzülmüş olarak. */
+export function visibleGroups(role: UserRole): NavGroup[] {
+  return NAV_GROUPS.map((group) => ({ ...group, pages: group.pages.filter((page) => page.roles.includes(role)) })).filter(
+    (group) => group.pages.length > 0,
+  );
+}
+
+export function findNavPage(pathname: string): { group: NavGroup; page: NavPage } | undefined {
+  for (const group of NAV_GROUPS) {
+    const page = group.pages.find((p) => p.path === pathname);
+    if (page) {
+      return { group, page };
+    }
+  }
+  return undefined;
 }

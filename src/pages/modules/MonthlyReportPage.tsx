@@ -1,8 +1,9 @@
-import { CalendarRange, Coins, Sigma, TriangleAlert, UtensilsCrossed } from "lucide-react";
+import { Coins, Sigma, TriangleAlert, UtensilsCrossed } from "lucide-react";
 import { useState } from "react";
 import { reportApi } from "../../api/moduleApis";
 import { AsyncState } from "../../components/ui/AsyncState";
 import { DataTable } from "../../components/ui/DataTable";
+import { PageHeader } from "../../components/ui/PageHeader";
 import { Section } from "../../components/ui/Section";
 import { StatGrid, StatTile } from "../../components/ui/StatTile";
 import { useAsyncData } from "../../hooks/useAsyncData";
@@ -22,17 +23,16 @@ function monthOptions(): { year: number; month: number; label: string }[] {
  * Aylık rapor (bkz. proje raporu 3.16): tüm giderler ÷ satılan tabak = tabak başı genel maliyet; malzeme başına
  * gelir (örn. ₺/kg pirinç) ve önceki aya göre düşüş uyarısı. Ay bitince aynı rapor otomatik üretilip bildirilir.
  */
-export function MonthlyReportSection() {
+export function MonthlyReportPage() {
   const options = monthOptions();
   const [selected, setSelected] = useState(options[0]);
   const report = useAsyncData(() => reportApi.getMonthly(selected.year, selected.month), `${selected.year}-${selected.month}`);
 
   return (
-    <Section
-      title="Aylık rapor"
-      icon={CalendarRange}
-      actions={
-        <div className="ui-filter">
+    <div>
+      <PageHeader
+        actions={
+          <div className="ui-filter">
           <label htmlFor="monthly-report-month">Ay</label>
           <select
             id="monthly-report-month"
@@ -46,11 +46,11 @@ export function MonthlyReportSection() {
             ))}
           </select>
         </div>
-      }
-    >
+        }
+      />
       <AsyncState {...report}>
         {(data) => (
-          <>
+          <Section>
             <StatGrid>
               <StatTile icon={UtensilsCrossed} label="Satılan tabak" value={formatNumber(data.platesSold, 0)} />
               <StatTile icon={Sigma} iconTone="rose" label="Tabak başı genel maliyet" value={formatMoney(data.costPerPlate)} />
@@ -106,9 +106,9 @@ export function MonthlyReportSection() {
                 ]}
               />
             )}
-          </>
+          </Section>
         )}
       </AsyncState>
-    </Section>
+    </div>
   );
 }

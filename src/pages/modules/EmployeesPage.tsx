@@ -20,10 +20,8 @@ export function EmployeesPage() {
 
   return (
     <CrudPage<EmployeeDto>
-      title="Çalışanlar"
-      description="Çalışanlar bu kullanıcı adı/şifre ile giriş yapıp gider girer ve kendi cüzdanını görür. Günlük çalışma saatini siz girersiniz; hak ediş cüzdanına işlenir."
       load={employeeApi.getAll}
-      emptyText="Henüz çalışan yok — ilk çalışanı yukarıdan ekleyin."
+      emptyText="Henüz çalışan yok — ilk çalışanı sağ üstteki düğmeyle ekleyin."
       columns={[
         { header: "Ad soyad", render: (row) => row.fullName },
         { header: "Kullanıcı adı", render: (row) => row.username },
@@ -39,7 +37,7 @@ export function EmployeesPage() {
       renderExpanded={(row) =>
         expandedId === row.id ? <EmployeeWalletPanel employeeId={row.id} load={() => employeeApi.getWallet(row.id)} /> : null
       }
-      createTitle="Yeni çalışan"
+      createLabel="Yeni çalışan"
       createFields={[
         { name: "fullName", label: "Ad soyad", required: true },
         { name: "username", label: "Kullanıcı adı", required: true },

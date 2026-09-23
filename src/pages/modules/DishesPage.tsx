@@ -7,6 +7,7 @@ import { DataTable } from "../../components/ui/DataTable";
 import { EntityForm } from "../../components/ui/EntityForm";
 import { formValue } from "../../components/ui/formValues";
 import { Modal } from "../../components/ui/Modal";
+import { ModalFormButton } from "../../components/ui/ModalFormButton";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Section } from "../../components/ui/Section";
 import { ActiveBadge } from "../../components/ui/StatusBadge";
@@ -35,32 +36,28 @@ export function DishesPage() {
   return (
     <div>
       <PageHeader
-        title="Ürünler / Tabaklar"
-        description="Her ürünün boylarını ve reçetesini tanımlayın; maliyet ve kâr güncel malzeme fiyatlarından hesaplanır."
+        actions={
+          <ModalFormButton
+            label="Yeni ürün"
+            icon={Plus}
+            fields={[
+              { name: "name", label: "Ürün adı", required: true, placeholder: "örn. Kavurmalı pilav" },
+              { name: "description", label: "Açıklama" },
+            ]}
+            initialValues={{ name: "", description: "" }}
+            submitLabel="Ürün ekle"
+            onSubmit={async (values) => {
+              const created = await dishApi.create({
+                name: formValue.text(values, "name"),
+                description: formValue.optionalText(values, "description"),
+              });
+              dishes.setData((current) => [...(current ?? []), created]);
+            }}
+          />
+        }
       />
 
-      <Section title="Yeni ürün" icon={Plus}>
-        <EntityForm
-          layout="inline"
-          fields={[
-            { name: "name", label: "Ürün adı", required: true, placeholder: "örn. Kavurmalı pilav" },
-            { name: "description", label: "Açıklama" },
-          ]}
-          initialValues={{ name: "", description: "" }}
-          submitLabel="Ürün ekle"
-          submitIcon={Plus}
-          resetOnSuccess
-          onSubmit={async (values) => {
-            const created = await dishApi.create({
-              name: formValue.text(values, "name"),
-              description: formValue.optionalText(values, "description"),
-            });
-            dishes.setData((current) => [...(current ?? []), created]);
-          }}
-        />
-      </Section>
-
-      <AsyncState {...dishes} isEmpty={(rows) => rows.length === 0} emptyText="Henüz ürün yok — ilk ürünü yukarıdan ekleyin.">
+      <AsyncState {...dishes} isEmpty={(rows) => rows.length === 0} emptyText="Henüz ürün yok — sağ üstteki düğmeyle ekleyin.">
         {(rows) =>
           rows.map((dish) => (
             <Section

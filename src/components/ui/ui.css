@@ -43,6 +43,65 @@
   flex-wrap: wrap;
 }
 
+/* Sekmeler (GroupLayout) — gerçek rotalar, yatay kaydırılabilir */
+.ui-tabs {
+  display: flex;
+  gap: 0.25rem;
+  flex-basis: 100%;
+  overflow-x: auto;
+  padding: 0.25rem 0 0;
+  border-bottom: 1px solid var(--color-border);
+  scrollbar-width: none;
+}
+
+.ui-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.ui-tab {
+  flex-shrink: 0;
+  padding: 0.55rem 0.9rem;
+  margin-bottom: -1px;
+  border-bottom: 2px solid transparent;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.15s var(--ease), background 0.15s var(--ease);
+}
+
+.ui-tab:hover {
+  color: var(--color-text);
+  background: var(--color-surface-alt);
+}
+
+.ui-tab.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+/* Sekmeli sayfanın girişi: açıklama + eylem düğmeleri (büyük başlık GroupLayout'ta) */
+.ui-page-intro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  flex-wrap: wrap;
+  margin: -0.5rem 0 1.1rem;
+}
+
+.ui-page-intro p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  max-width: 720px;
+}
+
+.ui-page-intro .ui-page-header-actions {
+  margin-left: auto;
+}
+
 /* ---------- Kart bölümü ---------- */
 .ui-section {
   background: var(--color-surface);
@@ -410,7 +469,7 @@
 }
 
 .ui-table tbody tr:hover > td {
-  background: #fdfaf6;
+  background: var(--color-surface-alt);
 }
 
 .ui-table tbody tr:last-child > td {
@@ -434,7 +493,7 @@
 }
 
 .ui-table tr.warning > td {
-  background: #fff7ea;
+  background: var(--color-warning-soft);
 }
 
 .ui-table tr.warning > td:first-child {
@@ -496,7 +555,7 @@
 .ui-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(42, 33, 28, 0.42);
+  background: var(--color-overlay);
   backdrop-filter: blur(3px);
   display: flex;
   align-items: center;
@@ -790,7 +849,7 @@
 
   .ui-table tr.warning {
     border-color: var(--color-accent);
-    background: #fff7ea;
+    background: var(--color-warning-soft);
   }
 
   .ui-table tr.warning > td {
@@ -841,7 +900,7 @@
 }
 
 .ui-button.danger:hover:not(:disabled) {
-  background: #a8352a;
+  background: var(--color-danger-dark);
 }
 
 .ui-confirm-message {

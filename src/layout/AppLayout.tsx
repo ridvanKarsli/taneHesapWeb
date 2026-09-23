@@ -1,9 +1,10 @@
-import { LogOut, Menu, Wheat, X } from "lucide-react";
+import { LogOut, Menu, Moon, Sun, Wheat, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 import { NotificationsBell } from "../components/NotificationsBell";
-import { NAV_ITEMS } from "../config/navigation";
+import { visibleGroups } from "../config/navigation";
+import { useTheme } from "../theme/useTheme";
 import { ROLE_LABELS } from "../types/auth";
 import "./AppLayout.css";
 
@@ -24,6 +25,7 @@ function initialsOf(fullName: string): string {
  */
 export function AppLayout() {
   const { user, logout } = useAuth();
+  const { theme, toggle: toggleTheme } = useTheme();
   const [isNavOpen, setIsNavOpen] = useState(false);
 
   useEffect(() => {
@@ -44,8 +46,15 @@ export function AppLayout() {
     return null;
   }
 
-  const visibleNavItems = NAV_ITEMS.filter((item) => item.roles.includes(user.role));
+  // Tek görünür sayfası olan grup, o sayfanın adıyla ve adresiyle bağlanır (örn. SUPER_ADMIN için "Denetim Kayıtları").
+  const navLinks = visibleGroups(user.role).map((group) => ({
+    key: group.path,
+    to: group.pages.length === 1 ? group.pages[0].path : group.path,
+    label: group.pages.length === 1 ? group.pages[0].label : group.label,
+    icon: group.icon,
+  }));
   const initials = initialsOf(user.fullName);
+  const themeLabel = theme === "dark" ? "Açık temaya geç" : "Koyu temaya geç";
 
   return (
     <div className="app-shell">
@@ -65,11 +74,11 @@ export function AppLayout() {
 
         <nav className="app-sidebar-nav">
           <span className="app-nav-section">Menü</span>
-          {visibleNavItems.map((item) => (
+          {navLinks.map((item) => (
             <NavLink
-              key={item.path}
-              to={item.path}
-              end={item.path === "/"}
+              key={item.key}
+              to={item.to}
+              end={item.to === "/"}
               onClick={() => setIsNavOpen(false)}
               className={({ isActive }) => (isActive ? "app-nav-link active" : "app-nav-link")}
             >
@@ -110,6 +119,9 @@ export function AppLayout() {
             <span className="app-topbar-date">{todayLabel}</span>
           </div>
           <div className="app-topbar-actions">
+            <button type="button" className="app-icon-button" onClick={toggleTheme} aria-label={themeLabel} title={themeLabel}>
+              {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}
+            </button>
             <NotificationsBell />
             <div className="app-topbar-user">
               <span className="app-user-avatar" aria-hidden="true">

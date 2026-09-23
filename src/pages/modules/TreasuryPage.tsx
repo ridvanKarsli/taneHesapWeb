@@ -1,13 +1,12 @@
-import { Banknote, CreditCard, Landmark, ListChecks, Percent } from "lucide-react";
+import { Banknote, CreditCard, Landmark, Percent } from "lucide-react";
 import { useState } from "react";
 import { treasuryApi } from "../../api/moduleApis";
 import { AsyncState } from "../../components/ui/AsyncState";
 import { ConfirmDialog, DeleteButton } from "../../components/ui/ConfirmDialog";
 import { DataTable } from "../../components/ui/DataTable";
 import { DateFilter } from "../../components/ui/DateFilter";
-import { EntityForm } from "../../components/ui/EntityForm";
 import { formValue } from "../../components/ui/formValues";
-import { Modal } from "../../components/ui/Modal";
+import { ModalFormButton } from "../../components/ui/ModalFormButton";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Section } from "../../components/ui/Section";
 import { StatGrid, StatTile } from "../../components/ui/StatTile";
@@ -16,7 +15,7 @@ import { formatDate, formatMoney, startOfMonthIso, todayIso } from "../../lib/fo
 import { TREASURY_ACCOUNT_LABELS, TREASURY_KIND_LABELS, TreasuryAccount, TreasuryTransactionKind, toOptions } from "../../types/enums";
 import type { TreasuryTransactionDto, TreasuryTransactionFilter } from "../../types/treasury";
 import { PaymentCardsSection } from "./PaymentCardsSection";
-import { TreasuryActionsSection } from "./TreasuryActionsSection";
+import { TreasuryActions } from "./TreasuryActions";
 
 const MANUAL_KINDS: TreasuryTransactionKind[] = [
   TreasuryTransactionKind.Transfer,
@@ -36,7 +35,6 @@ export function TreasuryPage() {
   const summary = useAsyncData(treasuryApi.getSummary);
   const [filter, setFilter] = useState<TreasuryTransactionFilter>({ fromDate: startOfMonthIso(todayIso()), toDate: todayIso() });
   const transactions = useAsyncData(() => treasuryApi.getTransactions(filter), JSON.stringify(filter));
-  const [editingFee, setEditingFee] = useState(false);
   const [deleting, setDeleting] = useState<TreasuryTransactionDto | null>(null);
 
   const cards = summary.data?.cards ?? [];
@@ -50,13 +48,23 @@ export function TreasuryPage() {
   return (
     <div>
       <PageHeader
-        title="Kasa"
-        description="Nakit ve kart kasası bakiyeleri satışlarla artar, giderlerle azalır. Kartla ödenen giderler kartın limitinden düşer; kart borcu ödenince limit geri açılır."
         actions={
-          <button type="button" className="ui-button secondary small" onClick={() => setEditingFee(true)}>
-            <Percent size={14} aria-hidden="true" />
-            Kart komisyonu %{summary.data?.cardFeePercentage ?? "…"}
-          </button>
+          <>
+            <ModalFormButton
+              label={`Kart komisyonu %${summary.data?.cardFeePercentage ?? "…"}`}
+              title="Kart komisyon oranı"
+              icon={Percent}
+              buttonClassName="ui-button ghost"
+              intro={<p className="ui-muted">Dükkan içi kart (POS) satışlarında bankanın kestiği yüzde. Her günün kesintisi otomatik bir "Kart Komisyonu" gideri olarak işlenir.</p>}
+              fields={[{ name: "cardFeePercentage", label: "Komisyon (%)", type: "number", required: true, min: 0, step: "0.01" }]}
+              initialValues={{ cardFeePercentage: String(summary.data?.cardFeePercentage ?? 3) }}
+              onSubmit={async (values) => {
+                await treasuryApi.updateSettings(formValue.number(values, "cardFeePercentage"));
+                await summary.reload();
+              }}
+            />
+            <TreasuryActions cards={cards} onDone={refreshAll} />
+          </>
         }
       />
 
@@ -78,13 +86,10 @@ export function TreasuryPage() {
         <StatTile icon={CreditCard} iconTone="rose" label="Toplam kart borcu" value={summary.data ? formatMoney(totalCardDebt) : "…"} />
       </StatGrid>
 
-      <TreasuryActionsSection cards={cards} onDone={refreshAll} />
-
       <PaymentCardsSection onChanged={() => void summary.reload()} />
 
       <Section
         title="Kasa hareketleri"
-        icon={ListChecks}
         actions={
           <>
             <DateFilter id="treasury-from" label="Başlangıç" value={filter.fromDate ?? ""} onChange={(fromDate) => setFilter((f) => ({ ...f, fromDate }))} />
@@ -128,23 +133,6 @@ export function TreasuryPage() {
           )}
         </AsyncState>
       </Section>
-
-      {editingFee && summary.data && (
-        <Modal title="Kart komisyon oranı" onClose={() => setEditingFee(false)}>
-          <p className="ui-muted">Dükkan içi kart (POS) satışlarında bankanın kestiği yüzde. Kart kasasına bu kesinti düşüldükten sonra kalan tutar yazılır.</p>
-          <EntityForm
-            fields={[{ name: "cardFeePercentage", label: "Komisyon (%)", type: "number", required: true, min: 0, step: "0.01" }]}
-            initialValues={{ cardFeePercentage: String(summary.data.cardFeePercentage) }}
-            submitLabel="Kaydet"
-            onCancel={() => setEditingFee(false)}
-            onSubmit={async (values) => {
-              await treasuryApi.updateSettings(formValue.number(values, "cardFeePercentage"));
-              setEditingFee(false);
-              await summary.reload();
-            }}
-          />
-        </Modal>
-      )}
 
       {deleting && (
         <ConfirmDialog

@@ -1,3 +1,5 @@
+import type { PaymentMethod } from "./enums";
+
 /** Backend `SupplierDto` ve alış/ödeme DTO'ları (TaneHesap.Application.Suppliers) ile birebir eşleşir. */
 export interface SupplierDto {
   id: string;
@@ -20,6 +22,7 @@ export interface SupplierPaymentDto {
   id: string;
   amount: number;
   paymentDate: string;
+  paymentMethod: PaymentMethod | null;
 }
 
 export interface SupplierPurchaseDto {
@@ -44,7 +47,10 @@ export interface CreateSupplierPurchaseRequest {
   purchaseDate: string;
 }
 
+/** Ödeme, ödeme şekline göre kasadan/karttan düşen otomatik bir Malzeme gideri olarak da işlenir (bkz. proje raporu 3.12, 3.15). */
 export interface CreateSupplierPaymentRequest {
   amount: number;
   paymentDate: string;
+  paymentMethod: PaymentMethod;
+  paymentCardId: string | null;
 }

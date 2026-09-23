@@ -1,38 +1,32 @@
 import type { ReactNode } from "react";
-import { useLocation } from "react-router-dom";
-import { findNavItem } from "../../config/navigation";
+import { useNavGroup } from "../../layout/NavGroupContext";
 import "./ui.css";
 
 interface PageHeaderProps {
-  /** Verilmezse `navigation.ts`'teki modül adı kullanılır. */
+  /** Verilmezse `navigation.ts`'teki sayfa adı kullanılır (yalnızca sekmesiz sayfalarda görünür). */
   title?: string;
+  /** Verilmezse `navigation.ts`'teki sayfa açıklaması kullanılır. */
   description?: string;
   actions?: ReactNode;
 }
 
 /**
- * Sayfa başlığı. İkon ve renk tonu mevcut rotaya karşılık gelen `NavItem`'dan alınır — her sayfa
- * kendi ikonunu ayrıca tanımlamaz (tek kaynak: `config/navigation.ts`).
+ * Sayfa girişi. Büyük başlık ve ikon `GroupLayout` tarafından basılır; bu bileşen sekmeli sayfalarda
+ * yalnızca açıklama + eylem düğmelerini (örn. "Yeni gider") gösterir, böylece başlık iki kez yazılmaz.
  */
-export function PageHeader({ title, description, actions }: PageHeaderProps) {
-  const { pathname } = useLocation();
-  const navItem = findNavItem(pathname);
-  const Icon = navItem?.icon;
+export function PageHeader({ description, actions }: PageHeaderProps) {
+  const nav = useNavGroup();
+  const text = description ?? nav?.page.description;
+  const showText = Boolean(text) && (nav?.isTabbed ?? true);
+
+  if (!showText && !actions) {
+    return null;
+  }
 
   return (
-    <header className="ui-page-header">
-      <div className="ui-page-header-main">
-        {Icon && (
-          <span className={`tone-badge tone-${navItem.tone} ui-page-header-icon`} aria-hidden="true">
-            <Icon size={22} strokeWidth={1.9} />
-          </span>
-        )}
-        <div>
-          <h1>{title ?? navItem?.label}</h1>
-          {description && <p>{description}</p>}
-        </div>
-      </div>
+    <div className="ui-page-intro">
+      {showText && <p>{text}</p>}
       {actions && <div className="ui-page-header-actions">{actions}</div>}
-    </header>
+    </div>
   );
 }
