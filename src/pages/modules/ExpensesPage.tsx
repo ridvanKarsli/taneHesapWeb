@@ -10,17 +10,32 @@ import { Modal } from "../../components/ui/Modal";
 import { ModalFormButton } from "../../components/ui/ModalFormButton";
 import { formValue, type FormValues } from "../../components/ui/formValues";
 import { PageHeader } from "../../components/ui/PageHeader";
-import { paymentFields, paymentInitialValues, readOptionalPayment } from "../../components/ui/paymentFields";
+import {
+  paymentFields,
+  paymentInitialValues,
+  readOptionalPayment,
+} from "../../components/ui/paymentFields";
 import { Section } from "../../components/ui/Section";
 import { StatGrid, StatTile } from "../../components/ui/StatTile";
 import { useAsyncData } from "../../hooks/useAsyncData";
 import { usePaymentCards } from "../../hooks/usePaymentCards";
-import { formatDate, formatMoney, formatNumber, startOfMonthIso, todayIso } from "../../lib/format";
+import {
+  formatDate,
+  formatMoney,
+  formatNumber,
+  startOfMonthIso,
+  todayIso,
+} from "../../lib/format";
 import { ExpenseCategory, PAYMENT_METHOD_LABELS } from "../../types/enums";
 import { UserRole } from "../../types/auth";
-import type { CreateExpenseRequest, ExpenseDto, ExpenseListFilter } from "../../types/expense";
+import type {
+  CreateExpenseRequest,
+  ExpenseDto,
+  ExpenseListFilter,
+} from "../../types/expense";
 import type { ExpenseTypeDto } from "../../types/expenseType";
 import type { PaymentCardDto } from "../../types/treasury";
+import { ExpenseQuickActions } from "./ExpenseQuickActions";
 
 type Option = { value: string; label: string };
 
@@ -35,18 +50,43 @@ interface ExpenseFieldSources {
  * Ödeme şekli/kart alanları ortak `paymentFields`'tan; çalışan seçimi yalnızca Personel kategorisindeki
  * türlerde görünür (bkz. proje raporu 3.15, 3.7) — kural formda tek yerde, backend de aynı kuralı doğrular.
  */
-function expenseFields({ types, cards, employees }: ExpenseFieldSources): FieldDef[] {
+function expenseFields({
+  types,
+  cards,
+  employees,
+}: ExpenseFieldSources): FieldDef[] {
   const isPersonnel = (values: FormValues) =>
-    types.find((t) => t.id === values.expenseTypeId)?.category === ExpenseCategory.Personnel;
+    types.find((t) => t.id === values.expenseTypeId)?.category ===
+    ExpenseCategory.Personnel;
 
   return [
-    { name: "expenseTypeId", label: "Gider türü", type: "select", required: true, options: types.map(typeOption) },
-    { name: "amount", label: "Tutar (₺)", type: "number", required: true, min: 0 },
+    {
+      name: "expenseTypeId",
+      label: "Gider türü",
+      type: "select",
+      required: true,
+      options: types.map(typeOption),
+    },
+    {
+      name: "amount",
+      label: "Tutar (₺)",
+      type: "number",
+      required: true,
+      min: 0,
+    },
     { name: "quantity", label: "Miktar (opsiyonel)", type: "number", min: 0 },
     { name: "expenseDate", label: "Tarih", type: "date", required: true },
     ...paymentFields(cards, { required: false }),
     ...(employees.length > 0
-      ? [{ name: "employeeUserId", label: "Çalışan", type: "select" as const, options: employees, visibleWhen: isPersonnel }]
+      ? [
+          {
+            name: "employeeUserId",
+            label: "Çalışan",
+            type: "select" as const,
+            options: employees,
+            visibleWhen: isPersonnel,
+          },
+        ]
       : []),
     { name: "description", label: "Açıklama", type: "textarea" },
   ];
@@ -56,15 +96,22 @@ function typeOption(t: ExpenseTypeDto): Option {
   return { value: t.id, label: `${t.name} (${t.unit})` };
 }
 
-function toRequest(values: FormValues, types: ExpenseTypeDto[]): CreateExpenseRequest {
-  const isPersonnel = types.find((t) => t.id === values.expenseTypeId)?.category === ExpenseCategory.Personnel;
+function toRequest(
+  values: FormValues,
+  types: ExpenseTypeDto[],
+): CreateExpenseRequest {
+  const isPersonnel =
+    types.find((t) => t.id === values.expenseTypeId)?.category ===
+    ExpenseCategory.Personnel;
   return {
     expenseTypeId: formValue.text(values, "expenseTypeId"),
     amount: formValue.number(values, "amount"),
     quantity: formValue.optionalNumber(values, "quantity"),
     expenseDate: formValue.text(values, "expenseDate"),
     ...readOptionalPayment(values),
-    employeeUserId: isPersonnel ? formValue.optionalText(values, "employeeUserId") : null,
+    employeeUserId: isPersonnel
+      ? formValue.optionalText(values, "employeeUserId")
+      : null,
     description: formValue.optionalText(values, "description"),
   };
 }
@@ -75,7 +122,8 @@ function toFormValues(expense: ExpenseDto): FormValues {
     amount: String(expense.amount),
     quantity: expense.quantity === null ? "" : String(expense.quantity),
     expenseDate: expense.expenseDate,
-    paymentMethod: expense.paymentMethod === null ? "" : String(expense.paymentMethod),
+    paymentMethod:
+      expense.paymentMethod === null ? "" : String(expense.paymentMethod),
     paymentCardId: expense.paymentCardId ?? "",
     employeeUserId: expense.employeeUserId ?? "",
     description: expense.description ?? "",
@@ -94,15 +142,27 @@ export function ExpensesPage() {
   const isEmployee = user?.role === UserRole.Employee;
   const [editing, setEditing] = useState<ExpenseDto | null>(null);
   const [deleting, setDeleting] = useState<ExpenseDto | null>(null);
-  const [filter, setFilter] = useState<ExpenseListFilter>({ fromDate: startOfMonthIso(todayIso()), toDate: todayIso() });
+  const [filter, setFilter] = useState<ExpenseListFilter>({
+    fromDate: startOfMonthIso(todayIso()),
+    toDate: todayIso(),
+  });
   const expenseTypes = useAsyncData(expenseTypeApi.getAll);
   const { cards, reload: reloadCards } = usePaymentCards();
-  const employees = useAsyncData(() => (isEmployee ? Promise.resolve([]) : employeeApi.getAll()), String(isEmployee));
-  const expenses = useAsyncData(() => expenseApi.getList(filter), JSON.stringify(filter));
+  const employees = useAsyncData(
+    () => (isEmployee ? Promise.resolve([]) : employeeApi.getAll()),
+    String(isEmployee),
+  );
+  const expenses = useAsyncData(
+    () => expenseApi.getList(filter),
+    JSON.stringify(filter),
+  );
 
   const allTypes = expenseTypes.data ?? [];
   const activeTypes = allTypes.filter((t) => t.isActive);
-  const employeeOptions = (employees.data ?? []).map((e) => ({ value: e.id, label: e.fullName }));
+  const employeeOptions = (employees.data ?? []).map((e) => ({
+    value: e.id,
+    label: e.fullName,
+  }));
   const total = (expenses.data ?? []).reduce((sum, e) => sum + e.amount, 0);
 
   async function refresh() {
@@ -122,22 +182,42 @@ export function ExpensesPage() {
             : "Elle girilen giderler ve sistemin ürettiği otomatik giderler (komisyon, düzenli gider, tedarikçi ve personel ödemeleri) burada toplanır."
         }
         actions={
-          <ModalFormButton
-            label="Yeni gider"
-            icon={Plus}
-            disabled={activeTypes.length === 0}
-            fields={expenseFields({ types: activeTypes, cards, employees: employeeOptions })}
-            initialValues={{ expenseTypeId: "", amount: "", quantity: "", expenseDate: todayIso(), ...paymentInitialValues, employeeUserId: "", description: "" }}
-            submitLabel="Gider ekle"
-            onSubmit={async (values) => {
-              await expenseApi.create(toRequest(values, allTypes));
-              await refresh();
-            }}
-          />
+          <>
+            {!isEmployee && (
+              <ExpenseQuickActions cards={cards} onDone={refresh} />
+            )}
+            <ModalFormButton
+              label="Yeni gider"
+              icon={Plus}
+              disabled={activeTypes.length === 0}
+              fields={expenseFields({
+                types: activeTypes,
+                cards,
+                employees: employeeOptions,
+              })}
+              initialValues={{
+                expenseTypeId: "",
+                amount: "",
+                quantity: "",
+                expenseDate: todayIso(),
+                ...paymentInitialValues,
+                employeeUserId: "",
+                description: "",
+              }}
+              submitLabel="Gider ekle"
+              onSubmit={async (values) => {
+                await expenseApi.create(toRequest(values, allTypes));
+                await refresh();
+              }}
+            />
+          </>
         }
       />
       {expenseTypes.data && activeTypes.length === 0 && (
-        <p className="ui-muted">Önce işletme sahibinin Tanımlar → Gider Türleri sayfasından en az bir gider türü tanımlaması gerekiyor.</p>
+        <p className="ui-muted">
+          Önce işletme sahibinin Tanımlar → Gider Türleri sayfasından en az bir
+          gider türü tanımlaması gerekiyor.
+        </p>
       )}
 
       <Section
@@ -145,15 +225,31 @@ export function ExpensesPage() {
           <div className="ui-toolbar">
             <div className="ui-filter">
               <label htmlFor="expense-from">Başlangıç</label>
-              <input id="expense-from" type="date" value={filter.fromDate ?? ""} onChange={(e) => updateFilter({ fromDate: e.target.value })} />
+              <input
+                id="expense-from"
+                type="date"
+                value={filter.fromDate ?? ""}
+                onChange={(e) => updateFilter({ fromDate: e.target.value })}
+              />
             </div>
             <div className="ui-filter">
               <label htmlFor="expense-to">Bitiş</label>
-              <input id="expense-to" type="date" value={filter.toDate ?? ""} onChange={(e) => updateFilter({ toDate: e.target.value })} />
+              <input
+                id="expense-to"
+                type="date"
+                value={filter.toDate ?? ""}
+                onChange={(e) => updateFilter({ toDate: e.target.value })}
+              />
             </div>
             <div className="ui-filter">
               <label htmlFor="expense-type">Tür</label>
-              <select id="expense-type" value={filter.expenseTypeId ?? ""} onChange={(e) => updateFilter({ expenseTypeId: e.target.value || undefined })}>
+              <select
+                id="expense-type"
+                value={filter.expenseTypeId ?? ""}
+                onChange={(e) =>
+                  updateFilter({ expenseTypeId: e.target.value || undefined })
+                }
+              >
                 <option value="">Tümü</option>
                 {(expenseTypes.data ?? []).map((t) => (
                   <option key={t.id} value={t.id}>
@@ -166,30 +262,69 @@ export function ExpensesPage() {
         }
       >
         <StatGrid>
-          <StatTile icon={Wallet} iconTone="rose" label="Seçili aralıkta toplam" value={formatMoney(total)} />
-          <StatTile icon={Hash} iconTone="slate" label="Kayıt sayısı" value={String(expenses.data?.length ?? 0)} />
+          <StatTile
+            icon={Wallet}
+            iconTone="rose"
+            label="Seçili aralıkta toplam"
+            value={formatMoney(total)}
+          />
+          <StatTile
+            icon={Hash}
+            iconTone="slate"
+            label="Kayıt sayısı"
+            value={String(expenses.data?.length ?? 0)}
+          />
         </StatGrid>
-        <AsyncState {...expenses} isEmpty={(rows) => rows.length === 0} emptyText="Bu aralıkta gider yok.">
+        <AsyncState
+          {...expenses}
+          isEmpty={(rows) => rows.length === 0}
+          emptyText="Bu aralıkta gider yok."
+        >
           {(rows) => (
             <DataTable
               rows={rows}
               rowKey={(row) => row.id}
               columns={[
-                { header: "Tarih", render: (row) => formatDate(row.expenseDate) },
+                {
+                  header: "Tarih",
+                  render: (row) => formatDate(row.expenseDate),
+                },
                 { header: "Tür", render: (row) => row.expenseTypeName },
-                { header: "Miktar", align: "right", render: (row) => (row.quantity === null ? "—" : formatNumber(row.quantity)) },
-                { header: "Tutar", align: "right", render: (row) => formatMoney(row.amount) },
+                {
+                  header: "Miktar",
+                  align: "right",
+                  render: (row) =>
+                    row.quantity === null ? "—" : formatNumber(row.quantity),
+                },
+                {
+                  header: "Tutar",
+                  align: "right",
+                  render: (row) => formatMoney(row.amount),
+                },
                 { header: "Ödeme", render: (row) => paymentLabel(row) },
-                { header: "Açıklama", render: (row) => (row.employeeName ? `${row.employeeName} — ${row.description ?? ""}` : row.description || "—") },
+                {
+                  header: "Açıklama",
+                  render: (row) =>
+                    row.employeeName
+                      ? `${row.employeeName} — ${row.description ?? ""}`
+                      : row.description || "—",
+                },
               ]}
               rowActions={(row) =>
                 row.sourceReferenceType ? (
-                  <span className="ui-muted ui-inline-note" title="Kaynağındaki kayıttan yönetilir">
+                  <span
+                    className="ui-muted ui-inline-note"
+                    title="Kaynağındaki kayıttan yönetilir"
+                  >
                     <Bot size={14} aria-hidden="true" /> Otomatik
                   </span>
                 ) : (
                   <>
-                    <button type="button" className="ui-button secondary small" onClick={() => setEditing(row)}>
+                    <button
+                      type="button"
+                      className="ui-button secondary small"
+                      onClick={() => setEditing(row)}
+                    >
                       <Pencil size={14} aria-hidden="true" />
                       Düzenle
                     </button>
@@ -203,9 +338,16 @@ export function ExpensesPage() {
       </Section>
 
       {editing && (
-        <Modal title={`${editing.expenseTypeName} — düzenle`} onClose={() => setEditing(null)}>
+        <Modal
+          title={`${editing.expenseTypeName} — düzenle`}
+          onClose={() => setEditing(null)}
+        >
           <EntityForm
-            fields={expenseFields({ types: allTypes, cards, employees: employeeOptions })}
+            fields={expenseFields({
+              types: allTypes,
+              cards,
+              employees: employeeOptions,
+            })}
             initialValues={toFormValues(editing)}
             submitLabel="Kaydet"
             onCancel={() => setEditing(null)}

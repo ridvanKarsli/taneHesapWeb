@@ -11,20 +11,13 @@ const baseFields: FieldDef[] = [
   { name: "limit", label: "Limit (₺)", type: "number", required: true, min: 0 },
 ];
 
-interface PaymentCardsSectionProps {
-  /** Kart eklenip düzenlenince Kasa özetinin (kullanılabilir limitler) yenilenmesi için. */
-  onChanged: () => void;
-}
-
 /**
- * Kredi kartı tanımları: ad, toplam limit (elle değiştirilebilir), kullanılan/kullanılabilir limit.
+ * Kartlarım: kredi kartı tanımları — ad, toplam limit (elle değiştirilebilir), kullanılan/kullanılabilir limit.
  * Giderlerde "Kredi kartı" seçilince bu kartlardan biri seçilir ve limit düşer (bkz. proje raporu 3.15).
  */
-export function PaymentCardsSection({ onChanged }: PaymentCardsSectionProps) {
+export function PaymentCardsPage() {
   return (
     <CrudPage<PaymentCardDto>
-      embedded
-      listTitle="Kredi kartları"
       load={treasuryApi.getAll}
       emptyText="Henüz kart tanımlı değil — giderleri kartla ödüyorsanız kartı sağ üstteki düğmeyle ekleyin."
       columns={[
@@ -42,28 +35,19 @@ export function PaymentCardsSection({ onChanged }: PaymentCardsSectionProps) {
       createLabel="Yeni kart"
       createFields={baseFields}
       createInitialValues={{ name: "", limit: "" }}
-      onCreate={async (values) => {
-        const created = await treasuryApi.create({ name: formValue.text(values, "name"), limit: formValue.number(values, "limit") });
-        onChanged();
-        return created;
-      }}
-      onDelete={async (row) => {
-        await treasuryApi.remove(row.id);
-        onChanged();
-      }}
+      onCreate={(values) => treasuryApi.create({ name: formValue.text(values, "name"), limit: formValue.number(values, "limit") })}
+      onDelete={(row) => treasuryApi.remove(row.id)}
       describeRow={(row) => row.name}
       editTitle={(row) => `${row.name} — düzenle`}
       editFields={[...baseFields, { name: "isActive", label: "Aktif", type: "checkbox" }]}
       toEditValues={(row) => ({ name: row.name, limit: String(row.limit), isActive: row.isActive })}
-      onUpdate={async (row, values) => {
-        const updated = await treasuryApi.update(row.id, {
+      onUpdate={(row, values) =>
+        treasuryApi.update(row.id, {
           name: formValue.text(values, "name"),
           limit: formValue.number(values, "limit"),
           isActive: formValue.bool(values, "isActive"),
-        });
-        onChanged();
-        return updated;
-      }}
+        })
+      }
     />
   );
 }

@@ -10,6 +10,7 @@ import { LoginPage } from "../pages/auth/LoginPage";
 import { BusinessesPage } from "../pages/businesses/BusinessesPage";
 import { NotFoundPage } from "../pages/common/NotFoundPage";
 import { DashboardPage } from "../pages/dashboard/DashboardPage";
+import { ActivityPage } from "../pages/modules/ActivityPage";
 import { AuditLogsPage } from "../pages/modules/AuditLogsPage";
 import { DailyClosingPage } from "../pages/modules/DailyClosingPage";
 import { DailySalesPage } from "../pages/modules/DailySalesPage";
@@ -21,6 +22,7 @@ import { IngredientsPage } from "../pages/modules/IngredientsPage";
 import { LossReportsPage } from "../pages/modules/LossReportsPage";
 import { MonthlyReportPage } from "../pages/modules/MonthlyReportPage";
 import { MyWalletPage } from "../pages/modules/MyWalletPage";
+import { PaymentCardsPage } from "../pages/modules/PaymentCardsPage";
 import { PeriodReportPage } from "../pages/modules/PeriodReportPage";
 import { PlatformsPage } from "../pages/modules/PlatformsPage";
 import { RecurringExpensesPage } from "../pages/modules/RecurringExpensesPage";
@@ -37,6 +39,8 @@ const PAGE_COMPONENTS: Record<string, ComponentType> = {
   "/finans/giderler": ExpensesPage,
   "/finans/cuzdanim": MyWalletPage,
   "/finans/kasa": TreasuryPage,
+  "/finans/kartlarim": PaymentCardsPage,
+  "/finans/islem-gecmisi": ActivityPage,
   "/finans/duzenli-giderler": RecurringExpensesPage,
   "/mutfak/urunler": DishesPage,
   "/mutfak/malzemeler": IngredientsPage,

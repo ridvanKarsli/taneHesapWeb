@@ -14,7 +14,6 @@ import { useAsyncData } from "../../hooks/useAsyncData";
 import { formatDate, formatMoney, startOfMonthIso, todayIso } from "../../lib/format";
 import { TREASURY_ACCOUNT_LABELS, TREASURY_KIND_LABELS, TreasuryAccount, TreasuryTransactionKind, toOptions } from "../../types/enums";
 import type { TreasuryTransactionDto, TreasuryTransactionFilter } from "../../types/treasury";
-import { PaymentCardsSection } from "./PaymentCardsSection";
 import { TreasuryActions } from "./TreasuryActions";
 
 const MANUAL_KINDS: TreasuryTransactionKind[] = [
@@ -84,9 +83,17 @@ export function TreasuryPage() {
           tone={summary.data && summary.data.bankBalance < 0 ? "negative" : undefined}
         />
         <StatTile icon={CreditCard} iconTone="rose" label="Toplam kart borcu" value={summary.data ? formatMoney(totalCardDebt) : "…"} />
+        {cards.map((card) => (
+          <StatTile
+            key={card.id}
+            icon={CreditCard}
+            iconTone="slate"
+            label={`${card.name} — kullanılabilir`}
+            value={formatMoney(card.availableLimit)}
+            tone={card.availableLimit < 0 ? "negative" : undefined}
+          />
+        ))}
       </StatGrid>
-
-      <PaymentCardsSection onChanged={() => void summary.reload()} />
 
       <Section
         title="Kasa hareketleri"

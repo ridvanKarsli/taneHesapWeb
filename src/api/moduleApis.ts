@@ -1,5 +1,6 @@
 import { createCrudApi, toQueryParams } from "./crudApi";
 import { httpClient } from "./httpClient";
+import type { ActivityEntryDto, ActivityKindDto, ActivityQuery, ActivityUserDto } from "../types/activity";
 import type { AuditLogDto, AuditLogQuery } from "../types/auditLog";
 import type {
   DailyActualEntryDto,
@@ -252,6 +253,19 @@ export const reportApi = {
   },
   async getMonthly(year: number, month: number): Promise<MonthlyReportDto> {
     return (await httpClient.get<MonthlyReportDto>("/api/reports/monthly", { params: { year, month } })).data;
+  },
+};
+
+/** İşlem geçmişi (okunabilir denetim kaydı) — sadece ADMIN. */
+export const activityApi = {
+  async get(query: ActivityQuery): Promise<ActivityEntryDto[]> {
+    return (await httpClient.get<ActivityEntryDto[]>("/api/activity", { params: toQueryParams(query) })).data;
+  },
+  async getUsers(): Promise<ActivityUserDto[]> {
+    return (await httpClient.get<ActivityUserDto[]>("/api/activity/users")).data;
+  },
+  async getKinds(): Promise<ActivityKindDto[]> {
+    return (await httpClient.get<ActivityKindDto[]>("/api/activity/kinds")).data;
   },
 };
 

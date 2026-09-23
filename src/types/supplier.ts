@@ -45,6 +45,10 @@ export interface CreateSupplierPurchaseRequest {
   quantity: number;
   unitPrice: number;
   purchaseDate: string;
+  /** Alış anında ödenen tutar; 0/null ise borç kalır. Doluysa ödeme şekli zorunlu. */
+  paidAmount?: number | null;
+  paymentMethod?: PaymentMethod | null;
+  paymentCardId?: string | null;
 }
 
 /** Ödeme, ödeme şekline göre kasadan/karttan düşen otomatik bir Malzeme gideri olarak da işlenir (bkz. proje raporu 3.12, 3.15). */

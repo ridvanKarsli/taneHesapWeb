@@ -1,3 +1,4 @@
+import { formatMoney } from "../../lib/format";
 import type { FieldDef } from "./EntityForm";
 import { formValue, type FormValues } from "./formValues";
 import { EXPENSE_PAYMENT_METHOD_LABELS, PaymentMethod, toOptions } from "../../types/enums";
@@ -27,7 +28,7 @@ export function paymentFields(cards: PaymentCardDto[], options?: { required?: bo
       label: "Hangi kart",
       type: "select",
       required: true,
-      options: cards.filter((c) => c.isActive).map((c) => ({ value: c.id, label: c.name })),
+      options: cards.filter((c) => c.isActive).map((c) => ({ value: c.id, label: `${c.name} — kullanılabilir ${formatMoney(c.availableLimit)}` })),
       visibleWhen: (values: FormValues) => String(values.paymentMethod) === String(PaymentMethod.Card),
     },
   ];

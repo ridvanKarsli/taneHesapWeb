@@ -339,8 +339,11 @@
   max-width: 320px;
 }
 
+/* Dikey formda flex-basis yüksekliğe uygulanır (Safari) — alanlar içerik yüksekliğinde kalsın. */
 .ui-form.stacked > .ui-field {
+  flex: 0 0 auto;
   max-width: none;
+  min-width: 0;
 }
 
 .ui-form.inline .ui-field.wide {

@@ -76,12 +76,14 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "Finans",
     icon: Wallet,
     tone: "rose",
-    description: "Giderler, kasa, düzenli giderler",
+    description: "Giderler, kasa, kartlar, işlem geçmişi",
     pages: [
       { path: "/finans/giderler", label: "Giderler", roles: [UserRole.Admin, UserRole.Employee] },
       { path: "/finans/cuzdanim", label: "Cüzdanım", roles: [UserRole.Employee], description: "Çalıştığınız saatlere göre hak edişiniz, size yapılan ödemeler ve kalan bakiyeniz." },
-      { path: "/finans/kasa", label: "Kasa", roles: ADMIN, description: "Nakit ve kart kasası satışlarla artar, giderlerle azalır. Kartla ödenen giderler kartın limitinden düşer." },
+      { path: "/finans/kasa", label: "Kasa", roles: ADMIN, description: "Nakit ve kart kasası satışlarla artar, giderlerle azalır. Transfer, kart borcu ödemesi ve düzeltme buradan." },
+      { path: "/finans/kartlarim", label: "Kartlarım", roles: ADMIN, description: "Kredi kartları ve limitleri. Kartla ödenen giderler limitten düşer; kart borcu Kasa'dan ödenince limit geri açılır." },
       { path: "/finans/duzenli-giderler", label: "Düzenli Giderler", roles: ADMIN, description: "Kira, fatura gibi periyodik giderler; dönem ödenmeden biterse bildirim gelir, ödeme gider olarak işlenir." },
+      { path: "/finans/islem-gecmisi", label: "İşlem Geçmişi", roles: ADMIN, description: "Kim, ne zaman, hangi gideri/satışı/ödemeyi ekledi, değiştirdi veya sildi." },
     ],
   },
   {
