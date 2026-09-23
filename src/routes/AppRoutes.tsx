@@ -17,11 +17,13 @@ import { EmployeesPage } from "../pages/modules/EmployeesPage";
 import { ExpensesPage } from "../pages/modules/ExpensesPage";
 import { ExpenseTypesPage } from "../pages/modules/ExpenseTypesPage";
 import { IngredientsPage } from "../pages/modules/IngredientsPage";
+import { MyWalletPage } from "../pages/modules/MyWalletPage";
 import { PlatformsPage } from "../pages/modules/PlatformsPage";
 import { RecurringExpensesPage } from "../pages/modules/RecurringExpensesPage";
 import { ReportsPage } from "../pages/modules/ReportsPage";
 import { StockMovementsPage } from "../pages/modules/StockMovementsPage";
 import { SuppliersPage } from "../pages/modules/SuppliersPage";
+import { TreasuryPage } from "../pages/modules/TreasuryPage";
 
 /**
  * `navigation.ts`'teki path → sayfa bileşeni eşlemesi. Burada karşılığı olmayan bir path
@@ -32,6 +34,8 @@ const PAGE_COMPONENTS: Partial<Record<string, ComponentType>> = {
   "/gun-sonu/satislar": DailySalesPage,
   "/gun-sonu/kapanis": DailyClosingPage,
   "/giderler": ExpensesPage,
+  "/cuzdanim": MyWalletPage,
+  "/kasa": TreasuryPage,
   "/gider-turleri": ExpenseTypesPage,
   "/urunler": DishesPage,
   "/malzemeler": IngredientsPage,

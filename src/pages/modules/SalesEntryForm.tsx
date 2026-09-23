@@ -4,7 +4,7 @@ import { extractErrorMessage } from "../../api/apiError";
 import { ErrorMessage } from "../../components/ui/AsyncState";
 import type { ImportRowRequest } from "../../types/dailySales";
 import type { DishDto } from "../../types/dish";
-import { PAYMENT_METHOD_LABELS, PaymentMethod, SALES_CHANNEL_LABELS, SalesChannel } from "../../types/enums";
+import { PaymentMethod, SALES_CHANNEL_LABELS, SALES_PAYMENT_METHOD_LABELS, SalesChannel } from "../../types/enums";
 import type { PlatformDto } from "../../types/platform";
 
 interface SalesEntryFormProps {
@@ -133,7 +133,7 @@ export function SalesEntryForm({ date, dishes, platforms, onSubmit }: SalesEntry
             <input className="ui-input" type="number" min={1} step={1} value={row.quantity} onChange={(e) => updateRow(index, { quantity: e.target.value })} aria-label="Adet" placeholder="Adet" />
             <input className="ui-input" type="number" min={0} step="any" value={row.totalAmount} onChange={(e) => updateRow(index, { totalAmount: e.target.value })} aria-label="Tutar" placeholder="Tutar ₺" />
             <select className="ui-input" value={row.paymentMethod} onChange={(e) => updateRow(index, { paymentMethod: e.target.value })} aria-label="Ödeme şekli">
-              {Object.entries(PAYMENT_METHOD_LABELS).map(([value, label]) => (
+              {Object.entries(SALES_PAYMENT_METHOD_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>
                   {label}
                 </option>

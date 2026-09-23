@@ -20,7 +20,16 @@ import type {
   UpdateDishRequest,
   UpdateDishSizeRequest,
 } from "../types/dish";
-import type { CreateEmployeeRequest, EmployeeDto, UpdateEmployeeRequest } from "../types/employee";
+import type {
+  CreateEmployeePaymentRequest,
+  CreateEmployeeRequest,
+  CreateWorkLogRequest,
+  EmployeeDto,
+  EmployeePaymentDto,
+  EmployeeWalletDto,
+  EmployeeWorkLogDto,
+  UpdateEmployeeRequest,
+} from "../types/employee";
 import type { CreateExpenseRequest, ExpenseDto, ExpenseListFilter } from "../types/expense";
 import type { CreateExpenseTypeRequest, ExpenseTypeDto, UpdateExpenseTypeRequest } from "../types/expenseType";
 import type { CreateIngredientRequest, IngredientDto, UpdateIngredientRequest } from "../types/ingredient";
@@ -32,7 +41,7 @@ import type {
   RecurringExpenseDto,
   UpdateRecurringExpenseRequest,
 } from "../types/recurringExpense";
-import type { PeriodReportDto } from "../types/report";
+import type { MonthlyReportDto, PeriodReportDto } from "../types/report";
 import type { CreateStockMovementRequest, StockMovementDto } from "../types/stock";
 import type {
   CreateSupplierPaymentRequest,
@@ -42,6 +51,17 @@ import type {
   SupplierPurchaseDto,
   UpdateSupplierRequest,
 } from "../types/supplier";
+import type {
+  CardPaymentRequest,
+  CreatePaymentCardRequest,
+  ManualAdjustmentRequest,
+  PaymentCardDto,
+  TransferRequest,
+  TreasurySummaryDto,
+  TreasuryTransactionDto,
+  TreasuryTransactionFilter,
+  UpdatePaymentCardRequest,
+} from "../types/treasury";
 
 /**
  * İşletme (ADMIN/EMPLOYEE) modüllerinin backend istemcileri — her biri ilgili backend controller'ı
@@ -61,7 +81,54 @@ export const ingredientApi = {
 
 export const platformApi = createCrudApi<PlatformDto, CreatePlatformRequest, UpdatePlatformRequest>("/api/platforms");
 
-export const employeeApi = createCrudApi<EmployeeDto, CreateEmployeeRequest, UpdateEmployeeRequest>("/api/employees");
+export const employeeApi = {
+  ...createCrudApi<EmployeeDto, CreateEmployeeRequest, UpdateEmployeeRequest>("/api/employees"),
+  async getWallet(employeeId: string): Promise<EmployeeWalletDto> {
+    return (await httpClient.get<EmployeeWalletDto>(`/api/employees/${employeeId}/wallet`)).data;
+  },
+  async addWorkLog(employeeId: string, request: CreateWorkLogRequest): Promise<EmployeeWorkLogDto> {
+    return (await httpClient.post<EmployeeWorkLogDto>(`/api/employees/${employeeId}/work-logs`, request)).data;
+  },
+  async removeWorkLog(employeeId: string, workLogId: string): Promise<void> {
+    await httpClient.delete(`/api/employees/${employeeId}/work-logs/${workLogId}`);
+  },
+  async pay(employeeId: string, request: CreateEmployeePaymentRequest): Promise<EmployeePaymentDto> {
+    return (await httpClient.post<EmployeePaymentDto>(`/api/employees/${employeeId}/payments`, request)).data;
+  },
+};
+
+/** EMPLOYEE'nin kendi cüzdanı (salt okunur). */
+export const myWalletApi = {
+  async get(): Promise<EmployeeWalletDto> {
+    return (await httpClient.get<EmployeeWalletDto>("/api/me/wallet")).data;
+  },
+};
+
+/** Kasa: nakit/kart kasası bakiyeleri, kredi kartları, transfer ve kart ödemesi (bkz. proje raporu 3.15). */
+export const treasuryApi = {
+  ...createCrudApi<PaymentCardDto, CreatePaymentCardRequest, UpdatePaymentCardRequest>("/api/treasury/cards"),
+  async getSummary(): Promise<TreasurySummaryDto> {
+    return (await httpClient.get<TreasurySummaryDto>("/api/treasury/summary")).data;
+  },
+  async updateSettings(cardFeePercentage: number): Promise<TreasurySummaryDto> {
+    return (await httpClient.put<TreasurySummaryDto>("/api/treasury/settings", { cardFeePercentage })).data;
+  },
+  async getTransactions(filter: TreasuryTransactionFilter): Promise<TreasuryTransactionDto[]> {
+    return (await httpClient.get<TreasuryTransactionDto[]>("/api/treasury/transactions", { params: toQueryParams(filter) })).data;
+  },
+  async removeTransaction(id: string): Promise<void> {
+    await httpClient.delete(`/api/treasury/transactions/${id}`);
+  },
+  async transfer(request: TransferRequest): Promise<TreasuryTransactionDto[]> {
+    return (await httpClient.post<TreasuryTransactionDto[]>("/api/treasury/transfers", request)).data;
+  },
+  async payCard(request: CardPaymentRequest): Promise<TreasuryTransactionDto[]> {
+    return (await httpClient.post<TreasuryTransactionDto[]>("/api/treasury/card-payments", request)).data;
+  },
+  async adjust(request: ManualAdjustmentRequest): Promise<TreasuryTransactionDto> {
+    return (await httpClient.post<TreasuryTransactionDto>("/api/treasury/adjustments", request)).data;
+  },
+};
 
 export const expenseApi = {
   async getList(filter: ExpenseListFilter): Promise<ExpenseDto[]> {
@@ -182,6 +249,9 @@ export const dailyClosingApi = {
 export const reportApi = {
   async getPeriod(fromDate: string, toDate: string): Promise<PeriodReportDto> {
     return (await httpClient.get<PeriodReportDto>("/api/reports/period", { params: { fromDate, toDate } })).data;
+  },
+  async getMonthly(year: number, month: number): Promise<MonthlyReportDto> {
+    return (await httpClient.get<MonthlyReportDto>("/api/reports/monthly", { params: { year, month } })).data;
   },
 };
 

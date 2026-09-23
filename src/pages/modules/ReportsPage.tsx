@@ -10,6 +10,7 @@ import { StatGrid, StatTile } from "../../components/ui/StatTile";
 import { useAsyncData } from "../../hooks/useAsyncData";
 import { addDaysIso, formatDate, formatMoney, startOfMonthIso, startOfWeekIso, todayIso } from "../../lib/format";
 import { EXPENSE_CATEGORY_LABELS } from "../../types/enums";
+import { MonthlyReportSection } from "./MonthlyReportSection";
 
 interface Range {
   fromDate: string;
@@ -134,6 +135,8 @@ export function ReportsPage() {
           />
         </Section>
       )}
+
+      <MonthlyReportSection />
 
       <Section title="Günlük fire / kayıp özetleri" icon={TriangleAlert}>
         <AsyncState {...lossReports} isEmpty={(rows) => rows.length === 0} emptyText="Bu aralıkta gün sonu kapanışı yapılmamış.">

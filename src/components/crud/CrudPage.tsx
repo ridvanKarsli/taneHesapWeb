@@ -42,6 +42,12 @@ interface CrudPageProps<T extends { id: string }> {
   rowClassName?: (row: T) => string | undefined;
   /** Başlığın altında, tablonun üstünde gösterilecek ek içerik (örn. toplam borç kutusu). */
   summary?: ReactNode;
+  /** true ise sayfa başlığı basılmaz — başka bir sayfanın içine bölüm olarak gömülür (örn. Kasa → Kartlar). */
+  embedded?: boolean;
+  /** Liste bölümünün başlığı (gömülü kullanımda). */
+  listTitle?: string;
+  /** Silme onayında "silinemez" uyarısını değiştirmek için (örn. kart hareketi olan kart). */
+  onCreateLabel?: string;
 }
 
 /**
@@ -79,7 +85,7 @@ export function CrudPage<T extends { id: string }>(props: CrudPageProps<T>) {
 
   return (
     <div>
-      <PageHeader title={props.title} description={props.description} />
+      {!props.embedded && <PageHeader title={props.title} description={props.description} />}
 
       {props.summary}
 
@@ -89,7 +95,7 @@ export function CrudPage<T extends { id: string }>(props: CrudPageProps<T>) {
             layout="inline"
             fields={props.createFields}
             initialValues={props.createInitialValues ?? {}}
-            submitLabel="Ekle"
+            submitLabel={props.onCreateLabel ?? "Ekle"}
             submitIcon={Plus}
             resetOnSuccess
             onSubmit={async (values) => {
@@ -100,7 +106,7 @@ export function CrudPage<T extends { id: string }>(props: CrudPageProps<T>) {
         </Section>
       )}
 
-      <Section>
+      <Section title={props.listTitle}>
         <AsyncState data={data} error={error} isLoading={isLoading} isEmpty={(rows) => rows.length === 0} emptyText={props.emptyText}>
           {(rows) => (
             <DataTable

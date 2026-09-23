@@ -15,6 +15,8 @@ export interface FieldDef {
   min?: number;
   step?: string;
   placeholder?: string;
+  /** Verilirse alan yalnızca koşul sağlandığında gösterilir (örn. kart seçimi sadece "Kredi kartı" ödemesinde). */
+  visibleWhen?: (values: FormValues) => boolean;
 }
 
 interface EntityFormProps {
@@ -70,9 +72,11 @@ export function EntityForm({
 
   return (
     <form className={`ui-form ${layout}`} onSubmit={handleSubmit}>
-      {fields.map((field) => (
-        <FormField key={field.name} field={field} value={values[field.name]} onChange={setValue} />
-      ))}
+      {fields
+        .filter((field) => !field.visibleWhen || field.visibleWhen(values))
+        .map((field) => (
+          <FormField key={field.name} field={field} value={values[field.name]} onChange={setValue} />
+        ))}
       <div className="ui-form-actions">
         <button type="submit" className="ui-button" disabled={isSubmitting}>
           {SubmitIcon && <SubmitIcon size={17} aria-hidden="true" />}
