@@ -39,7 +39,7 @@ const toNumber = (value: string) => Number(value.replace(",", "."));
 /**
  * Gün sonu satışlarının satır satır girişi. Excel şablonu netleşene kadar (bkz. proje raporu 3.5)
  * backend import'u ayrıştırılmış satırları kabul ediyor; bu form aynı `ImportRowRequest`'i üretir.
- * Tutar, seçilen boyun satış fiyatı × adet olarak otomatik doldurulur ve elle değiştirilebilir.
+ * Tutar (net tahsilat), seçilen boyun satış fiyatı × adet − indirim olarak otomatik doldurulur ve elle değiştirilebilir.
  */
 export function SalesEntryForm({ date, dishes, platforms, onSubmit }: SalesEntryFormProps) {
   const [rows, setRows] = useState<EntryRow[]>([{ ...emptyRow }]);
@@ -59,8 +59,10 @@ export function SalesEntryForm({ date, dishes, platforms, onSubmit }: SalesEntry
           return row;
         }
         const next = { ...row, ...patch };
-        if ("dishSizeId" in patch || "quantity" in patch) {
-          next.totalAmount = String(priceOf(next.dishSizeId) * toNumber(next.quantity || "0"));
+        // Tutar = tahsil edilen NET tutar: fiyat × adet − indirim (elle değiştirilebilir).
+        if ("dishSizeId" in patch || "quantity" in patch || "discountAmount" in patch) {
+          const gross = priceOf(next.dishSizeId) * toNumber(next.quantity || "0");
+          next.totalAmount = String(Math.max(0, gross - toNumber(next.discountAmount || "0")));
         }
         return next;
       }),
@@ -111,7 +113,7 @@ export function SalesEntryForm({ date, dishes, platforms, onSubmit }: SalesEntry
       <div className="entry-row entry-row-header">
         <span>Ürün / boy</span>
         <span>Adet</span>
-        <span>Tutar (₺)</span>
+        <span>Net tutar (₺)</span>
         <span>Ödeme</span>
         <span>Kanal</span>
         <span>Platform</span>
@@ -131,7 +133,7 @@ export function SalesEntryForm({ date, dishes, platforms, onSubmit }: SalesEntry
               ))}
             </select>
             <input className="ui-input" type="number" min={1} step={1} value={row.quantity} onChange={(e) => updateRow(index, { quantity: e.target.value })} aria-label="Adet" placeholder="Adet" />
-            <input className="ui-input" type="number" min={0} step="any" value={row.totalAmount} onChange={(e) => updateRow(index, { totalAmount: e.target.value })} aria-label="Tutar" placeholder="Tutar ₺" />
+            <input className="ui-input" type="number" min={0} step="any" value={row.totalAmount} onChange={(e) => updateRow(index, { totalAmount: e.target.value })} aria-label="Tutar" placeholder="Net tutar ₺" title="Tahsil edilen net tutar (fiyat × adet − indirim)" />
             <select className="ui-input" value={row.paymentMethod} onChange={(e) => updateRow(index, { paymentMethod: e.target.value })} aria-label="Ödeme şekli">
               {Object.entries(SALES_PAYMENT_METHOD_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>

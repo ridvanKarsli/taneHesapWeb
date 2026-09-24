@@ -192,7 +192,8 @@ export function parseSalesSheet(sheet: CellValue[][], dishes: DishDto[], platfor
       saleTime: toTime(cell("Saat")),
       dishSizeId: size.id,
       quantity,
-      totalAmount: toNumber(cell("Tutar")) ?? size.salePrice * quantity,
+      // Tutar boşsa fiyat × adet − indirim (net tahsilat); doluysa girilen değer nettir.
+      totalAmount: toNumber(cell("Tutar")) ?? Math.max(0, size.salePrice * quantity - (toNumber(cell("İndirim")) ?? 0)),
       paymentMethod,
       channel,
       platformId: channel === SalesChannel.Platform ? (platform?.id ?? null) : null,

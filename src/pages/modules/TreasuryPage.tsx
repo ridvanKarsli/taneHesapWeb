@@ -135,7 +135,9 @@ export function TreasuryPage() {
                 },
                 { header: "Açıklama", render: (row) => row.description || "—" },
               ]}
-              rowActions={(row) => (MANUAL_KINDS.includes(row.kind) ? <DeleteButton onClick={() => setDeleting(row)} /> : null)}
+              rowActions={(row) =>
+                MANUAL_KINDS.includes(row.kind) && row.sourceReferenceType === "Manual" ? <DeleteButton onClick={() => setDeleting(row)} /> : null
+              }
             />
           )}
         </AsyncState>

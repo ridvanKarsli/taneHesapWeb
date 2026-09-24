@@ -204,7 +204,14 @@ export function ExpensesPage() {
                 employeeUserId: "",
                 description: "",
               }}
-              submitLabel="Gider ekle"
+              intro={
+              !isEmployee && (
+                <p className="ui-muted">
+                  Stok takibi yapılan malzemeler (pirinç, et…) için buradan değil "Malzeme alışı" ile girin; böylece stok ve birim fiyat da güncellenir.
+                </p>
+              )
+            }
+            submitLabel="Gider ekle"
               onSubmit={async (values) => {
                 await expenseApi.create(toRequest(values, allTypes));
                 await refresh();
