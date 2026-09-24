@@ -4,6 +4,7 @@ import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 import { NotificationsBell } from "../components/NotificationsBell";
 import { visibleGroups } from "../config/navigation";
+import { BottomNav } from "./BottomNav";
 import { useTheme } from "../theme/useTheme";
 import { ROLE_LABELS } from "../types/auth";
 import "./AppLayout.css";
@@ -51,6 +52,7 @@ export function AppLayout() {
     key: group.path,
     to: group.pages.length === 1 ? group.pages[0].path : group.path,
     label: group.pages.length === 1 ? group.pages[0].label : group.label,
+    shortLabel: group.pages.length === 1 ? group.pages[0].label : (group.shortLabel ?? group.label),
     icon: group.icon,
   }));
   const initials = initialsOf(user.fullName);
@@ -142,6 +144,8 @@ export function AppLayout() {
         <main className="app-content">
           <Outlet />
         </main>
+
+        <BottomNav items={navLinks} onOpenMenu={() => setIsNavOpen(true)} />
       </div>
     </div>
   );

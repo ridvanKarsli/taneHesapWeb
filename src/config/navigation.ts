@@ -29,6 +29,8 @@ export interface NavPage {
 export interface NavGroup {
   path: string;
   label: string;
+  /** Mobil alt sekme çubuğu için kısa ad (verilmezse label). */
+  shortLabel?: string;
   icon: LucideIcon;
   tone: NavTone;
   description: string;
@@ -89,6 +91,7 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     path: "/mutfak",
     label: "Mutfak ve Stok",
+    shortLabel: "Mutfak",
     icon: ChefHat,
     tone: "green",
     description: "Ürünler, malzemeler, stok, tedarikçiler",

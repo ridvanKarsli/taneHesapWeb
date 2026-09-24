@@ -2,7 +2,7 @@
   position: fixed;
   left: 1rem;
   right: 1rem;
-  bottom: 1rem;
+  bottom: calc(1rem + env(safe-area-inset-bottom));
   z-index: 50;
   display: flex;
   align-items: center;
@@ -81,4 +81,11 @@
 
 .install-banner-dismiss:hover {
   background: var(--color-surface-alt);
+}
+
+/* Mobilde alt sekme çubuğunun üstünde dursun */
+@media (max-width: 960px) {
+  .install-banner {
+    bottom: calc(4.5rem + env(safe-area-inset-bottom));
+  }
 }

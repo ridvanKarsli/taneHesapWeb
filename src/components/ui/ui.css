@@ -716,6 +716,25 @@
 
 /* ---------- Mobil ---------- */
 @media (max-width: 720px) {
+  /* iOS, 16px'ten küçük alanlara odaklanınca sayfayı yakınlaştırır — dokunmatikte alanlar 16px ve ≥ 44px yüksek. */
+  .ui-field input,
+  .ui-field select,
+  .ui-field textarea,
+  .ui-filter input,
+  .ui-filter select,
+  .ui-input {
+    font-size: 16px;
+    min-height: 44px;
+  }
+
+  .ui-button {
+    min-height: 44px;
+  }
+
+  .ui-button.small {
+    min-height: 40px;
+  }
+
   .ui-page-header {
     align-items: stretch;
     margin-bottom: 1.1rem;

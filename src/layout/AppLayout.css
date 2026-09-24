@@ -276,6 +276,11 @@
   display: none;
 }
 
+/* ---------- Alt sekme çubuğu (yalnızca mobil) ---------- */
+.app-bottom-nav {
+  display: none;
+}
+
 /* ---------- Tablet / mobil ---------- */
 @media (max-width: 960px) {
   .app-sidebar {
@@ -330,11 +335,75 @@
   }
 
   .app-content {
-    padding: 1.1rem 1rem 5rem;
+    padding: 1rem 1rem calc(5.5rem + env(safe-area-inset-bottom));
   }
 
   body.nav-open {
     overflow: hidden;
+  }
+
+  /* Ana ekrana eklenmiş uygulamada durum çubuğunun altına giriyoruz (black-translucent) — üst bar güvenli alanı bırakır. */
+  .app-topbar {
+    padding-top: env(safe-area-inset-top);
+    height: calc(60px + env(safe-area-inset-top));
+  }
+
+  .app-sidebar {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .app-bottom-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    display: flex;
+    justify-content: space-around;
+    align-items: stretch;
+    padding: 0.35rem 0.25rem calc(0.35rem + env(safe-area-inset-bottom));
+    background: var(--color-bg-translucent);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .app-bottom-tab {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 52px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 0.3rem 0.15rem;
+    border: none;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-text-muted);
+    font: inherit;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.15s var(--ease), background 0.15s var(--ease);
+  }
+
+  .app-bottom-tab span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .app-bottom-tab.active {
+    color: var(--color-primary);
+  }
+
+  .app-bottom-tab:active {
+    background: var(--color-surface-alt);
   }
 }
 

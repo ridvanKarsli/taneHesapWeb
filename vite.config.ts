@@ -14,8 +14,16 @@ export default defineConfig({
         short_name: "taneHesap",
         description: "Gelir, gider, stok ve gün sonu yönetim paneli.",
         lang: "tr",
+        id: "/",
+        scope: "/",
         start_url: "/",
         display: "standalone",
+        categories: ["business", "finance", "food"],
+        shortcuts: [
+          { name: "Gider ekle", short_name: "Gider", url: "/finans/giderler", icons: [{ src: "pwa-192.png", sizes: "192x192" }] },
+          { name: "Gün sonu satışları", short_name: "Satışlar", url: "/gun-sonu/satislar", icons: [{ src: "pwa-192.png", sizes: "192x192" }] },
+          { name: "Kasa", short_name: "Kasa", url: "/finans/kasa", icons: [{ src: "pwa-192.png", sizes: "192x192" }] },
+        ],
         background_color: "#FBF6EC",
         theme_color: "#B5651D",
         icons: [

@@ -162,6 +162,8 @@ body {
   margin: 0;
   background: var(--color-bg);
   color: var(--color-text);
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior-y: none; /* ana ekran uygulamasında sayfa dışına "lastik" kayma olmasın */
   font-size: 15px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
