@@ -119,12 +119,12 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "Tanımlar",
     icon: Settings2,
     tone: "slate",
-    description: "Gider türleri, platformlar, çalışanlar, denetim",
+    description: "Gider türleri, platformlar, çalışanlar",
     pages: [
       { path: "/tanimlar/gider-turleri", label: "Gider Türleri", roles: ADMIN, description: "Gider girişinde kullanılan katalog: ad, birim, kategori." },
       { path: "/tanimlar/platformlar", label: "Paket Servis", roles: ADMIN, description: "Platform komisyon oranları; komisyon satıştan otomatik gidere dönüşür." },
       { path: "/tanimlar/calisanlar", label: "Çalışanlar", roles: ADMIN, description: "Çalışan hesapları, saatlik ücret ve cüzdan." },
-      { path: "/tanimlar/denetim", label: "Denetim Kayıtları", roles: [UserRole.Admin, UserRole.SuperAdmin], description: "Kim, ne zaman, neyi değiştirdi." },
+      { path: "/tanimlar/denetim", label: "Denetim Kayıtları", roles: [UserRole.SuperAdmin], description: "Teknik denetim kaydı (ham eski/yeni değerler) — yalnızca süper yönetici. İşletme sahibi Finans → İşlem Geçmişi'ni kullanır." },
     ],
   },
 ];
