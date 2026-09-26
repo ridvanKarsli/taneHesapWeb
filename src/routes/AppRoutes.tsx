@@ -1,4 +1,4 @@
-import type { ComponentType } from "react";
+import { Suspense, type ComponentType } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { RequireAuth } from "../auth/RequireAuth";
 import { useAuth } from "../auth/useAuth";
@@ -6,29 +6,34 @@ import { NAV_GROUPS, type NavGroup } from "../config/navigation";
 import type { UserRole } from "../types/auth";
 import { AppLayout } from "../layout/AppLayout";
 import { MORE_PATH } from "../layout/navigationShell";
+import { lazyPage } from "./lazyPage";
 import { GroupLayout } from "../layout/GroupLayout";
 import { LoginPage } from "../pages/auth/LoginPage";
-import { BusinessesPage } from "../pages/businesses/BusinessesPage";
 import { MorePage } from "../pages/common/MorePage";
 import { NotFoundPage } from "../pages/common/NotFoundPage";
+import { PageFallback } from "../pages/common/PageFallback";
 import { DashboardPage } from "../pages/dashboard/DashboardPage";
-import { ActivityPage } from "../pages/modules/ActivityPage";
-import { AuditLogsPage } from "../pages/modules/AuditLogsPage";
-import { DailySalesPage } from "../pages/modules/DailySalesPage";
-import { DishesPage } from "../pages/modules/DishesPage";
-import { EmployeesPage } from "../pages/modules/EmployeesPage";
-import { ExpensesPage } from "../pages/modules/ExpensesPage";
-import { ExpenseTypesPage } from "../pages/modules/ExpenseTypesPage";
-import { IngredientsPage } from "../pages/modules/IngredientsPage";
-import { MonthlyReportPage } from "../pages/modules/MonthlyReportPage";
-import { MyWalletPage } from "../pages/modules/MyWalletPage";
-import { PaymentCardsPage } from "../pages/modules/PaymentCardsPage";
-import { PeriodReportPage } from "../pages/modules/PeriodReportPage";
-import { PlatformsPage } from "../pages/modules/PlatformsPage";
-import { RecurringExpensesPage } from "../pages/modules/RecurringExpensesPage";
-import { StockMovementsPage } from "../pages/modules/StockMovementsPage";
-import { SuppliersPage } from "../pages/modules/SuppliersPage";
-import { TreasuryPage } from "../pages/modules/TreasuryPage";
+
+// Panel ve giriş ilk açılışta gerekir; diğer sayfalar ayrı parçalara bölünür ve ilk girildiklerinde yüklenir
+// (ilk açılışta indirilen JavaScript küçülür; PWA ön belleği hepsini arka planda yine de indirir).
+const BusinessesPage = lazyPage(() => import("../pages/businesses/BusinessesPage"), "BusinessesPage");
+const ActivityPage = lazyPage(() => import("../pages/modules/ActivityPage"), "ActivityPage");
+const AuditLogsPage = lazyPage(() => import("../pages/modules/AuditLogsPage"), "AuditLogsPage");
+const DailySalesPage = lazyPage(() => import("../pages/modules/DailySalesPage"), "DailySalesPage");
+const DishesPage = lazyPage(() => import("../pages/modules/DishesPage"), "DishesPage");
+const EmployeesPage = lazyPage(() => import("../pages/modules/EmployeesPage"), "EmployeesPage");
+const ExpensesPage = lazyPage(() => import("../pages/modules/ExpensesPage"), "ExpensesPage");
+const ExpenseTypesPage = lazyPage(() => import("../pages/modules/ExpenseTypesPage"), "ExpenseTypesPage");
+const IngredientsPage = lazyPage(() => import("../pages/modules/IngredientsPage"), "IngredientsPage");
+const MonthlyReportPage = lazyPage(() => import("../pages/modules/MonthlyReportPage"), "MonthlyReportPage");
+const MyWalletPage = lazyPage(() => import("../pages/modules/MyWalletPage"), "MyWalletPage");
+const PaymentCardsPage = lazyPage(() => import("../pages/modules/PaymentCardsPage"), "PaymentCardsPage");
+const PeriodReportPage = lazyPage(() => import("../pages/modules/PeriodReportPage"), "PeriodReportPage");
+const PlatformsPage = lazyPage(() => import("../pages/modules/PlatformsPage"), "PlatformsPage");
+const RecurringExpensesPage = lazyPage(() => import("../pages/modules/RecurringExpensesPage"), "RecurringExpensesPage");
+const StockMovementsPage = lazyPage(() => import("../pages/modules/StockMovementsPage"), "StockMovementsPage");
+const SuppliersPage = lazyPage(() => import("../pages/modules/SuppliersPage"), "SuppliersPage");
+const TreasuryPage = lazyPage(() => import("../pages/modules/TreasuryPage"), "TreasuryPage");
 
 /** `navigation.ts`'teki sayfa yolu → bileşen eşlemesi. Yeni sayfa = navigation'a bir satır + buraya bir satır. */
 const PAGE_COMPONENTS: Record<string, ComponentType> = {
@@ -85,7 +90,13 @@ function groupRoutes(group: NavGroup, role: UserRole | undefined) {
 
 function pageElement(path: string) {
   const PageComponent = PAGE_COMPONENTS[path];
-  return PageComponent ? <PageComponent /> : <NotFoundPage />;
+  return PageComponent ? (
+    <Suspense fallback={<PageFallback />}>
+      <PageComponent />
+    </Suspense>
+  ) : (
+    <NotFoundPage />
+  );
 }
 
 /**

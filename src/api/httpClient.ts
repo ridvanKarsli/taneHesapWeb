@@ -1,5 +1,6 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 import type { LoginResponse } from "../types/auth";
+import { clearGetCache } from "./getCacheStore";
 import { clearSession, getAccessToken, getActingBusinessId, getPersistedRefreshToken, persistRefreshToken, setAccessToken } from "./tokenStore";
 
 export const API_BASE_URL: string = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
@@ -52,9 +53,20 @@ export function registerSessionExpiredHandler(handler: () => void): void {
   onSessionExpired = handler;
 }
 
+/** Yazma istekleri tanım önbelleğini boşaltır (bkz. `cachedGet`). */
+function invalidateAfterWrite(method: string | undefined): void {
+  if (method && method.toLowerCase() !== "get") {
+    clearGetCache();
+  }
+}
+
 httpClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    invalidateAfterWrite(response.config.method);
+    return response;
+  },
   async (error: AxiosError) => {
+    invalidateAfterWrite(error.config?.method);
     const originalRequest = error.config as RetryableRequestConfig | undefined;
 
     const shouldAttemptRefresh =

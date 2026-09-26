@@ -1,3 +1,4 @@
+import { cachedGet } from "./cachedGet";
 import { createCrudApi, toQueryParams } from "./crudApi";
 import { httpClient } from "./httpClient";
 import type { ActivityEntryDto, ActivityKindDto, ActivityQuery, ActivityUserDto } from "../types/activity";
@@ -144,7 +145,7 @@ export const expenseApi = {
 
 export const dishApi = {
   async getAll(): Promise<DishDto[]> {
-    return (await httpClient.get<DishDto[]>("/api/dishes")).data;
+    return cachedGet<DishDto[]>("/api/dishes");
   },
   async create(request: CreateDishRequest): Promise<DishDto> {
     return (await httpClient.post<DishDto>("/api/dishes", request)).data;
@@ -252,10 +253,10 @@ export const activityApi = {
     return (await httpClient.get<ActivityEntryDto[]>("/api/activity", { params: toQueryParams(query) })).data;
   },
   async getUsers(): Promise<ActivityUserDto[]> {
-    return (await httpClient.get<ActivityUserDto[]>("/api/activity/users")).data;
+    return cachedGet<ActivityUserDto[]>("/api/activity/users");
   },
   async getKinds(): Promise<ActivityKindDto[]> {
-    return (await httpClient.get<ActivityKindDto[]>("/api/activity/kinds")).data;
+    return cachedGet<ActivityKindDto[]>("/api/activity/kinds");
   },
 };
 

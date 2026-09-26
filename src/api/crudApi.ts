@@ -1,3 +1,4 @@
+import { cachedGet } from "./cachedGet";
 import { httpClient } from "./httpClient";
 
 /**
@@ -15,7 +16,7 @@ export interface CrudApi<TDto, TCreate, TUpdate> {
 export function createCrudApi<TDto, TCreate, TUpdate>(basePath: string): CrudApi<TDto, TCreate, TUpdate> {
   return {
     async getAll() {
-      return (await httpClient.get<TDto[]>(basePath)).data;
+      return cachedGet<TDto[]>(basePath);
     },
     async create(request) {
       return (await httpClient.post<TDto>(basePath, request)).data;
