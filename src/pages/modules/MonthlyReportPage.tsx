@@ -166,8 +166,8 @@ export function MonthlyReportPage() {
 
               {data.ingredients.length === 0 ? (
                 <p className="ui-muted">
-                  Bu ay reçeteye göre tüketilen malzeme yok (satış girildikçe
-                  oluşur).
+                  Bu ay tedarikçiden malzeme alışı yok. Verimlilik, ay içinde alınan
+                  malzeme ile elde edilen gelirden hesaplanır.
                 </p>
               ) : (
                 <DataTable
@@ -186,7 +186,7 @@ export function MonthlyReportPage() {
                       ),
                     },
                     {
-                      header: "Bu ay tüketim",
+                      header: "Bu ay alınan",
                       align: "right",
                       render: (row) =>
                         `${formatNumber(row.quantityUsed)} ${row.unit}`,
@@ -198,7 +198,7 @@ export function MonthlyReportPage() {
                         `${formatMoney(row.revenuePerUnit)} / ${row.unit}`,
                     },
                     {
-                      header: "Geçen ay tüketim",
+                      header: "Geçen ay alınan",
                       align: "right",
                       render: (row) =>
                         `${formatNumber(row.previousQuantityUsed)} ${row.unit}`,

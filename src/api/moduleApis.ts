@@ -3,11 +3,6 @@ import { httpClient } from "./httpClient";
 import type { ActivityEntryDto, ActivityKindDto, ActivityQuery, ActivityUserDto } from "../types/activity";
 import type { AuditLogDto, AuditLogQuery } from "../types/auditLog";
 import type {
-  DailyActualEntryDto,
-  DailyLossReportDto,
-  SubmitDailyActualEntryRequest,
-} from "../types/dailyClosing";
-import type {
   DailySalesEntryDto,
   ExpectedDaySummaryDto,
   ImportDailySalesRequest,
@@ -239,24 +234,6 @@ export const dailySalesApi = {
   },
   async import(request: ImportDailySalesRequest): Promise<ImportDailySalesResult> {
     return (await httpClient.post<ImportDailySalesResult>("/api/daily-sales/import", request)).data;
-  },
-};
-
-export const dailyClosingApi = {
-  async getActualEntry(date: string): Promise<DailyActualEntryDto | null> {
-    return (await httpClient.get<DailyActualEntryDto | null>("/api/daily-closing/actual-entry", { params: { date } }))
-      .data || null;
-  },
-  async submitActualEntry(request: SubmitDailyActualEntryRequest): Promise<DailyLossReportDto> {
-    return (await httpClient.post<DailyLossReportDto>("/api/daily-closing/actual-entry", request)).data;
-  },
-  async getLossReport(date: string): Promise<DailyLossReportDto | null> {
-    return (await httpClient.get<DailyLossReportDto | null>("/api/daily-closing/loss-report", { params: { date } }))
-      .data || null;
-  },
-  async getLossReports(fromDate: string, toDate: string): Promise<DailyLossReportDto[]> {
-    return (await httpClient.get<DailyLossReportDto[]>("/api/daily-closing/loss-reports", { params: { fromDate, toDate } }))
-      .data;
   },
 };
 

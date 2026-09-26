@@ -69,10 +69,15 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "Gün Sonu",
     icon: MoonStar,
     tone: "violet",
-    description: "Satışlar ve kapanış",
+    description: "Günün Kasa, Yemeksepeti ve Uber Excel'leri",
     pages: [
-      { path: "/gun-sonu/satislar", label: "Satışlar", roles: ADMIN, description: "Günün siparişlerini Excel ile yükleyin veya tek tek girin." },
-      { path: "/gun-sonu/kapanis", label: "Kapanış", roles: ADMIN, description: "Gerçekleşen geliri ve sayılan malzeme tüketimini girin; fire raporu üretilir." },
+      {
+        path: "/gun-sonu/satislar",
+        label: "Gün Sonu",
+        roles: ADMIN,
+        description:
+          "Gün sonu kapanışı = günün Kasa, Yemeksepeti ve Uber Excel'lerini yüklemek. Satışlar kaydedilir, gelir kasaya yazılır, malzemeler reçeteye göre stoktan düşer, komisyonlar gider olur.",
+      },
     ],
   },
   {
@@ -109,11 +114,10 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "Raporlar",
     icon: ChartColumn,
     tone: "blue",
-    description: "Dönem, aylık ve fire raporları",
+    description: "Dönem ve aylık raporlar",
     pages: [
       { path: "/raporlar/donem", label: "Dönem", roles: ADMIN, description: "Seçili aralıkta gelir-gider, nakit/kart ve kanal kırılımı." },
-      { path: "/raporlar/aylik", label: "Aylık", roles: ADMIN, description: "Tabak başı genel maliyet ve malzeme verimliliği; ay bitince otomatik bildirilir." },
-      { path: "/raporlar/fire", label: "Fire / Kayıp", roles: ADMIN, description: "Gün sonu kapanışlarından üretilen günlük fire ve gelir farkı özetleri." },
+      { path: "/raporlar/aylik", label: "Aylık", roles: ADMIN, description: "Ay bitince: tabak başı genel maliyet (tüm giderler ÷ tabak) ve malzeme verimliliği (alınan malzeme başına gelir)." },
     ],
   },
   {

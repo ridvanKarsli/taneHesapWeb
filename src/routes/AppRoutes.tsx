@@ -14,14 +14,12 @@ import { NotFoundPage } from "../pages/common/NotFoundPage";
 import { DashboardPage } from "../pages/dashboard/DashboardPage";
 import { ActivityPage } from "../pages/modules/ActivityPage";
 import { AuditLogsPage } from "../pages/modules/AuditLogsPage";
-import { DailyClosingPage } from "../pages/modules/DailyClosingPage";
 import { DailySalesPage } from "../pages/modules/DailySalesPage";
 import { DishesPage } from "../pages/modules/DishesPage";
 import { EmployeesPage } from "../pages/modules/EmployeesPage";
 import { ExpensesPage } from "../pages/modules/ExpensesPage";
 import { ExpenseTypesPage } from "../pages/modules/ExpenseTypesPage";
 import { IngredientsPage } from "../pages/modules/IngredientsPage";
-import { LossReportsPage } from "../pages/modules/LossReportsPage";
 import { MonthlyReportPage } from "../pages/modules/MonthlyReportPage";
 import { MyWalletPage } from "../pages/modules/MyWalletPage";
 import { PaymentCardsPage } from "../pages/modules/PaymentCardsPage";
@@ -37,7 +35,6 @@ const PAGE_COMPONENTS: Record<string, ComponentType> = {
   "/": DashboardPage,
   "/isletmeler": BusinessesPage,
   "/gun-sonu/satislar": DailySalesPage,
-  "/gun-sonu/kapanis": DailyClosingPage,
   "/finans/giderler": ExpensesPage,
   "/finans/cuzdanim": MyWalletPage,
   "/finans/kasa": TreasuryPage,
@@ -50,7 +47,6 @@ const PAGE_COMPONENTS: Record<string, ComponentType> = {
   "/mutfak/tedarikciler": SuppliersPage,
   "/raporlar/donem": PeriodReportPage,
   "/raporlar/aylik": MonthlyReportPage,
-  "/raporlar/fire": LossReportsPage,
   "/tanimlar/gider-turleri": ExpenseTypesPage,
   "/tanimlar/platformlar": PlatformsPage,
   "/tanimlar/calisanlar": EmployeesPage,
@@ -115,6 +111,9 @@ export function AppRoutes() {
         </Route>
       </Route>
 
+      {/* Kaldırılan sayfaların eski adresleri (yer imleri, ana ekran kısayolları) */}
+      <Route path="/gun-sonu/kapanis" element={<Navigate to="/gun-sonu/satislar" replace />} />
+      <Route path="/raporlar/fire" element={<Navigate to="/raporlar/donem" replace />} />
       <Route path="/404" element={<NotFoundPage />} />
       <Route path="*" element={<Navigate to="/404" replace />} />
     </Routes>

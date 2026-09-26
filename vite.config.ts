@@ -21,7 +21,7 @@ export default defineConfig({
         categories: ["business", "finance", "food"],
         shortcuts: [
           { name: "Gider ekle", short_name: "Gider", url: "/finans/giderler", icons: [{ src: "pwa-192.png", sizes: "192x192" }] },
-          { name: "Gün sonu satışları", short_name: "Satışlar", url: "/gun-sonu/satislar", icons: [{ src: "pwa-192.png", sizes: "192x192" }] },
+          { name: "Gün sonu Excel yükle", short_name: "Gün sonu", url: "/gun-sonu/satislar", icons: [{ src: "pwa-192.png", sizes: "192x192" }] },
           { name: "Kasa", short_name: "Kasa", url: "/finans/kasa", icons: [{ src: "pwa-192.png", sizes: "192x192" }] },
         ],
         background_color: "#FAF6F0",

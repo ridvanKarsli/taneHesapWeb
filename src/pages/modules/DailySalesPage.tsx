@@ -44,7 +44,7 @@ export function DailySalesPage() {
       />
 
       <StatGrid>
-        <StatTile icon={Coins} label="Beklenen gelir" value={summary.data ? formatMoney(summary.data.expectedRevenue) : "…"} />
+        <StatTile icon={Coins} label="Günün geliri" value={summary.data ? formatMoney(summary.data.expectedRevenue) : "…"} />
         <StatTile icon={ReceiptText} iconTone="blue" label="Satış satırı" value={String(entries.data?.length ?? 0)} />
         <StatTile icon={Soup} iconTone="green" label="Satılan adet" value={String((entries.data ?? []).reduce((sum, e) => sum + e.quantity, 0))} />
       </StatGrid>
@@ -69,7 +69,7 @@ export function DailySalesPage() {
           title={pendingDelete === "day" ? "Günün tüm satışları silinsin mi?" : "Satış satırı silinsin mi?"}
           message={
             pendingDelete === "day"
-              ? `${formatDate(date)} tarihine ait ${entries.data?.length ?? 0} satış satırı silinecek (örn. aynı dosya iki kez yüklendiyse). Platform komisyonu giderleri yeniden hesaplanır. Gün sonu kapanışı yapıldıysa kapanışı yeniden gönderin.`
+              ? `${formatDate(date)} tarihine ait ${entries.data?.length ?? 0} satış satırı silinecek (örn. aynı dosya iki kez yüklendiyse). Platform komisyonu giderleri yeniden hesaplanır.`
               : `"${pendingDelete.dishName} — ${pendingDelete.sizeName}" × ${pendingDelete.quantity} (${formatMoney(pendingDelete.totalAmount)}) satırı silinecek. Platform komisyonu yeniden hesaplanır.`
           }
           onClose={() => setPendingDelete(null)}
@@ -116,15 +116,15 @@ export function DailySalesPage() {
           </AsyncState>
         </Section>
 
-        <Section title="Beklenen malzeme tüketimi" icon={Carrot}>
-          <AsyncState {...summary} isEmpty={(s) => s.expectedConsumption.length === 0} emptyText="Satış girildikçe reçeteye göre hesaplanır.">
+        <Section title="Stoktan düşen malzeme (reçeteye göre)" icon={Carrot}>
+          <AsyncState {...summary} isEmpty={(s) => s.expectedConsumption.length === 0} emptyText="Excel yüklendikçe reçeteye göre hesaplanır.">
             {(s) => (
               <DataTable
                 rows={s.expectedConsumption}
                 rowKey={(row) => row.ingredientId}
                 columns={[
                   { header: "Malzeme", render: (row) => row.ingredientName },
-                  { header: "Beklenen", align: "right", render: (row) => `${formatNumber(row.expectedQuantity)} ${row.unit}` },
+                  { header: "Miktar", align: "right", render: (row) => `${formatNumber(row.expectedQuantity)} ${row.unit}` },
                 ]}
               />
             )}

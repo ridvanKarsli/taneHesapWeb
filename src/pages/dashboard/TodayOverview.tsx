@@ -1,4 +1,4 @@
-import { CreditCard, MoonStar, Plus, ReceiptText, Wallet } from "lucide-react";
+import { CreditCard, FileSpreadsheet, Landmark, ReceiptText, Wallet } from "lucide-react";
 import { Link } from "react-router-dom";
 import { reportApi, supplierApi, treasuryApi } from "../../api/moduleApis";
 import { Money } from "../../components/ui/Money";
@@ -52,9 +52,9 @@ export function TodayOverview() {
         <div className="today-actions">
           <Link to="/gun-sonu/satislar" className="today-action">
             <span className="today-action-icon">
-              <Plus size={22} strokeWidth={2.4} aria-hidden="true" />
+              <FileSpreadsheet size={22} strokeWidth={2.2} aria-hidden="true" />
             </span>
-            Satış gir
+            Gün sonu Excel
           </Link>
           <Link to="/finans/giderler" className="today-action">
             <span className="today-action-icon">
@@ -62,11 +62,11 @@ export function TodayOverview() {
             </span>
             Gider ekle
           </Link>
-          <Link to="/gun-sonu/kapanis" className="today-action">
+          <Link to="/finans/kasa" className="today-action">
             <span className="today-action-icon">
-              <MoonStar size={22} strokeWidth={2.2} aria-hidden="true" />
+              <Landmark size={22} strokeWidth={2.2} aria-hidden="true" />
             </span>
-            Kapanış yap
+            Kasa
           </Link>
         </div>
       </section>
