@@ -193,12 +193,19 @@ h3 {
   font-variation-settings: "opsz" 40;
 }
 
-/* Para ve sayılar: Fraunces, tablo hizalı rakamlar — uygulamanın imzası. */
+/* Para: Fraunces, tablo hizalı rakamlar; kuruş kısmı küçük ve soluk ("₺4.468.492,50" tek bakışta okunsun). */
 .money {
   font-family: var(--font-display);
   font-variant-numeric: tabular-nums;
   font-variation-settings: "opsz" 24;
   letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.money-cents {
+  font-size: 0.68em;
+  opacity: 0.7;
+  margin-left: 0.5px;
 }
 
 a {

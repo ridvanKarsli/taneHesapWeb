@@ -7,12 +7,13 @@ import { EntityForm } from "../../components/ui/EntityForm";
 import { formValue } from "../../components/ui/formValues";
 import { Modal } from "../../components/ui/Modal";
 import { ModalFormButton } from "../../components/ui/ModalFormButton";
+import { Money } from "../../components/ui/Money";
 import { paymentFields, paymentInitialValues, readPayment } from "../../components/ui/paymentFields";
 import { StatusBadge } from "../../components/ui/StatusBadge";
 import { useAsyncData } from "../../hooks/useAsyncData";
 import { usePaymentCards } from "../../hooks/usePaymentCards";
 import { PAYMENT_METHOD_LABELS } from "../../types/enums";
-import { formatDate, formatMoney, formatNumber, todayIso } from "../../lib/format";
+import { formatDate, formatNumber, todayIso } from "../../lib/format";
 import type { SupplierPurchaseDto } from "../../types/supplier";
 
 interface SupplierPurchasesPanelProps {
@@ -75,15 +76,18 @@ export function SupplierPurchasesPanel({ supplierId, onChanged }: SupplierPurcha
               { header: "Tarih", render: (row) => formatDate(row.purchaseDate) },
               { header: "Malzeme", render: (row) => row.ingredientName },
               { header: "Miktar", align: "right", render: (row) => formatNumber(row.quantity) },
-              { header: "Birim fiyat", align: "right", render: (row) => formatMoney(row.unitPrice) },
-              { header: "Tutar", align: "right", render: (row) => formatMoney(row.totalAmount) },
+              { header: "Birim fiyat", align: "right", render: (row) => <Money value={row.unitPrice} /> },
+              { header: "Tutar", align: "right", render: (row) => <Money value={row.totalAmount} /> },
               {
                 header: "Ödenen",
                 align: "right",
-                render: (row) =>
-                  row.payments.length === 0
-                    ? formatMoney(row.paidAmount)
-                    : `${formatMoney(row.paidAmount)} (${row.payments.map((p) => (p.paymentMethod === null ? "—" : PAYMENT_METHOD_LABELS[p.paymentMethod])).join(", ")})`,
+                render: (row) => (
+                  <>
+                    <Money value={row.paidAmount} />
+                    {row.payments.length > 0 &&
+                      ` (${row.payments.map((p) => (p.paymentMethod === null ? "—" : PAYMENT_METHOD_LABELS[p.paymentMethod])).join(", ")})`}
+                  </>
+                ),
               },
               {
                 header: "Durum",
@@ -91,7 +95,7 @@ export function SupplierPurchasesPanel({ supplierId, onChanged }: SupplierPurcha
                   row.isFullyPaid ? (
                     <StatusBadge tone="success">Ödendi</StatusBadge>
                   ) : (
-                    <StatusBadge tone="danger">{`Kalan ${formatMoney(row.remainingAmount)}`}</StatusBadge>
+                    <StatusBadge tone="danger">Kalan <Money value={row.remainingAmount} /></StatusBadge>
                   ),
               },
             ]}
@@ -109,7 +113,7 @@ export function SupplierPurchasesPanel({ supplierId, onChanged }: SupplierPurcha
 
       {paying && (
         <Modal title={`${paying.ingredientName} alışı — ödeme`} onClose={() => setPaying(null)}>
-          <p className="ui-muted">Kalan borç: {formatMoney(paying.remainingAmount)}. Ödeme, seçilen kasadan/karttan düşen bir Malzeme gideri olarak da işlenir.</p>
+          <p className="ui-muted">Kalan borç: <Money value={paying.remainingAmount} />. Ödeme, seçilen kasadan/karttan düşen bir Malzeme gideri olarak da işlenir.</p>
           <EntityForm
             fields={[
               { name: "amount", label: "Ödeme tutarı (₺)", type: "number", required: true, min: 0 },

@@ -4,6 +4,7 @@ import { supplierApi } from "../../api/moduleApis";
 import { CrudPage } from "../../components/crud/CrudPage";
 import { type FieldDef } from "../../components/ui/EntityForm";
 import { formValue, type FormValues } from "../../components/ui/formValues";
+import { Money } from "../../components/ui/Money";
 import { StatGrid, StatTile } from "../../components/ui/StatTile";
 import { ActiveBadge } from "../../components/ui/StatusBadge";
 import { useAsyncData } from "../../hooks/useAsyncData";
@@ -47,7 +48,7 @@ export function SuppliersPage() {
         {
           header: "Açık borç",
           align: "right",
-          render: (row) => <span className={row.totalOutstandingDebt > 0 ? "ui-text-negative" : undefined}>{formatMoney(row.totalOutstandingDebt)}</span>,
+          render: (row) => <span className={row.totalOutstandingDebt > 0 ? "ui-text-negative" : undefined}><Money value={row.totalOutstandingDebt} /></span>,
         },
         { header: "Durum", render: (row) => <ActiveBadge isActive={row.isActive} /> },
       ]}

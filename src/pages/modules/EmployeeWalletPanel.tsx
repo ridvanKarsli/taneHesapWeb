@@ -6,6 +6,7 @@ import { ConfirmDialog, DeleteButton } from "../../components/ui/ConfirmDialog";
 import { DataTable } from "../../components/ui/DataTable";
 import { ModalFormButton } from "../../components/ui/ModalFormButton";
 import { formValue } from "../../components/ui/formValues";
+import { Money } from "../../components/ui/Money";
 import { paymentFields, paymentInitialValues, readPayment } from "../../components/ui/paymentFields";
 import { StatGrid, StatTile } from "../../components/ui/StatTile";
 import { useAsyncData } from "../../hooks/useAsyncData";
@@ -38,18 +39,18 @@ export function EmployeeWalletPanel({ load, employeeId }: EmployeeWalletPanelPro
         <div className="wallet-panel">
           <StatGrid>
             <StatTile icon={Clock} iconTone="blue" label="Toplam çalışma" value={`${formatNumber(data.totalHours, 1)} saat`} />
-            <StatTile icon={HandCoins} iconTone="green" label="Hak ediş" value={formatMoney(data.totalEarned)} />
-            <StatTile icon={Banknote} iconTone="rose" label="Ödenen" value={formatMoney(data.totalPaid)} />
+            <StatTile icon={HandCoins} iconTone="green" label="Hak ediş" value={<Money value={data.totalEarned} />} />
+            <StatTile icon={Banknote} iconTone="rose" label="Ödenen" value={<Money value={data.totalPaid} />} />
             <StatTile
               icon={Scale}
               iconTone="amber"
               label={data.balance >= 0 ? "Alacağı (bakiye)" : "Fazla ödenen"}
-              value={formatMoney(Math.abs(data.balance))}
+              value={<Money value={Math.abs(data.balance)} />}
               tone={data.balance > 0 ? "positive" : data.balance < 0 ? "negative" : undefined}
             />
           </StatGrid>
           <div className="wallet-toolbar">
-            <p className="ui-muted">Saatlik ücret: {formatMoney(data.hourlyWage)}</p>
+            <p className="ui-muted">Saatlik ücret: <Money value={data.hourlyWage} /></p>
             {canEdit && (
               <div className="ui-page-header-actions">
                 <ModalFormButton
@@ -112,8 +113,8 @@ export function EmployeeWalletPanel({ load, employeeId }: EmployeeWalletPanelPro
                   columns={[
                     { header: "Tarih", render: (row) => formatDate(row.workDate) },
                     { header: "Saat", align: "right", render: (row) => formatNumber(row.hours, 1) },
-                    { header: "Ücret", align: "right", render: (row) => formatMoney(row.hourlyWage) },
-                    { header: "Hak ediş", align: "right", render: (row) => formatMoney(row.amount) },
+                    { header: "Ücret", align: "right", render: (row) => <Money value={row.hourlyWage} /> },
+                    { header: "Hak ediş", align: "right", render: (row) => <Money value={row.amount} /> },
                     { header: "Not", render: (row) => row.note || "—" },
                   ]}
                   rowActions={canEdit ? (row) => <DeleteButton onClick={() => setDeletingLog(row)} /> : undefined}
@@ -130,7 +131,7 @@ export function EmployeeWalletPanel({ load, employeeId }: EmployeeWalletPanelPro
                   rowKey={(row) => row.expenseId}
                   columns={[
                     { header: "Tarih", render: (row) => formatDate(row.date) },
-                    { header: "Tutar", align: "right", render: (row) => formatMoney(row.amount) },
+                    { header: "Tutar", align: "right", render: (row) => <Money value={row.amount} /> },
                     {
                       header: "Ödeme",
                       render: (row) =>

@@ -5,10 +5,11 @@ import { CrudPage } from "../../components/crud/CrudPage";
 import { EntityForm, type FieldDef } from "../../components/ui/EntityForm";
 import { formValue, type FormValues } from "../../components/ui/formValues";
 import { Modal } from "../../components/ui/Modal";
+import { Money } from "../../components/ui/Money";
 import { paymentFields, paymentInitialValues, readPayment } from "../../components/ui/paymentFields";
 import { usePaymentCards } from "../../hooks/usePaymentCards";
 import { ActiveBadge, StatusBadge } from "../../components/ui/StatusBadge";
-import { formatDate, formatMoney, todayIso } from "../../lib/format";
+import { formatDate, todayIso } from "../../lib/format";
 import { RECURRING_PERIOD_LABELS, toOptions, type RecurringPeriod } from "../../types/enums";
 import type { RecurringExpenseDto } from "../../types/recurringExpense";
 
@@ -39,7 +40,7 @@ export function RecurringExpensesPage() {
         rowClassName={(row) => (row.isActive && !row.isCurrentPeriodPaid ? "warning" : undefined)}
         columns={[
           { header: "Ad", render: (row) => row.name },
-          { header: "Tutar", align: "right", render: (row) => formatMoney(row.amount) },
+          { header: "Tutar", align: "right", render: (row) => <Money value={row.amount} /> },
           { header: "Periyot", render: (row) => RECURRING_PERIOD_LABELS[row.period] },
           {
             header: "Güncel dönem",

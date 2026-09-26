@@ -7,6 +7,7 @@ import { DataTable } from "../../components/ui/DataTable";
 import { DateFilter } from "../../components/ui/DateFilter";
 import { formValue } from "../../components/ui/formValues";
 import { ModalFormButton } from "../../components/ui/ModalFormButton";
+import { Money } from "../../components/ui/Money";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Section } from "../../components/ui/Section";
 import { StatGrid, StatTile } from "../../components/ui/StatTile";
@@ -89,7 +90,7 @@ export function TreasuryPage() {
             icon={CreditCard}
             iconTone="slate"
             label={`${card.name} — kullanılabilir`}
-            value={formatMoney(card.availableLimit)}
+            value={<Money value={card.availableLimit} />}
             tone={card.availableLimit < 0 ? "negative" : undefined}
           />
         ))}
@@ -131,7 +132,7 @@ export function TreasuryPage() {
                 {
                   header: "Tutar",
                   align: "right",
-                  render: (row) => <span className={row.amount < 0 ? "ui-text-negative" : "ui-text-positive"}>{formatMoney(row.amount)}</span>,
+                  render: (row) => <span className={row.amount < 0 ? "ui-text-negative" : "ui-text-positive"}><Money value={row.amount} /></span>,
                 },
                 { header: "Açıklama", render: (row) => row.description || "—" },
               ]}

@@ -162,7 +162,7 @@
   font-size: 0.93rem;
 }
 
-.dashboard-card-text span {
+.dashboard-card-text > span {
   font-size: 0.8rem;
   color: var(--color-text-muted);
 }
@@ -206,7 +206,7 @@
   border-bottom: none;
 }
 
-.dashboard-alert-row span {
+.dashboard-alert-row > span {
   color: var(--color-text-muted);
   font-variant-numeric: tabular-nums;
   text-align: right;

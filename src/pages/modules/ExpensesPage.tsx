@@ -9,6 +9,7 @@ import { EntityForm, type FieldDef } from "../../components/ui/EntityForm";
 import { Modal } from "../../components/ui/Modal";
 import { ModalFormButton } from "../../components/ui/ModalFormButton";
 import { formValue, type FormValues } from "../../components/ui/formValues";
+import { Money } from "../../components/ui/Money";
 import { PageHeader } from "../../components/ui/PageHeader";
 import {
   paymentFields,
@@ -273,7 +274,7 @@ export function ExpensesPage() {
             icon={Wallet}
             iconTone="rose"
             label="Seçili aralıkta toplam"
-            value={formatMoney(total)}
+            value={<Money value={total} />}
           />
           <StatTile
             icon={Hash}
@@ -306,7 +307,7 @@ export function ExpensesPage() {
                 {
                   header: "Tutar",
                   align: "right",
-                  render: (row) => formatMoney(row.amount),
+                  render: (row) => <Money value={row.amount} />,
                 },
                 { header: "Ödeme", render: (row) => paymentLabel(row) },
                 {

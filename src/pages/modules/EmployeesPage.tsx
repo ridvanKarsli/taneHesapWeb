@@ -4,8 +4,8 @@ import { employeeApi } from "../../api/moduleApis";
 import { CrudPage } from "../../components/crud/CrudPage";
 import type { FieldDef } from "../../components/ui/EntityForm";
 import { formValue } from "../../components/ui/formValues";
+import { Money } from "../../components/ui/Money";
 import { ActiveBadge } from "../../components/ui/StatusBadge";
-import { formatMoney } from "../../lib/format";
 import type { EmployeeDto } from "../../types/employee";
 import { EmployeeWalletPanel } from "./EmployeeWalletPanel";
 
@@ -25,7 +25,7 @@ export function EmployeesPage() {
       columns={[
         { header: "Ad soyad", render: (row) => row.fullName },
         { header: "Kullanıcı adı", render: (row) => row.username },
-        { header: "Saatlik ücret", align: "right", render: (row) => formatMoney(row.hourlyWage) },
+        { header: "Saatlik ücret", align: "right", render: (row) => <Money value={row.hourlyWage} /> },
         { header: "Durum", render: (row) => <ActiveBadge isActive={row.isActive} /> },
       ]}
       rowActions={(row) => (

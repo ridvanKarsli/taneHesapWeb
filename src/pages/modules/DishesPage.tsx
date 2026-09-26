@@ -8,11 +8,12 @@ import { EntityForm } from "../../components/ui/EntityForm";
 import { formValue } from "../../components/ui/formValues";
 import { Modal } from "../../components/ui/Modal";
 import { ModalFormButton } from "../../components/ui/ModalFormButton";
+import { Money } from "../../components/ui/Money";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Section } from "../../components/ui/Section";
 import { ActiveBadge } from "../../components/ui/StatusBadge";
 import { useAsyncData } from "../../hooks/useAsyncData";
-import { formatMoney, formatNumber } from "../../lib/format";
+import { formatNumber } from "../../lib/format";
 import type { DishDto, DishSizeDto } from "../../types/dish";
 import { DishSizeForm } from "./DishSizeForm";
 import "./modules.css";
@@ -88,13 +89,13 @@ export function DishesPage() {
                   rowKey={(size) => size.id}
                   columns={[
                     { header: "Boy", render: (size) => size.name },
-                    { header: "Satış fiyatı", align: "right", render: (size) => formatMoney(size.salePrice) },
-                    { header: "Maliyet", align: "right", render: (size) => formatMoney(size.cost) },
+                    { header: "Satış fiyatı", align: "right", render: (size) => <Money value={size.salePrice} /> },
+                    { header: "Maliyet", align: "right", render: (size) => <Money value={size.cost} /> },
                     {
                       header: "Kâr",
                       align: "right",
                       render: (size) => (
-                        <span className={size.profitMargin < 0 ? "ui-text-negative" : "ui-text-positive"}>{formatMoney(size.profitMargin)}</span>
+                        <span className={size.profitMargin < 0 ? "ui-text-negative" : "ui-text-positive"}><Money value={size.profitMargin} /></span>
                       ),
                     },
                     { header: "Durum", render: (size) => <ActiveBadge isActive={size.isActive} /> },
@@ -123,7 +124,7 @@ export function DishesPage() {
                           columns={[
                             { header: "Malzeme", render: (item) => item.ingredientName },
                             { header: "Miktar", align: "right", render: (item) => `${formatNumber(item.quantity)} ${item.unit}` },
-                            { header: "Maliyet", align: "right", render: (item) => formatMoney(item.lineCost) },
+                            { header: "Maliyet", align: "right", render: (item) => <Money value={item.lineCost} /> },
                           ]}
                         />
                       )

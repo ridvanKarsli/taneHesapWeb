@@ -4,11 +4,12 @@ import { dailyClosingApi, dailySalesApi, ingredientApi } from "../../api/moduleA
 import { AsyncState } from "../../components/ui/AsyncState";
 import { DataTable } from "../../components/ui/DataTable";
 import { DateFilter } from "../../components/ui/DateFilter";
+import { Money } from "../../components/ui/Money";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Section } from "../../components/ui/Section";
 import { StatGrid, StatTile } from "../../components/ui/StatTile";
 import { useAsyncData } from "../../hooks/useAsyncData";
-import { formatDate, formatMoney, formatNumber, todayIso } from "../../lib/format";
+import { formatDate, formatNumber, todayIso } from "../../lib/format";
 import type { DailyActualEntryDto, DailyLossReportDto } from "../../types/dailyClosing";
 import type { ExpectedDaySummaryDto } from "../../types/dailySales";
 import { ActualEntryForm, type ConsumptionDraft } from "./ActualEntryForm";
@@ -70,7 +71,7 @@ export function DailyClosingPage() {
         {(data) => (
           <>
             <Section title={`${formatDate(date)} — gerçekleşen değerler${data.entry ? " (kaydedildi, güncelleyebilirsiniz)" : ""}`} icon={ClipboardCheck}>
-              <p className="ui-muted">Sistemin beklediği gelir: {formatMoney(data.expected.expectedRevenue)}</p>
+              <p className="ui-muted">Sistemin beklediği gelir: <Money value={data.expected.expectedRevenue} /></p>
               <ActualEntryForm
                 key={`${date}-${data.entry?.id ?? "new"}`}
                 date={date}
@@ -99,20 +100,20 @@ function LossReport({ report }: { report: DailyLossReportDto }) {
   return (
     <Section title="Fire / kayıp raporu" icon={TriangleAlert}>
       <StatGrid>
-        <StatTile icon={Target} iconTone="slate" label="Beklenen gelir" value={formatMoney(report.expectedRevenue)} />
-        <StatTile icon={Coins} label="Gerçekleşen gelir" value={formatMoney(report.actualRevenue)} />
+        <StatTile icon={Target} iconTone="slate" label="Beklenen gelir" value={<Money value={report.expectedRevenue} />} />
+        <StatTile icon={Coins} label="Gerçekleşen gelir" value={<Money value={report.actualRevenue} />} />
         <StatTile
           icon={report.revenueVarianceAmount < 0 ? TrendingDown : TrendingUp}
           iconTone={report.revenueVarianceAmount < 0 ? "rose" : "green"}
           label="Gelir farkı"
-          value={formatMoney(report.revenueVarianceAmount)}
+          value={<Money value={report.revenueVarianceAmount} />}
           tone={report.revenueVarianceAmount < 0 ? "negative" : "positive"}
         />
         <StatTile
           icon={Scale}
           iconTone="amber"
           label="Malzeme fark maliyeti"
-          value={formatMoney(totalVarianceCost)}
+          value={<Money value={totalVarianceCost} />}
           tone={totalVarianceCost > 0 ? "negative" : "positive"}
         />
       </StatGrid>
@@ -138,7 +139,7 @@ function LossReport({ report }: { report: DailyLossReportDto }) {
           {
             header: "Fark maliyeti",
             align: "right",
-            render: (item) => <span className={item.varianceCost > 0 ? "ui-text-negative" : undefined}>{formatMoney(item.varianceCost)}</span>,
+            render: (item) => <span className={item.varianceCost > 0 ? "ui-text-negative" : undefined}><Money value={item.varianceCost} /></span>,
           },
         ]}
       />

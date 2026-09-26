@@ -3,7 +3,8 @@ import { useRef, useState, type ChangeEvent } from "react";
 import { extractErrorMessage } from "../../api/apiError";
 import { ErrorMessage } from "../../components/ui/AsyncState";
 import { DataTable } from "../../components/ui/DataTable";
-import { formatDate, formatMoney } from "../../lib/format";
+import { Money } from "../../components/ui/Money";
+import { formatDate } from "../../lib/format";
 import { buildTemplateSheets, parseSalesSheet, type CellValue, type ParsedSales } from "../../lib/salesExcel";
 import type { ImportRowRequest } from "../../types/dailySales";
 import type { DishDto } from "../../types/dish";
@@ -131,7 +132,7 @@ export function SalesExcelImport({ date, dishes, platforms, onImport }: SalesExc
                   { header: "Tarih", render: (row) => formatDate(row.saleDate) },
                   { header: "Ürün", render: (row) => sizeLabel.get(row.dishSizeId) ?? "—" },
                   { header: "Adet", align: "right", render: (row) => String(row.quantity) },
-                  { header: "Tutar", align: "right", render: (row) => formatMoney(row.totalAmount) },
+                  { header: "Tutar", align: "right", render: (row) => <Money value={row.totalAmount} /> },
                   { header: "Ödeme", render: (row) => PAYMENT_METHOD_LABELS[row.paymentMethod] },
                   {
                     header: "Kanal",

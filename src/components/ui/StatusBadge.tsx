@@ -1,8 +1,9 @@
+import type { ReactNode } from "react";
 import "./ui.css";
 
 interface StatusBadgeProps {
   tone: "success" | "danger" | "warning" | "neutral";
-  children: string;
+  children: ReactNode;
 }
 
 export function StatusBadge({ tone, children }: StatusBadgeProps) {

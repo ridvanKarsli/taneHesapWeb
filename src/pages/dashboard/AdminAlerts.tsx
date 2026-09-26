@@ -1,9 +1,10 @@
 import { ArrowRight, BellRing, TriangleAlert } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ingredientApi, recurringExpenseApi } from "../../api/moduleApis";
+import { Money } from "../../components/ui/Money";
 import { Section } from "../../components/ui/Section";
 import { useAsyncData } from "../../hooks/useAsyncData";
-import { formatDate, formatMoney, formatNumber } from "../../lib/format";
+import { formatDate, formatNumber } from "../../lib/format";
 
 /** İşletme sahibinin panelinde "dikkat edilmesi gerekenler": düşük stok ve ödeme dönemi gelmiş sabit giderler. */
 export function AdminAlerts() {
@@ -36,7 +37,7 @@ export function AdminAlerts() {
             <p key={e.id} className="dashboard-alert-row">
               <strong>{e.name}</strong>
               <span>
-                {formatMoney(e.amount)} · son gün {formatDate(e.currentPeriodEndDate)}
+                <Money value={e.amount} /> · son gün {formatDate(e.currentPeriodEndDate)}
               </span>
             </p>
           ))}

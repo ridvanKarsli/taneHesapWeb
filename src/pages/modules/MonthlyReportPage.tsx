@@ -3,6 +3,7 @@ import { useState } from "react";
 import { reportApi } from "../../api/moduleApis";
 import { AsyncState } from "../../components/ui/AsyncState";
 import { DataTable } from "../../components/ui/DataTable";
+import { Money } from "../../components/ui/Money";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Section } from "../../components/ui/Section";
 import { StatGrid, StatTile } from "../../components/ui/StatTile";
@@ -53,18 +54,18 @@ export function MonthlyReportPage() {
           <Section>
             <StatGrid>
               <StatTile icon={UtensilsCrossed} label="Satılan tabak" value={formatNumber(data.platesSold, 0)} />
-              <StatTile icon={Sigma} iconTone="rose" label="Tabak başı genel maliyet" value={formatMoney(data.costPerPlate)} />
-              <StatTile icon={Coins} iconTone="green" label="Tabak başı gelir" value={formatMoney(data.revenuePerPlate)} />
+              <StatTile icon={Sigma} iconTone="rose" label="Tabak başı genel maliyet" value={<Money value={data.costPerPlate} />} />
+              <StatTile icon={Coins} iconTone="green" label="Tabak başı gelir" value={<Money value={data.revenuePerPlate} />} />
               <StatTile
                 icon={Sigma}
                 iconTone="slate"
                 label="Önceki ay tabak maliyeti"
-                value={formatMoney(data.previousCostPerPlate)}
+                value={<Money value={data.previousCostPerPlate} />}
                 tone={data.previousCostPerPlate > 0 && data.costPerPlate > data.previousCostPerPlate ? "negative" : undefined}
               />
             </StatGrid>
             <p className="ui-muted">
-              Toplam gider {formatMoney(data.totalExpense)} ÷ {formatNumber(data.platesSold, 0)} tabak. Net kâr: {formatMoney(data.netProfit)}.
+              Toplam gider <Money value={data.totalExpense} /> ÷ {formatNumber(data.platesSold, 0)} tabak. Net kâr: <Money value={data.netProfit} />.
               {data.closedAtUtc ? ` Ay sonu raporu ${formatDateTime(data.closedAtUtc)} tarihinde oluşturuldu ve bildirildi.` : " Ay bitince rapor otomatik kapatılıp bildirilir."}
             </p>
 

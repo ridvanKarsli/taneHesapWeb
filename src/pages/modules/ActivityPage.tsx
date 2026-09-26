@@ -3,11 +3,12 @@ import { activityApi } from "../../api/moduleApis";
 import { AsyncState } from "../../components/ui/AsyncState";
 import { DataTable } from "../../components/ui/DataTable";
 import { DateFilter } from "../../components/ui/DateFilter";
+import { Money } from "../../components/ui/Money";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Section } from "../../components/ui/Section";
 import { StatusBadge } from "../../components/ui/StatusBadge";
 import { useAsyncData } from "../../hooks/useAsyncData";
-import { addDaysIso, formatDateTime, formatMoney, todayIso } from "../../lib/format";
+import { addDaysIso, formatDateTime, todayIso } from "../../lib/format";
 import type { ActivityQuery } from "../../types/activity";
 
 const ACTION_TONE: Record<string, "success" | "danger" | "neutral"> = { Ekledi: "success", Sildi: "danger", Değiştirdi: "neutral" };
@@ -69,7 +70,7 @@ export function ActivityPage() {
                 { header: "Kullanıcı", render: (row) => <span className="ui-cell-strong">{row.userName}</span> },
                 { header: "İşlem", render: (row) => <StatusBadge tone={ACTION_TONE[row.action] ?? "neutral"}>{row.action}</StatusBadge> },
                 { header: "Kayıt", render: (row) => row.kind },
-                { header: "Tutar", align: "right", render: (row) => (row.amount === null ? "—" : formatMoney(row.amount)) },
+                { header: "Tutar", align: "right", render: (row) => (row.amount === null ? "—" : <Money value={row.amount} />) },
                 { header: "Detay", render: (row) => row.summary || "—" },
               ]}
             />

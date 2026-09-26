@@ -4,11 +4,12 @@ import { reportApi } from "../../api/moduleApis";
 import { AsyncState } from "../../components/ui/AsyncState";
 import { DataTable } from "../../components/ui/DataTable";
 import { DateFilter } from "../../components/ui/DateFilter";
+import { Money } from "../../components/ui/Money";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Section } from "../../components/ui/Section";
 import { StatGrid, StatTile } from "../../components/ui/StatTile";
 import { useAsyncData } from "../../hooks/useAsyncData";
-import { addDaysIso, formatMoney, startOfMonthIso, startOfWeekIso, todayIso } from "../../lib/format";
+import { addDaysIso, startOfMonthIso, startOfWeekIso, todayIso } from "../../lib/format";
 import { EXPENSE_CATEGORY_LABELS } from "../../types/enums";
 
 interface Range {
@@ -57,19 +58,19 @@ export function PeriodReportPage() {
         {(data) => (
           <>
             <StatGrid>
-              <StatTile icon={Coins} label="Toplam gelir" value={formatMoney(data.totalRevenue)} />
-              <StatTile icon={Wallet} iconTone="rose" label="Toplam gider" value={formatMoney(data.totalExpense)} />
+              <StatTile icon={Coins} label="Toplam gelir" value={<Money value={data.totalRevenue} />} />
+              <StatTile icon={Wallet} iconTone="rose" label="Toplam gider" value={<Money value={data.totalExpense} />} />
               <StatTile
                 icon={data.netProfit < 0 ? TrendingDown : TrendingUp}
                 iconTone={data.netProfit < 0 ? "rose" : "green"}
                 label="Net kâr"
-                value={formatMoney(data.netProfit)}
+                value={<Money value={data.netProfit} />}
                 tone={data.netProfit < 0 ? "negative" : "positive"}
               />
-              <StatTile icon={Banknote} iconTone="green" label="Nakit gelir" value={formatMoney(data.cashRevenue)} />
-              <StatTile icon={CreditCard} iconTone="blue" label="Kart gelir" value={formatMoney(data.cardRevenue)} />
-              <StatTile icon={Store} iconTone="amber" label="Dükkan içi" value={formatMoney(data.inStoreRevenue)} />
-              <StatTile icon={Bike} iconTone="violet" label="Paket servis" value={formatMoney(data.platformRevenue)} />
+              <StatTile icon={Banknote} iconTone="green" label="Nakit gelir" value={<Money value={data.cashRevenue} />} />
+              <StatTile icon={CreditCard} iconTone="blue" label="Kart gelir" value={<Money value={data.cardRevenue} />} />
+              <StatTile icon={Store} iconTone="amber" label="Dükkan içi" value={<Money value={data.inStoreRevenue} />} />
+              <StatTile icon={Bike} iconTone="violet" label="Paket servis" value={<Money value={data.platformRevenue} />} />
             </StatGrid>
 
             <div className="ui-two-columns">
@@ -82,7 +83,7 @@ export function PeriodReportPage() {
                     rowKey={(row) => String(row.category)}
                     columns={[
                       { header: "Kategori", render: (row) => EXPENSE_CATEGORY_LABELS[row.category] ?? "Diğer" },
-                      { header: "Tutar", align: "right", render: (row) => formatMoney(row.amount) },
+                      { header: "Tutar", align: "right", render: (row) => <Money value={row.amount} /> },
                     ]}
                   />
                 )}
@@ -97,9 +98,9 @@ export function PeriodReportPage() {
                     rowKey={(row) => row.platformId}
                     columns={[
                       { header: "Platform", render: (row) => row.platformName },
-                      { header: "Brüt", align: "right", render: (row) => formatMoney(row.grossRevenue) },
-                      { header: "Komisyon", align: "right", render: (row) => formatMoney(row.commissionAmount) },
-                      { header: "Net", align: "right", render: (row) => formatMoney(row.netRevenue) },
+                      { header: "Brüt", align: "right", render: (row) => <Money value={row.grossRevenue} /> },
+                      { header: "Komisyon", align: "right", render: (row) => <Money value={row.commissionAmount} /> },
+                      { header: "Net", align: "right", render: (row) => <Money value={row.netRevenue} /> },
                     ]}
                   />
                 )}
@@ -118,13 +119,13 @@ export function PeriodReportPage() {
                     columns={[
                       { header: "Ürün", render: (row) => <span className="ui-cell-strong">{`${row.dishName} — ${row.sizeName}`}</span> },
                       { header: "Adet", align: "right", render: (row) => String(row.quantity) },
-                      { header: "Ciro", align: "right", render: (row) => formatMoney(row.revenue) },
-                      { header: "Tahmini maliyet", align: "right", render: (row) => formatMoney(row.estimatedCost) },
+                      { header: "Ciro", align: "right", render: (row) => <Money value={row.revenue} /> },
+                      { header: "Tahmini maliyet", align: "right", render: (row) => <Money value={row.estimatedCost} /> },
                       {
                         header: "Tahmini kâr",
                         align: "right",
                         render: (row) => (
-                          <span className={row.estimatedProfit < 0 ? "ui-text-negative" : "ui-text-positive"}>{formatMoney(row.estimatedProfit)}</span>
+                          <span className={row.estimatedProfit < 0 ? "ui-text-negative" : "ui-text-positive"}><Money value={row.estimatedProfit} /></span>
                         ),
                       },
                     ]}

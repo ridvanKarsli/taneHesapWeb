@@ -3,10 +3,11 @@ import { dailyClosingApi } from "../../api/moduleApis";
 import { AsyncState } from "../../components/ui/AsyncState";
 import { DataTable } from "../../components/ui/DataTable";
 import { DateFilter } from "../../components/ui/DateFilter";
+import { Money } from "../../components/ui/Money";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Section } from "../../components/ui/Section";
 import { useAsyncData } from "../../hooks/useAsyncData";
-import { addDaysIso, formatDate, formatMoney, todayIso } from "../../lib/format";
+import { addDaysIso, formatDate, todayIso } from "../../lib/format";
 
 /** Gün sonu kapanışlarından üretilen günlük fire/kayıp özetleri (bkz. proje raporu 3.10). */
 export function LossReportsPage() {
@@ -33,13 +34,13 @@ export function LossReportsPage() {
               rowClassName={(row) => (row.revenueVarianceAmount < 0 || row.items.some((i) => i.varianceCost > 0) ? "warning" : undefined)}
               columns={[
                 { header: "Tarih", render: (row) => formatDate(row.reportDate) },
-                { header: "Beklenen gelir", align: "right", render: (row) => formatMoney(row.expectedRevenue) },
-                { header: "Gerçek gelir", align: "right", render: (row) => formatMoney(row.actualRevenue) },
+                { header: "Beklenen gelir", align: "right", render: (row) => <Money value={row.expectedRevenue} /> },
+                { header: "Gerçek gelir", align: "right", render: (row) => <Money value={row.actualRevenue} /> },
                 {
                   header: "Gelir farkı",
                   align: "right",
                   render: (row) => (
-                    <span className={row.revenueVarianceAmount < 0 ? "ui-text-negative" : "ui-text-positive"}>{formatMoney(row.revenueVarianceAmount)}</span>
+                    <span className={row.revenueVarianceAmount < 0 ? "ui-text-negative" : "ui-text-positive"}><Money value={row.revenueVarianceAmount} /></span>
                   ),
                 },
                 {
@@ -47,7 +48,7 @@ export function LossReportsPage() {
                   align: "right",
                   render: (row) => {
                     const cost = row.items.reduce((sum, item) => sum + item.varianceCost, 0);
-                    return <span className={cost > 0 ? "ui-text-negative" : undefined}>{formatMoney(cost)}</span>;
+                    return <span className={cost > 0 ? "ui-text-negative" : undefined}><Money value={cost} /></span>;
                   },
                 },
               ]}

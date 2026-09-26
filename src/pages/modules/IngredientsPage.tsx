@@ -2,8 +2,9 @@ import { ingredientApi } from "../../api/moduleApis";
 import { CrudPage } from "../../components/crud/CrudPage";
 import { type FieldDef } from "../../components/ui/EntityForm";
 import { formValue, type FormValues } from "../../components/ui/formValues";
+import { Money } from "../../components/ui/Money";
 import { ActiveBadge, StatusBadge } from "../../components/ui/StatusBadge";
-import { formatMoney, formatNumber } from "../../lib/format";
+import { formatNumber } from "../../lib/format";
 import type { IngredientDto } from "../../types/ingredient";
 
 const baseFields: FieldDef[] = [
@@ -38,7 +39,11 @@ export function IngredientsPage() {
       rowClassName={(row) => (isBelowThreshold(row) ? "warning" : undefined)}
       columns={[
         { header: "Ad", render: (row) => row.name },
-        { header: "Birim fiyat", align: "right", render: (row) => `${formatMoney(row.currentUnitPrice)} / ${row.unit}` },
+        { header: "Birim fiyat", align: "right", render: (row) => (
+            <>
+              <Money value={row.currentUnitPrice} /> / {row.unit}
+            </>
+          ) },
         { header: "Stok", align: "right", render: (row) => `${formatNumber(row.currentStockQuantity)} ${row.unit}` },
         { header: "Min. eşik", align: "right", render: (row) => `${formatNumber(row.minimumStockThreshold)} ${row.unit}` },
         {

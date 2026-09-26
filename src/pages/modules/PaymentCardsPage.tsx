@@ -2,8 +2,8 @@ import { treasuryApi } from "../../api/moduleApis";
 import { CrudPage } from "../../components/crud/CrudPage";
 import type { FieldDef } from "../../components/ui/EntityForm";
 import { formValue } from "../../components/ui/formValues";
+import { Money } from "../../components/ui/Money";
 import { ActiveBadge } from "../../components/ui/StatusBadge";
-import { formatMoney } from "../../lib/format";
 import type { PaymentCardDto } from "../../types/treasury";
 
 const baseFields: FieldDef[] = [
@@ -22,12 +22,12 @@ export function PaymentCardsPage() {
       emptyText="Henüz kart tanımlı değil — giderleri kartla ödüyorsanız kartı sağ üstteki düğmeyle ekleyin."
       columns={[
         { header: "Kart", render: (row) => <span className="ui-cell-strong">{row.name}</span> },
-        { header: "Limit", align: "right", render: (row) => formatMoney(row.limit) },
-        { header: "Kullanılan", align: "right", render: (row) => formatMoney(row.usedAmount) },
+        { header: "Limit", align: "right", render: (row) => <Money value={row.limit} /> },
+        { header: "Kullanılan", align: "right", render: (row) => <Money value={row.usedAmount} /> },
         {
           header: "Kullanılabilir",
           align: "right",
-          render: (row) => <span className={row.availableLimit < 0 ? "ui-text-negative" : undefined}>{formatMoney(row.availableLimit)}</span>,
+          render: (row) => <span className={row.availableLimit < 0 ? "ui-text-negative" : undefined}><Money value={row.availableLimit} /></span>,
         },
         { header: "Durum", render: (row) => <ActiveBadge isActive={row.isActive} /> },
       ]}

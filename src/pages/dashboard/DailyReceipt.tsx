@@ -1,6 +1,7 @@
 import { reportApi, supplierApi, treasuryApi } from "../../api/moduleApis";
 import { useAsyncData } from "../../hooks/useAsyncData";
-import { formatDate, formatMoney, startOfMonthIso, todayIso } from "../../lib/format";
+import { Money } from "../../components/ui/Money";
+import { formatDate, startOfMonthIso, todayIso } from "../../lib/format";
 
 async function loadReceipt() {
   const today = todayIso();
@@ -26,7 +27,7 @@ function Line({ label, value, strong, signed }: LineProps) {
     <div className={`receipt-line${strong ? " strong" : ""}`}>
       <span className="receipt-label">{label}</span>
       <span className="receipt-dots" aria-hidden="true" />
-      <span className={`receipt-value money ${tone}`}>{value === undefined ? "…" : formatMoney(value)}</span>
+      <span className={`receipt-value ${tone}`}>{value === undefined ? "…" : <Money value={value} />}</span>
     </div>
   );
 }

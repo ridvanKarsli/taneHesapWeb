@@ -1,11 +1,12 @@
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import type { NavTone } from "../../config/navigation";
+import { MoneyText } from "./Money";
 import "./ui.css";
 
 interface StatTileProps {
   label: string;
-  value: string;
+  value: string | ReactNode;
   tone?: "positive" | "negative";
   icon?: LucideIcon;
   iconTone?: NavTone;
@@ -21,7 +22,7 @@ export function StatTile({ label, value, tone, icon: Icon, iconTone = "saffron" 
       )}
       <div className="ui-stat-tile-body">
         <span>{label}</span>
-        <strong className={tone}>{value}</strong>
+        <strong className={tone}>{typeof value === "string" ? <MoneyText text={value} /> : value}</strong>
       </div>
     </div>
   );

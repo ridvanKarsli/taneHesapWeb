@@ -462,6 +462,12 @@
   vertical-align: middle;
 }
 
+/* Fraunces aynı punto'da Manrope'tan küçük görünür; tablo tutarlarını göz hizasına çekiyoruz. */
+.ui-table td .money {
+  font-size: 1.12em;
+  font-weight: 600;
+}
+
 .ui-table tbody tr {
   transition: background 0.12s var(--ease);
 }
@@ -639,7 +645,7 @@
   min-width: 0;
 }
 
-.ui-stat-tile-body span {
+.ui-stat-tile-body > span {
   font-size: 0.76rem;
   color: var(--color-text-muted);
   font-weight: 600;

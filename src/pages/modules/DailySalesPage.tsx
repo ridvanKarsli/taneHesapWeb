@@ -12,6 +12,7 @@ import { formatDate, formatMoney, formatNumber, todayIso } from "../../lib/forma
 import type { DailySalesEntryDto, ImportDailySalesResult, ImportRowRequest } from "../../types/dailySales";
 import { PAYMENT_METHOD_LABELS, SALES_CHANNEL_LABELS } from "../../types/enums";
 import { DateFilter } from "../../components/ui/DateFilter";
+import { Money } from "../../components/ui/Money";
 import { SalesEntryForm } from "./SalesEntryForm";
 import { SalesExcelImport } from "./SalesExcelImport";
 import "./modules.css";
@@ -119,7 +120,7 @@ export function DailySalesPage() {
                 columns={[
                   { header: "Ürün", render: (row) => `${row.dishName} — ${row.sizeName}` },
                   { header: "Adet", align: "right", render: (row) => String(row.quantity) },
-                  { header: "Tutar", align: "right", render: (row) => formatMoney(row.totalAmount) },
+                  { header: "Tutar", align: "right", render: (row) => <Money value={row.totalAmount} /> },
                   { header: "Ödeme", render: (row) => PAYMENT_METHOD_LABELS[row.paymentMethod] },
                   { header: "Kanal", render: (row) => row.platformName ?? SALES_CHANNEL_LABELS[row.channel] },
                 ]}
