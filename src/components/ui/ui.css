@@ -254,6 +254,7 @@
   font-size: 0.9rem;
   cursor: pointer;
   white-space: nowrap;
+  text-decoration: none; /* bağlantı olarak kullanıldığında da düğme gibi */
   transition:
     background 0.15s var(--ease),
     box-shadow 0.15s var(--ease),
@@ -304,7 +305,7 @@
   color: var(--color-text-subtle);
   box-shadow: none;
   min-height: 36px;
-  padding: 0.4rem 0.55rem;
+  padding: 0.4rem 0.4rem;
 }
 
 .ui-button.danger-ghost:hover:not(:disabled) {
@@ -316,6 +317,12 @@
   min-height: 36px;
   padding: 0.3rem 0.85rem;
   font-size: 0.82rem;
+}
+
+/* Yalnızca ikon taşıyan küçük düğme: dar kalsın ki satır düğmeleri tek satıra sığsın. */
+.ui-button.danger-ghost.small,
+.ui-button.ghost.small {
+  padding: 0.3rem 0.4rem;
 }
 
 /* ---------- Formlar ---------- */
@@ -771,6 +778,13 @@
     margin-bottom: 1rem;
   }
 
+  /* Bölüm başlığındaki düğmeler başlığın altında tek satırda (sığmazsa sarar, tek ikon yalnız kalmaz). */
+  .ui-section-header > .ui-form-actions {
+    flex-basis: 100%;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
   .ui-field {
     min-width: 0;
     flex: 1 1 100%;
@@ -868,6 +882,14 @@
   .ui-table td.ui-row-actions {
     justify-content: flex-end;
     padding-top: 0.6rem;
+    white-space: normal;
+  }
+
+  /* Satır düğmeleri kartın dışına taşmaz: sığmayan düğme alt satıra iner. */
+  .ui-table td.ui-row-actions .ui-row-actions-inner {
+    flex-wrap: wrap;
+    max-width: 100%;
+    row-gap: 0.4rem;
   }
 
   .ui-table td.ui-row-actions::before {

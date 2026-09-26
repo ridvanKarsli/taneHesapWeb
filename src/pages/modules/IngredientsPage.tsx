@@ -40,9 +40,9 @@ export function IngredientsPage() {
       columns={[
         { header: "Ad", render: (row) => row.name },
         { header: "Birim fiyat", align: "right", render: (row) => (
-            <>
+            <span>
               <Money value={row.currentUnitPrice} /> / {row.unit}
-            </>
+            </span>
           ) },
         { header: "Stok", align: "right", render: (row) => `${formatNumber(row.currentStockQuantity)} ${row.unit}` },
         { header: "Min. eşik", align: "right", render: (row) => `${formatNumber(row.minimumStockThreshold)} ${row.unit}` },

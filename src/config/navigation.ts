@@ -20,6 +20,8 @@ export interface NavPage {
   roles: UserRole[];
   /** Sayfa girişinde gösterilen kısa açıklama. */
   description?: string;
+  /** Tek sayfalık grupta mobil alt sekme için kısa ad. */
+  shortLabel?: string;
 }
 
 /**
@@ -124,7 +126,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { path: "/tanimlar/gider-turleri", label: "Gider Türleri", roles: ADMIN, description: "Gider girişinde kullanılan katalog: ad, birim, kategori." },
       { path: "/tanimlar/platformlar", label: "Paket Servis", roles: ADMIN, description: "Platform komisyon oranları; komisyon satıştan otomatik gidere dönüşür." },
       { path: "/tanimlar/calisanlar", label: "Çalışanlar", roles: ADMIN, description: "Çalışan hesapları, saatlik ücret ve cüzdan." },
-      { path: "/tanimlar/denetim", label: "Denetim Kayıtları", roles: [UserRole.SuperAdmin], description: "Teknik denetim kaydı (ham eski/yeni değerler) — yalnızca süper yönetici. İşletme sahibi Finans → İşlem Geçmişi'ni kullanır." },
+      { path: "/tanimlar/denetim", label: "Denetim Kayıtları", shortLabel: "Denetim", roles: [UserRole.SuperAdmin], description: "Teknik denetim kaydı (ham eski/yeni değerler) — yalnızca süper yönetici. İşletme sahibi Finans → İşlem Geçmişi'ni kullanır." },
     ],
   },
 ];

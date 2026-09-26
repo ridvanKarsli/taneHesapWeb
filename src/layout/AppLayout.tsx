@@ -30,7 +30,7 @@ export function AppLayout() {
     key: group.path,
     to: group.pages.length === 1 ? group.pages[0].path : group.path,
     label: group.pages.length === 1 ? group.pages[0].label : group.label,
-    shortLabel: group.pages.length === 1 ? group.pages[0].label : (group.shortLabel ?? group.label),
+    shortLabel: group.pages.length === 1 ? (group.pages[0].shortLabel ?? group.pages[0].label) : (group.shortLabel ?? group.label),
     description: group.description,
     icon: group.icon,
     tone: group.tone,

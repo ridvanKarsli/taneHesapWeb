@@ -42,6 +42,11 @@
   color: var(--color-text-muted);
 }
 
+.today-amount {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
 .today-card-main .today-amount {
   display: block;
   margin: 0.15rem 0 0.6rem;
@@ -125,12 +130,83 @@
   background: var(--tone-violet-fg);
 }
 
+.today-actions-two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.today-tile-note {
+  font-size: 0.78rem;
+  color: var(--color-text-subtle);
+}
+
+/* Süper yönetici: işletme listesi */
+.business-list {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+
+.business-row {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.business-row:last-child {
+  border-bottom: none;
+}
+
+.business-row.passive {
+  opacity: 0.6;
+}
+
+.business-row-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+}
+
+.business-row-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.business-row-text strong {
+  display: block;
+  font-size: 1rem;
+}
+
+.business-row-text span {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.business-row-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
 /* Ay ve kasa şeridi */
 .today-strip {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.75rem;
   margin: 0 0 1.25rem;
+}
+
+.today-strip-three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .today-tile {
@@ -257,6 +333,25 @@
   .today-strip {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.6rem;
+  }
+
+  .today-strip-three {
+    grid-template-columns: 1fr;
+  }
+
+  .today-strip-three .today-tile {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .business-row {
+    flex-wrap: wrap;
+  }
+
+  .business-row-actions {
+    flex-basis: 100%;
+    justify-content: flex-end;
   }
 
   .today-tile .today-amount {

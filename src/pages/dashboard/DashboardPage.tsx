@@ -4,6 +4,8 @@ import { useAuth } from "../../auth/useAuth";
 import { visibleGroups } from "../../config/navigation";
 import { ROLE_LABELS, UserRole } from "../../types/auth";
 import { AdminAlerts } from "./AdminAlerts";
+import { EmployeeOverview } from "./EmployeeOverview";
+import { SuperAdminOverview } from "./SuperAdminOverview";
 import { TodayOverview } from "./TodayOverview";
 import "./DashboardPage.css";
 
@@ -45,6 +47,8 @@ export function DashboardPage() {
           <AdminAlerts />
         </>
       )}
+      {user.role === UserRole.Employee && <EmployeeOverview />}
+      {user.role === UserRole.SuperAdmin && <SuperAdminOverview />}
 
       <h2 className="dashboard-section-title">Bölümler</h2>
       <div className="dashboard-grid">

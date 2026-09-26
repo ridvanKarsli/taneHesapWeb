@@ -17,19 +17,15 @@ interface BottomNavProps {
   items: BottomNavItem[];
 }
 
-/** Alt çubuğa sığmayan gruplar (Daha fazla sayfası bunları listeler). */
-function overflowItems(items: BottomNavItem[]): BottomNavItem[] {
-  return items.length > MAX_BOTTOM_TABS ? items.slice(MAX_BOTTOM_TABS) : [];
-}
-
 /**
  * Mobil (≤ 960px) alt sekme çubuğu — tek gezinme aracı; çekmece menü yoktur. İlk dört grup sekme olarak,
- * kalanlar "Daha fazla" sayfasında (gerçek rota: geri tuşu çalışır). Aktiflik, adresin grup yoluyla başlamasıdır.
+ * kalanlar "Daha fazla" sayfasında (gerçek rota: geri tuşu çalışır). "Daha fazla" her rolde vardır: hesap,
+ * tema ve çıkış yalnızca oradadır (çalışan ve süper yöneticinin az sayıda grubu olsa bile).
  */
 export function BottomNav({ items }: BottomNavProps) {
   const { pathname } = useLocation();
-  const overflow = overflowItems(items);
-  const visible = overflow.length > 0 ? items.slice(0, MAX_BOTTOM_TABS) : items;
+  const visible = items.slice(0, MAX_BOTTOM_TABS);
+  const overflow = items.slice(MAX_BOTTOM_TABS);
   const moreActive = pathname.startsWith(MORE_PATH) || overflow.some((item) => pathname.startsWith(item.key));
 
   return (
@@ -45,14 +41,12 @@ export function BottomNav({ items }: BottomNavProps) {
           </NavLink>
         );
       })}
-      {overflow.length > 0 && (
-        <NavLink to={MORE_PATH} className={`app-bottom-tab${moreActive ? " active" : ""}`} aria-current={moreActive ? "page" : undefined}>
-          <span className="app-bottom-tab-icon">
-            <LayoutGrid size={22} strokeWidth={moreActive ? 2.4 : 2} aria-hidden="true" />
-          </span>
-          <span>Daha fazla</span>
-        </NavLink>
-      )}
+      <NavLink to={MORE_PATH} className={`app-bottom-tab${moreActive ? " active" : ""}`} aria-current={moreActive ? "page" : undefined}>
+        <span className="app-bottom-tab-icon">
+          <LayoutGrid size={22} strokeWidth={moreActive ? 2.4 : 2} aria-hidden="true" />
+        </span>
+        <span>Daha fazla</span>
+      </NavLink>
     </nav>
   );
 }

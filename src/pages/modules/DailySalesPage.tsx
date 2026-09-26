@@ -40,7 +40,7 @@ export function DailySalesPage() {
   return (
     <div>
       <PageHeader
-        description="Günün siparişlerini Excel ile yükleyin veya elle girin. Aynı satırları tekrar gönderirseniz iki kez sayılır; paket servis komisyonları otomatik gider olarak işlenir."
+        description="Günün siparişlerini Excel ile yükleyin veya elle girin. Aynı dosya ikinci kez yüklenirse gün iki kez sayılmaz (uyarı alırsınız); paket servis komisyonları otomatik gider olarak işlenir."
         actions={<DateFilter id="sales-date" label="Tarih" value={date} onChange={setDate} />}
       />
 
