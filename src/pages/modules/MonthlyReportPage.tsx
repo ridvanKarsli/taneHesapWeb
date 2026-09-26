@@ -65,7 +65,14 @@ export function MonthlyReportPage() {
               />
             </StatGrid>
             <p className="ui-muted">
-              Toplam gider <Money value={data.totalExpense} /> ÷ {formatNumber(data.platesSold, 0)} tabak. Net kâr: <Money value={data.netProfit} />.
+              Toplam gider <Money value={data.totalExpense} /> ÷ {formatNumber(data.platesSold, 0)} tabak. Net kâr: <Money value={data.netProfit} />
+              {data.closingVariance !== 0 && (
+                <>
+                  {" "}
+                  (gün sonu kasa farkı <Money value={data.closingVariance} /> dahil)
+                </>
+              )}
+              .
               {data.closedAtUtc ? ` Ay sonu raporu ${formatDateTime(data.closedAtUtc)} tarihinde oluşturuldu ve bildirildi.` : " Ay bitince rapor otomatik kapatılıp bildirilir."}
             </p>
 

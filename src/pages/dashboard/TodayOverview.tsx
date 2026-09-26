@@ -75,22 +75,26 @@ export function TodayOverview() {
         <Link to="/raporlar/donem" className="today-tile">
           <span className="today-tile-label">Bu ay net kâr</span>
           <Amount value={m?.netProfit} signed />
+          <span className="today-tile-note">Ay başından bugüne gelir − gider</span>
         </Link>
         <Link to="/finans/kasa" className="today-tile">
           <span className="today-tile-label">
             <Wallet size={15} aria-hidden="true" /> Nakit kasası
           </span>
           <Amount value={data?.treasury.cashBalance} signed />
+          <span className="today-tile-note">Şu anki bakiye (tüm zamanlar)</span>
         </Link>
         <Link to="/finans/kasa" className="today-tile">
           <span className="today-tile-label">
             <CreditCard size={15} aria-hidden="true" /> Kart kasası
           </span>
           <Amount value={data?.treasury.bankBalance} signed />
+          <span className="today-tile-note">Şu anki bakiye (tüm zamanlar)</span>
         </Link>
         <Link to="/mutfak/tedarikciler" className="today-tile">
           <span className="today-tile-label">Tedarikçi borcu</span>
           <Amount value={data?.supplierDebt} />
+          <span className="today-tile-note">Ödenmemiş alışlar</span>
         </Link>
       </section>
     </>

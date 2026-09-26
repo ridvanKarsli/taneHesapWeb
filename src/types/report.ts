@@ -10,6 +10,9 @@ export interface PeriodReportDto {
   inStoreRevenue: number;
   platformRevenue: number;
   totalExpense: number;
+  /** Gün sonu kasa farkı (fazla +, açık −); kasaya yazıldığı için net kâra dahildir. */
+  closingVariance: number;
+  /** Gelir + kasa farkı − gider. */
   netProfit: number;
   expenseByCategory: { category: ExpenseCategory; amount: number }[];
   /** Tabak (boy) bazlı satış; maliyet güncel malzeme fiyatlarıyla tahminidir. */
@@ -50,6 +53,9 @@ export interface MonthlyReportDto {
   month: number;
   totalRevenue: number;
   totalExpense: number;
+  /** Gün sonu kasa farkı (fazla +, açık −); kasaya yazıldığı için net kâra dahildir. */
+  closingVariance: number;
+  /** Gelir + kasa farkı − gider. */
   netProfit: number;
   platesSold: number;
   costPerPlate: number;
