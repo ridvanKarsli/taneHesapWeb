@@ -86,7 +86,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { path: "/finans/cuzdanim", label: "Cüzdanım", roles: [UserRole.Employee], description: "Çalıştığınız saatlere göre hak edişiniz, size yapılan ödemeler ve kalan bakiyeniz." },
       { path: "/finans/kasa", label: "Kasa", roles: ADMIN, description: "Nakit ve kart kasası satışlarla artar, giderlerle azalır. Transfer, kart borcu ödemesi ve düzeltme buradan." },
       { path: "/finans/kartlarim", label: "Kartlarım", roles: ADMIN, description: "Kredi kartları ve limitleri. Kartla ödenen giderler limitten düşer; kart borcu Kasa'dan ödenince limit geri açılır." },
-      { path: "/finans/duzenli-giderler", label: "Düzenli Giderler", roles: ADMIN, description: "Kira, fatura gibi periyodik giderler; dönem ödenmeden biterse bildirim gelir, ödeme gider olarak işlenir." },
+      { path: "/finans/duzenli-giderler", label: "Düzenli Giderler", roles: ADMIN, description: "Üstte ödenmemiş dönemler: nereden ödeneceğini seçip “Öde” deyin, listeden çıkar. Altta tanımlar (kira, fatura; “3 ayda bir” gibi serbest periyot)." },
       { path: "/finans/islem-gecmisi", label: "İşlem Geçmişi", roles: ADMIN, description: "Kim, ne zaman, hangi gideri/satışı/ödemeyi ekledi, değiştirdi veya sildi." },
     ],
   },

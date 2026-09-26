@@ -51,8 +51,10 @@ export interface EmployeePaymentDto {
   description: string | null;
 }
 
+/** Ödeme ya tutar ya saat: saat verilirse tutar sunucuda saat × saatlik ücret olarak hesaplanır. */
 export interface CreateEmployeePaymentRequest {
-  amount: number;
+  amount: number | null;
+  hours: number | null;
   date: string;
   paymentMethod: PaymentMethod;
   paymentCardId: string | null;

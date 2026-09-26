@@ -1,4 +1,4 @@
-import { Carrot, Coins, FileSpreadsheet, ListChecks, Plus, ReceiptText, Soup, Trash2 } from "lucide-react";
+import { Carrot, Coins, FileSpreadsheet, ListChecks, ReceiptText, Soup, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { dailySalesApi, dishApi, platformApi } from "../../api/moduleApis";
 import { AsyncState } from "../../components/ui/AsyncState";
@@ -9,11 +9,10 @@ import { Section } from "../../components/ui/Section";
 import { StatGrid, StatTile } from "../../components/ui/StatTile";
 import { useAsyncData } from "../../hooks/useAsyncData";
 import { formatDate, formatMoney, formatNumber, todayIso } from "../../lib/format";
-import { DailySalesImportMode, type DailySalesEntryDto, type ImportDailySalesResult, type ImportRowRequest } from "../../types/dailySales";
+import type { DailySalesEntryDto, DailySalesImportMode, ImportDailySalesResult, ImportRowRequest } from "../../types/dailySales";
 import { PAYMENT_METHOD_LABELS, SALES_CHANNEL_LABELS } from "../../types/enums";
 import { DateFilter } from "../../components/ui/DateFilter";
 import { Money } from "../../components/ui/Money";
-import { SalesEntryForm } from "./SalesEntryForm";
 import { SalesExcelImport } from "./SalesExcelImport";
 import "./modules.css";
 
@@ -29,7 +28,7 @@ export function DailySalesPage() {
   const platforms = useAsyncData(platformApi.getAll);
   const entries = useAsyncData(() => dailySalesApi.getByDate(date), date);
   const summary = useAsyncData(() => dailySalesApi.getExpectedSummary(date), date);
-  const catalog = dishes.data && platforms.data ? { dishes: dishes.data, platforms: platforms.data } : null;
+  const catalog = dishes.data && platforms.data && entries.data ? { dishes: dishes.data, platforms: platforms.data, entries: entries.data } : null;
 
   async function importRows(fileName: string, rows: ImportRowRequest[], mode: DailySalesImportMode) {
     const result = await dailySalesApi.import({ fileName, rows, mode });
@@ -40,7 +39,7 @@ export function DailySalesPage() {
   return (
     <div>
       <PageHeader
-        description="Günün siparişlerini Excel ile yükleyin veya elle girin. Aynı dosya ikinci kez yüklenirse gün iki kez sayılmaz (uyarı alırsınız); paket servis komisyonları otomatik gider olarak işlenir."
+        description="Satışlar Excel ile girilir: günün Kasa, Yemeksepeti ve Uber dosyalarını yükleyin. Aynı dosya ikinci kez yüklenirse gün iki kez sayılmaz; paket servis komisyonları otomatik gider olarak işlenir."
         actions={<DateFilter id="sales-date" label="Tarih" value={date} onChange={setDate} />}
       />
 
@@ -60,21 +59,8 @@ export function DailySalesPage() {
       )}
 
       <Section title="Excel ile yükle" icon={FileSpreadsheet}>
-        <AsyncState data={catalog} error={dishes.error ?? platforms.error} isLoading={dishes.isLoading || platforms.isLoading}>
-          {(c) => <SalesExcelImport date={date} dishes={c.dishes} platforms={c.platforms} onImport={importRows} />}
-        </AsyncState>
-      </Section>
-
-      <Section title={`${formatDate(date)} — elle satış girişi`} icon={Plus}>
-        <AsyncState data={catalog} error={dishes.error ?? platforms.error} isLoading={dishes.isLoading || platforms.isLoading}>
-          {(c) => (
-            <SalesEntryForm
-              date={date}
-              dishes={c.dishes}
-              platforms={c.platforms}
-              onSubmit={(rows) => importRows(`manuel-giris-${date}`, rows, DailySalesImportMode.Append)}
-            />
-          )}
+        <AsyncState data={catalog} error={dishes.error ?? platforms.error ?? entries.error} isLoading={!catalog && !dishes.error && !platforms.error && !entries.error}>
+          {(c) => <SalesExcelImport date={date} ctx={c} entries={c.entries} onImport={importRows} />}
         </AsyncState>
       </Section>
 

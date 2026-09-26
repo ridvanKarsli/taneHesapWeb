@@ -64,4 +64,6 @@ export interface MonthlyReportDto {
   ingredients: IngredientEfficiencyDto[];
   warnings: string[];
   closedAtUtc: string | null;
+  /** false: ay henüz bitmedi — genel maliyet ay sonunda hesaplanır. */
+  isFinal: boolean;
 }

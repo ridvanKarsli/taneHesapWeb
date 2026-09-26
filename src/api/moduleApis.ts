@@ -40,6 +40,7 @@ import type {
   CreateRecurringExpenseRequest,
   MarkPeriodPaidRequest,
   RecurringExpenseDto,
+  RecurringPayableDto,
   UpdateRecurringExpenseRequest,
 } from "../types/recurringExpense";
 import type { MonthlyReportDto, PeriodReportDto } from "../types/report";
@@ -216,6 +217,10 @@ export const recurringExpenseApi = {
   },
   async getDueForReminder(): Promise<RecurringExpenseDto[]> {
     return (await httpClient.get<RecurringExpenseDto[]>("/api/recurring-expenses/due-for-reminder")).data;
+  },
+  /** Ödenmemiş dönemler (gecikmiş + içinde bulunulan); ödenince listeden çıkar. */
+  async getPayables(): Promise<RecurringPayableDto[]> {
+    return (await httpClient.get<RecurringPayableDto[]>("/api/recurring-expenses/payables")).data;
   },
 };
 

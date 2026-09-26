@@ -60,6 +60,21 @@ export const RECURRING_PERIOD_LABELS: Record<RecurringPeriod, string> = {
   [RecurringPeriod.Yearly]: "Yıllık",
 };
 
+/** Periyot birimi — "N ayda bir" gibi serbest periyot seçiminde. */
+export const RECURRING_PERIOD_UNITS: Record<RecurringPeriod, string> = {
+  [RecurringPeriod.Weekly]: "hafta",
+  [RecurringPeriod.Monthly]: "ay",
+  [RecurringPeriod.Yearly]: "yıl",
+};
+
+/** "Aylık", "3 ayda bir", "2 haftada bir" … */
+export function recurringScheduleLabel(period: RecurringPeriod, intervalCount: number): string {
+  if (!intervalCount || intervalCount <= 1) {
+    return RECURRING_PERIOD_LABELS[period];
+  }
+  return `${intervalCount} ${RECURRING_PERIOD_UNITS[period]}da bir`; // ayda / haftada / yılda
+}
+
 export const NotificationType = { LowStock: 0, RecurringExpenseReminder: 1, DailyLossWarning: 2, MonthlyReport: 3 } as const;
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType];
 

@@ -6,6 +6,8 @@ export interface RecurringExpenseDto {
   name: string;
   amount: number;
   period: RecurringPeriod;
+  /** Kaç periyotta bir (örn. Aylık + 3 = 3 ayda bir). */
+  intervalCount: number;
   startDate: string;
   isActive: boolean;
   currentPeriodStartDate: string;
@@ -17,6 +19,7 @@ export interface CreateRecurringExpenseRequest {
   name: string;
   amount: number;
   period: RecurringPeriod;
+  intervalCount: number;
   startDate: string;
 }
 
@@ -24,7 +27,20 @@ export interface UpdateRecurringExpenseRequest {
   name: string;
   amount: number;
   period: RecurringPeriod;
+  intervalCount: number;
   isActive: boolean;
+}
+
+/** "Ödenecekler" listesinin satırı: ödenmemiş dönem (gecikmiş önceki dönem ya da içinde bulunulan dönem). */
+export interface RecurringPayableDto {
+  recurringExpenseId: string;
+  name: string;
+  amount: number;
+  period: RecurringPeriod;
+  intervalCount: number;
+  periodStartDate: string;
+  periodEndDate: string;
+  isOverdue: boolean;
 }
 
 /** Ödeme, ödeme şekline göre kasadan/karttan düşen otomatik bir gider olarak da işlenir (bkz. proje raporu 3.8, 3.15). */

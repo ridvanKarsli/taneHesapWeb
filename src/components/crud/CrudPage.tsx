@@ -50,6 +50,8 @@ interface CrudPageProps<T extends { id: string }> {
   listTitle?: string;
   /** true ise sayfa girişi (açıklama + düğme) basılmaz; düğme `listTitle` yanında durur — başka bir sayfaya gömülü kullanım. */
   embedded?: boolean;
+  /** Değişince liste sunucudan yeniden yüklenir (başka bir bölümdeki işlem bu listeyi etkilediğinde). */
+  reloadKey?: string;
 }
 
 /**
@@ -59,7 +61,7 @@ interface CrudPageProps<T extends { id: string }> {
  * Oluşturma formu sayfada sürekli açık durmaz; "+ Yeni" düğmesiyle pencerede açılır (derli toplu görünüm).
  */
 export function CrudPage<T extends { id: string }>(props: CrudPageProps<T>) {
-  const { data, error, isLoading, reload, setData } = useAsyncData(props.load);
+  const { data, error, isLoading, reload, setData } = useAsyncData(props.load, props.reloadKey);
   const [editing, setEditing] = useState<T | null>(null);
   const [deleting, setDeleting] = useState<T | null>(null);
 

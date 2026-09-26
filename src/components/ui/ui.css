@@ -392,6 +392,12 @@
   resize: vertical;
 }
 
+.ui-field-hint {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
 .ui-field input:focus,
 .ui-field select:focus,
 .ui-field textarea:focus,

@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 import { extractErrorMessage } from "../../api/apiError";
 import { ErrorMessage } from "./AsyncState";
 import type { FormValues } from "./formValues";
@@ -17,6 +17,8 @@ export interface FieldDef {
   placeholder?: string;
   /** Verilirse alan yalnızca koşul sağlandığında gösterilir (örn. kart seçimi sadece "Kredi kartı" ödemesinde). */
   visibleWhen?: (values: FormValues) => boolean;
+  /** Alanın altında o anki değerlere göre gösterilen kısa bilgi (örn. "5 saat × ₺150 = ₺750"). */
+  hint?: (values: FormValues) => ReactNode;
 }
 
 interface EntityFormProps {
@@ -75,7 +77,7 @@ export function EntityForm({
       {fields
         .filter((field) => !field.visibleWhen || field.visibleWhen(values))
         .map((field) => (
-          <FormField key={field.name} field={field} value={values[field.name]} onChange={setValue} />
+          <FormField key={field.name} field={field} value={values[field.name]} hint={field.hint?.(values)} onChange={setValue} />
         ))}
       <div className="ui-form-actions">
         <button type="submit" className="ui-button" disabled={isSubmitting}>
@@ -100,10 +102,11 @@ export function EntityForm({
 interface FormFieldProps {
   field: FieldDef;
   value: string | boolean | undefined;
+  hint?: ReactNode;
   onChange: (name: string, value: string | boolean) => void;
 }
 
-function FormField({ field, value, onChange }: FormFieldProps) {
+function FormField({ field, value, hint, onChange }: FormFieldProps) {
   const id = `field-${field.name}`;
 
   if (field.type === "checkbox") {
@@ -145,6 +148,7 @@ function FormField({ field, value, onChange }: FormFieldProps) {
           onChange={(e) => onChange(field.name, e.target.value)}
         />
       )}
+      {hint && <span className="ui-field-hint">{hint}</span>}
     </div>
   );
 }

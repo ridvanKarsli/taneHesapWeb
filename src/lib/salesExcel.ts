@@ -1,17 +1,22 @@
 import type { ImportRowRequest } from "../types/dailySales";
 import type { DishDto } from "../types/dish";
-import { PaymentMethod, SalesChannel } from "../types/enums";
-import type { PlatformDto } from "../types/platform";
+import { PAYMENT_METHOD_LABELS, PaymentMethod, SalesChannel } from "../types/enums";
 
 /**
- * Gün sonu satış Excel şablonu: kolon tanımları, şablon verisi ve yüklenen dosyanın backend
- * `ImportRowRequest` satırlarına çevrilmesi. Excel okuma/yazma kütüphanesinden bağımsız saf
- * fonksiyonlardır (Single Responsibility) — dosya işlemleri `SalesExcelImport` bileşenindedir.
- * Şablon: bkz. proje raporu bölüm 3.5.
+ * taneHesap satış şablonu: kolon tanımları, şablon verisi ve yüklenen sayfanın backend `ImportRowRequest`
+ * satırlarına çevrilmesi. Kanal ve platform dosyadan değil, yüklenen kaynaktan gelir (Kasa / Yemeksepeti /
+ * Uber — bkz. `salesSources.ts`). Excel kütüphanesinden bağımsız saf fonksiyonlardır.
  */
 
-export const SALES_COLUMNS = ["Tarih", "Saat", "Ürün", "Boy", "Adet", "Tutar", "Ödeme", "Kanal", "Platform", "İndirim"] as const;
+export const SALES_COLUMNS = ["Tarih", "Saat", "Ürün", "Boy", "Adet", "Tutar", "Ödeme", "İndirim"] as const;
 type SalesColumn = (typeof SALES_COLUMNS)[number];
+
+/** Yüklenen kaynağın sabitleri: satırlar bu kanala/platforma yazılır; ödeme sütunu boşsa varsayılan kullanılır. */
+export interface SheetFormat {
+  channel: SalesChannel;
+  platformId: string | null;
+  defaultPayment: PaymentMethod;
+}
 
 export type CellValue = string | number | boolean | Date | null | undefined;
 
@@ -26,15 +31,6 @@ const PAYMENT_ALIASES: Record<string, PaymentMethod> = {
   kart: PaymentMethod.Card,
   "kredi kartı": PaymentMethod.Card,
   card: PaymentMethod.Card,
-};
-
-const CHANNEL_ALIASES: Record<string, SalesChannel> = {
-  "dükkan içi": SalesChannel.InStore,
-  dükkan: SalesChannel.InStore,
-  salon: SalesChannel.InStore,
-  "paket servis": SalesChannel.Platform,
-  paket: SalesChannel.Platform,
-  platform: SalesChannel.Platform,
 };
 
 function normalize(value: CellValue): string {
@@ -90,8 +86,8 @@ function toNumber(value: CellValue): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-/** Şablon dosyasının içeriği: satış sayfası (örnek satırlı) + geçerli ürün/platform listesi. */
-export function buildTemplateSheets(dishes: DishDto[], platforms: PlatformDto[], date: string) {
+/** Şablon dosyasının içeriği: satış sayfası (örnek satırlı) + geçerli ürün listesi. */
+export function buildTemplateSheets(dishes: DishDto[], date: string, defaultPayment: PaymentMethod) {
   const activeSizes = dishes
     .filter((dish) => dish.isActive)
     .flatMap((dish) => dish.sizes.filter((size) => size.isActive).map((size) => ({ dish: dish.name, size })));
@@ -101,21 +97,18 @@ export function buildTemplateSheets(dishes: DishDto[], platforms: PlatformDto[],
   const salesSheet: CellValue[][] = [
     [...SALES_COLUMNS],
     example
-      ? [`${day}.${month}.${year}`, "12:30", example.dish, example.size.name, 2, example.size.salePrice * 2, "Nakit", "Dükkan içi", "", ""]
+      ? [`${day}.${month}.${year}`, "12:30", example.dish, example.size.name, 2, example.size.salePrice * 2, PAYMENT_METHOD_LABELS[defaultPayment], ""]
       : [],
   ];
 
   const listSheet: CellValue[][] = [
-    ["Ürün", "Boy", "Satış fiyatı", "", "Platform", "", "Ödeme", "Kanal"],
-    ...Array.from({ length: Math.max(activeSizes.length, platforms.length, 2) }, (_, i) => [
+    ["Ürün", "Boy", "Satış fiyatı", "", "Ödeme"],
+    ...Array.from({ length: Math.max(activeSizes.length, 2) }, (_, i) => [
       activeSizes[i]?.dish ?? "",
       activeSizes[i]?.size.name ?? "",
       activeSizes[i]?.size.salePrice ?? "",
       "",
-      platforms.filter((p) => p.isActive)[i]?.name ?? "",
-      "",
       ["Nakit", "Kart"][i] ?? "",
-      ["Dükkan içi", "Paket servis"][i] ?? "",
     ]),
   ];
 
@@ -126,7 +119,7 @@ export function buildTemplateSheets(dishes: DishDto[], platforms: PlatformDto[],
  * Yüklenen satış sayfasını backend satırlarına çevirir. İlk satır başlıktır; kolon sırası
  * önemsizdir (başlık adıyla eşleşir). Hatalı satırlar atlanır ve satır numarasıyla raporlanır.
  */
-export function parseSalesSheet(sheet: CellValue[][], dishes: DishDto[], platforms: PlatformDto[]): ParsedSales {
+export function parseSalesSheet(sheet: CellValue[][], dishes: DishDto[], format: SheetFormat): ParsedSales {
   const [header = [], ...body] = sheet;
   const columnIndex = new Map<SalesColumn, number>();
   header.forEach((cell, index) => {
@@ -144,7 +137,9 @@ export function parseSalesSheet(sheet: CellValue[][], dishes: DishDto[], platfor
   const sizeByKey = new Map(
     dishes.flatMap((dish) => dish.sizes.map((size) => [`${normalize(dish.name)}|${normalize(size.name)}`, size] as const)),
   );
-  const platformByName = new Map(platforms.map((p) => [normalize(p.name), p]));
+  if (format.channel === SalesChannel.Platform && !format.platformId) {
+    return { rows: [], errors: ["Bu paket servis platformu Tanımlar → Paket Servis'te tanımlı değil; önce ekleyin (komisyon oranıyla)."] };
+  }
 
   const rows: ImportRowRequest[] = [];
   const errors: string[] = [];
@@ -171,18 +166,10 @@ export function parseSalesSheet(sheet: CellValue[][], dishes: DishDto[], platfor
     if (!quantity || quantity <= 0 || !Number.isInteger(quantity)) problems.push("adet pozitif tam sayı olmalı");
 
     const paymentText = normalize(cell("Ödeme"));
-    const paymentMethod = paymentText === "" ? PaymentMethod.Cash : PAYMENT_ALIASES[paymentText];
+    const paymentMethod = paymentText === "" ? format.defaultPayment : PAYMENT_ALIASES[paymentText];
     if (paymentMethod === undefined) problems.push(`ödeme "${cell("Ödeme")}" anlaşılamadı (Nakit/Kart)`);
 
-    const channelText = normalize(cell("Kanal"));
-    const platformText = normalize(cell("Platform"));
-    const channel = channelText === "" ? (platformText ? SalesChannel.Platform : SalesChannel.InStore) : CHANNEL_ALIASES[channelText];
-    if (channel === undefined) problems.push(`kanal "${cell("Kanal")}" anlaşılamadı (Dükkan içi/Paket servis)`);
-
-    const platform = platformText ? platformByName.get(platformText) : undefined;
-    if (channel === SalesChannel.Platform && !platform) problems.push(`platform "${cell("Platform") ?? ""}" tanımlı değil`);
-
-    if (problems.length > 0 || !saleDate || !size || !quantity || paymentMethod === undefined || channel === undefined) {
+    if (problems.length > 0 || !saleDate || !size || !quantity || paymentMethod === undefined) {
       errors.push(`Satır ${rowNo}: ${problems.join("; ")}.`);
       return;
     }
@@ -195,8 +182,8 @@ export function parseSalesSheet(sheet: CellValue[][], dishes: DishDto[], platfor
       // Tutar boşsa fiyat × adet − indirim (net tahsilat); doluysa girilen değer nettir.
       totalAmount: toNumber(cell("Tutar")) ?? Math.max(0, size.salePrice * quantity - (toNumber(cell("İndirim")) ?? 0)),
       paymentMethod,
-      channel,
-      platformId: channel === SalesChannel.Platform ? (platform?.id ?? null) : null,
+      channel: format.channel,
+      platformId: format.channel === SalesChannel.Platform ? format.platformId : null,
       discountAmount: toNumber(cell("İndirim")),
     });
   });

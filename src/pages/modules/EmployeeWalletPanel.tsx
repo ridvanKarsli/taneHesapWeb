@@ -14,6 +14,7 @@ import { usePaymentCards } from "../../hooks/usePaymentCards";
 import { formatDate, formatMoney, formatNumber, todayIso } from "../../lib/format";
 import type { EmployeeWalletDto, EmployeeWorkLogDto } from "../../types/employee";
 import { PAYMENT_METHOD_LABELS } from "../../types/enums";
+import { employeePaymentAmountFields, employeePaymentAmountInitialValues, readEmployeePaymentAmount } from "./employeePaymentFields";
 import "./modules.css";
 
 interface EmployeeWalletPanelProps {
@@ -78,18 +79,24 @@ export function EmployeeWalletPanel({ load, employeeId }: EmployeeWalletPanelPro
                   title={`${data.fullName} — ödeme`}
                   icon={Banknote}
                   buttonClassName="ui-button small"
-                  intro={<p className="ui-muted">Ödeme, Personel kategorisinde bir gider olarak kaydedilir; seçilen kasadan/karttan ve çalışanın cüzdanından düşer.</p>}
+                  intro={<p className="ui-muted">Tutar ya da saat girin (saat × saatlik ücret). Ödeme personel gideri olarak kaydedilir; seçilen kasadan/karttan ve çalışanın cüzdanından düşer.</p>}
                   fields={[
-                    { name: "amount", label: "Tutar (₺)", type: "number", required: true, min: 0 },
+                    ...employeePaymentAmountFields(() => data.hourlyWage),
                     { name: "date", label: "Tarih", type: "date", required: true },
                     ...paymentFields(cards),
                     { name: "note", label: "Not" },
                   ]}
-                  initialValues={{ amount: data.balance > 0 ? String(data.balance) : "", date: todayIso(), ...paymentInitialValues, note: "" }}
+                  initialValues={{
+                    ...employeePaymentAmountInitialValues,
+                    amount: data.balance > 0 ? String(data.balance) : "",
+                    date: todayIso(),
+                    ...paymentInitialValues,
+                    note: "",
+                  }}
                   submitLabel="Ödemeyi kaydet"
                   onSubmit={async (values) => {
                     await employeeApi.pay(employeeId!, {
-                      amount: formValue.number(values, "amount"),
+                      ...readEmployeePaymentAmount(values),
                       date: formValue.text(values, "date"),
                       ...readPayment(values),
                       note: formValue.optionalText(values, "note"),

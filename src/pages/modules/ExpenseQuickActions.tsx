@@ -6,6 +6,7 @@ import { paymentFields, paymentInitialValues, readPayment } from "../../componen
 import { useAsyncData } from "../../hooks/useAsyncData";
 import { todayIso } from "../../lib/format";
 import type { PaymentCardDto } from "../../types/treasury";
+import { employeePaymentAmountFields, employeePaymentAmountInitialValues, readEmployeePaymentAmount } from "./employeePaymentFields";
 
 interface ExpenseQuickActionsProps {
   cards: PaymentCardDto[];
@@ -24,6 +25,7 @@ export function ExpenseQuickActions({ cards, onDone }: ExpenseQuickActionsProps)
   const ingredients = useAsyncData(ingredientApi.getAll);
 
   const employeeOptions = (employees.data ?? []).filter((e) => e.isActive).map((e) => ({ value: e.id, label: e.fullName }));
+  const wageOf = (values: FormValues) => (employees.data ?? []).find((e) => e.id === formValue.text(values, "employeeUserId"))?.hourlyWage ?? null;
   const supplierOptions = (suppliers.data ?? []).filter((s) => s.isActive).map((s) => ({ value: s.id, label: s.name }));
   const ingredientOptions = (ingredients.data ?? [])
     .filter((i) => i.isActive)
@@ -38,19 +40,19 @@ export function ExpenseQuickActions({ cards, onDone }: ExpenseQuickActionsProps)
         icon={HandCoins}
         buttonClassName="ui-button secondary"
         disabled={employeeOptions.length === 0}
-        intro={<p className="ui-muted">Personel kategorisinde gider olarak kaydedilir; seçilen kasadan/karttan ve çalışanın cüzdanından düşer. Avans da buradan girilir.</p>}
+        intro={<p className="ui-muted">Tutar ya da saat girin (saat × saatlik ücret). Personel gideri olarak kaydedilir; seçilen kasadan/karttan ve çalışanın cüzdanından düşer. Avans da buradan girilir.</p>}
         fields={[
           { name: "employeeUserId", label: "Çalışan", type: "select", required: true, options: employeeOptions },
-          { name: "amount", label: "Tutar (₺)", type: "number", required: true, min: 0 },
+          ...employeePaymentAmountFields(wageOf),
           { name: "date", label: "Tarih", type: "date", required: true },
           ...paymentFields(cards),
           { name: "note", label: "Not (örn. avans, haftalık)", placeholder: "avans" },
         ]}
-        initialValues={{ employeeUserId: "", amount: "", date: todayIso(), ...paymentInitialValues, note: "" }}
+        initialValues={{ employeeUserId: "", ...employeePaymentAmountInitialValues, date: todayIso(), ...paymentInitialValues, note: "" }}
         submitLabel="Ödemeyi kaydet"
         onSubmit={async (values) => {
           await employeeApi.pay(formValue.text(values, "employeeUserId"), {
-            amount: formValue.number(values, "amount"),
+            ...readEmployeePaymentAmount(values),
             date: formValue.text(values, "date"),
             ...readPayment(values),
             note: formValue.optionalText(values, "note"),
