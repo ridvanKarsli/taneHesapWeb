@@ -7,14 +7,14 @@ import { Money } from "../../components/ui/Money";
 import { ActiveBadge, StatusBadge } from "../../components/ui/StatusBadge";
 import { usePaymentCards } from "../../hooks/usePaymentCards";
 import { formatDate, todayIso } from "../../lib/format";
-import {
-  RECURRING_PERIOD_UNITS,
-  recurringScheduleLabel,
-  toOptions,
-  type RecurringPeriod,
-} from "../../types/enums";
+import { RecurringPeriod, recurringScheduleLabel } from "../../types/enums";
 import type { RecurringExpenseDto } from "../../types/recurringExpense";
 import { RecurringPayables } from "./RecurringPayables";
+import {
+  readRecurringSchedule,
+  recurringScheduleFields,
+  recurringScheduleValues,
+} from "./recurringScheduleFields";
 import "./modules.css";
 
 const baseFields: FieldDef[] = [
@@ -31,43 +31,14 @@ const baseFields: FieldDef[] = [
     required: true,
     min: 0,
   },
-  {
-    name: "intervalCount",
-    label: "Tekrar sıklığı",
-    type: "number",
-    required: true,
-    min: 1,
-    step: "1",
-    placeholder: "örn. 3",
-  },
-  {
-    name: "period",
-    label: "Birim",
-    type: "select",
-    required: true,
-    options: toOptions(RECURRING_PERIOD_UNITS),
-    hint: (values) => {
-      const count = Math.round(
-        formValue.optionalNumber(values, "intervalCount") ?? 0,
-      );
-      const period = formValue.text(values, "period");
-      return count >= 1 && period !== ""
-        ? `Seçim: ${recurringScheduleLabel(Number(period) as RecurringPeriod, count)}`
-        : undefined;
-    },
-  },
+  ...recurringScheduleFields,
 ];
 
 function toBaseRequest(values: FormValues) {
-  const period = formValue.number(values, "period") as RecurringPeriod;
   return {
     name: formValue.text(values, "name"),
     amount: formValue.number(values, "amount"),
-    period,
-    intervalCount: Math.max(
-      1,
-      Math.round(formValue.number(values, "intervalCount")),
-    ),
+    ...readRecurringSchedule(values),
   };
 }
 
@@ -143,8 +114,7 @@ export function RecurringExpensesPage() {
       createInitialValues={{
         name: "",
         amount: "",
-        intervalCount: "1",
-        period: "1",
+        ...recurringScheduleValues(RecurringPeriod.Monthly, 1),
         startDate: todayIso(),
       }}
       onCreate={(values) =>
@@ -165,8 +135,7 @@ export function RecurringExpensesPage() {
       toEditValues={(row) => ({
         name: row.name,
         amount: String(row.amount),
-        intervalCount: String(row.intervalCount),
-        period: String(row.period),
+        ...recurringScheduleValues(row.period, row.intervalCount),
         isActive: row.isActive,
       })}
       onUpdate={(row, values) =>
