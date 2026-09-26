@@ -10,6 +10,8 @@
  */
 
 const REFRESH_TOKEN_STORAGE_KEY = "taneHesap.refreshToken";
+/** SUPER_ADMIN bir işletmenin içindeyken o işletmenin kimliği; yenilemede sunucuya gönderilir ki görünüm kalıcı olsun. */
+const ACTING_BUSINESS_STORAGE_KEY = "taneHesap.actingBusinessId";
 
 let accessToken: string | null = null;
 
@@ -38,10 +40,31 @@ export function persistRefreshToken(refreshToken: string): void {
   }
 }
 
+export function getActingBusinessId(): string | null {
+  try {
+    return localStorage.getItem(ACTING_BUSINESS_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function persistActingBusinessId(businessId: string | null): void {
+  try {
+    if (businessId) {
+      localStorage.setItem(ACTING_BUSINESS_STORAGE_KEY, businessId);
+    } else {
+      localStorage.removeItem(ACTING_BUSINESS_STORAGE_KEY);
+    }
+  } catch {
+    // yoksay
+  }
+}
+
 export function clearSession(): void {
   accessToken = null;
   try {
     localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
+    localStorage.removeItem(ACTING_BUSINESS_STORAGE_KEY);
   } catch {
     // yoksay
   }

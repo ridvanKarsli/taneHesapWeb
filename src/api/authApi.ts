@@ -8,8 +8,15 @@ export const authApi = {
     return response.data;
   },
 
-  async refresh(refreshToken: string): Promise<LoginResponse> {
-    const response = await httpClient.post<LoginResponse>("/api/auth/refresh", { refreshToken });
+  /** `actingBusinessId` verilirse (süper yönetici işletme içindeyken) oturum o işletmede sürer; verilmezse kendi kimliğine döner. */
+  async refresh(refreshToken: string, actingBusinessId: string | null = null): Promise<LoginResponse> {
+    const response = await httpClient.post<LoginResponse>("/api/auth/refresh", { refreshToken, actingBusinessId });
+    return response.data;
+  },
+
+  /** Süper yönetici seçtiği işletmeye girer: dönen oturum o işletmenin sahibi yetkisindedir. */
+  async enterBusiness(businessId: string): Promise<LoginResponse> {
+    const response = await httpClient.post<LoginResponse>("/api/auth/enter-business", { businessId });
     return response.data;
   },
 

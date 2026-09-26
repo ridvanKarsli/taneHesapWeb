@@ -1,5 +1,7 @@
-import { ChevronUp, UserCog } from "lucide-react";
+import { ChevronUp, LogIn, UserCog } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../auth/useAuth";
 import { businessApi } from "../../api/businessApi";
 import { CrudPage } from "../../components/crud/CrudPage";
 import type { FieldDef } from "../../components/ui/EntityForm";
@@ -24,6 +26,13 @@ function toRequest(values: FormValues) {
  */
 export function BusinessesPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const { enterBusiness } = useAuth();
+  const navigate = useNavigate();
+
+  async function enter(row: BusinessDto) {
+    await enterBusiness(row.id);
+    navigate("/");
+  }
 
   return (
     <CrudPage<BusinessDto>
@@ -36,10 +45,18 @@ export function BusinessesPage() {
         { header: "Durum", render: (row) => <ActiveBadge isActive={row.isActive} /> },
       ]}
       rowActions={(row) => (
-        <button type="button" className="ui-button small" onClick={() => setExpandedId((id) => (id === row.id ? null : row.id))}>
-          {expandedId === row.id ? <ChevronUp size={14} aria-hidden="true" /> : <UserCog size={14} aria-hidden="true" />}
-          {expandedId === row.id ? "Gizle" : "Yöneticiler"}
-        </button>
+        <div className="ui-row-actions-inner">
+          {row.isActive && (
+            <button type="button" className="ui-button small" onClick={() => void enter(row)} title="Bu işletmeye işletme sahibi gibi gir">
+              <LogIn size={14} aria-hidden="true" />
+              İşletmeye gir
+            </button>
+          )}
+          <button type="button" className="ui-button secondary small" onClick={() => setExpandedId((id) => (id === row.id ? null : row.id))}>
+            {expandedId === row.id ? <ChevronUp size={14} aria-hidden="true" /> : <UserCog size={14} aria-hidden="true" />}
+            {expandedId === row.id ? "Gizle" : "Yöneticiler"}
+          </button>
+        </div>
       )}
       renderExpanded={(row) => (expandedId === row.id ? <BusinessAdminsPanel businessId={row.id} businessName={row.name} /> : null)}
       createLabel="Yeni işletme"

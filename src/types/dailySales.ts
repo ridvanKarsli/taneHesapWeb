@@ -29,9 +29,21 @@ export interface ImportRowRequest {
   discountAmount: number | null;
 }
 
+/** Aynı güne ikinci kez satış gelirse ne yapılacağı (backend `DailySalesImportMode`). */
+export const DailySalesImportMode = {
+  /** Elle tek tek giriş: var olanların üzerine eklenir. */
+  Append: 0,
+  /** Dosya: o günlerde kayıt varsa 409 — aynı dosya iki kez yüklenip gün iki kez sayılmaz. */
+  RejectIfExists: 1,
+  /** Dosya: o günlerin kayıtları silinip yeniden yazılır. */
+  Replace: 2,
+} as const;
+export type DailySalesImportMode = (typeof DailySalesImportMode)[keyof typeof DailySalesImportMode];
+
 export interface ImportDailySalesRequest {
   fileName: string;
   rows: ImportRowRequest[];
+  mode: DailySalesImportMode;
 }
 
 export interface ImportDailySalesResult {

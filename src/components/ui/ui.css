@@ -20,13 +20,13 @@
 .ui-page-header-icon {
   width: 48px;
   height: 48px;
-  border-radius: 14px;
+  border-radius: 16px;
 }
 
 .ui-page-header h1 {
   margin: 0;
-  font-size: 1.75rem;
-  font-weight: 600;
+  font-size: 1.65rem;
+  font-weight: 800;
 }
 
 .ui-page-header p {
@@ -49,9 +49,12 @@
   gap: 0.25rem;
   flex-basis: 100%;
   overflow-x: auto;
-  padding: 0.25rem 0 0;
-  border-bottom: 1px solid var(--color-border);
+  padding: 0.3rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-sunken);
   scrollbar-width: none;
+  align-self: flex-start;
+  max-width: 100%;
 }
 
 .ui-tabs::-webkit-scrollbar {
@@ -60,25 +63,29 @@
 
 .ui-tab {
   flex-shrink: 0;
-  padding: 0.55rem 0.9rem;
-  margin-bottom: -1px;
-  border-bottom: 2px solid transparent;
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius-pill);
   color: var(--color-text-muted);
   font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
-  transition: color 0.15s var(--ease), background 0.15s var(--ease);
+  transition:
+    color 0.15s var(--ease),
+    background 0.15s var(--ease),
+    box-shadow 0.15s var(--ease);
 }
 
 .ui-tab:hover {
   color: var(--color-text);
-  background: var(--color-surface-alt);
 }
 
 .ui-tab.active {
-  color: var(--color-primary);
-  border-bottom-color: var(--color-primary);
+  color: var(--color-text);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Sekmeli sayfanın girişi: açıklama + eylem düğmeleri (büyük başlık GroupLayout'ta) */
@@ -105,10 +112,10 @@
 /* ---------- Kart bölümü ---------- */
 .ui-section {
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: 1.25rem 1.4rem;
   margin-bottom: 1.25rem;
+  box-shadow: var(--shadow-sm);
 }
 
 .ui-section-header {
@@ -129,14 +136,13 @@
 }
 
 .ui-section-header h2 svg {
-  color: var(--color-accent);
+  color: var(--color-primary);
 }
 
 .ui-subheading {
   margin: 0.25rem 0 0.75rem;
-  font-family: var(--font-display);
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 800;
   color: var(--color-text);
 }
 
@@ -238,14 +244,14 @@
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
-  min-height: 40px;
-  padding: 0.5rem 1.05rem;
-  border-radius: var(--radius-sm);
+  min-height: 44px;
+  padding: 0.55rem 1.15rem;
+  border-radius: var(--radius-pill);
   border: 1px solid transparent;
   background: var(--color-primary);
   color: white;
-  font-weight: 700;
-  font-size: 0.86rem;
+  font-weight: 800;
+  font-size: 0.9rem;
   cursor: pointer;
   white-space: nowrap;
   transition:
@@ -270,8 +276,8 @@
 .ui-button.secondary {
   background: var(--color-surface);
   color: var(--color-text);
-  border-color: var(--color-border-strong);
-  box-shadow: var(--shadow-xs);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
 }
 
 .ui-button.secondary:hover:not(:disabled) {
@@ -307,9 +313,9 @@
 }
 
 .ui-button.small {
-  min-height: 32px;
-  padding: 0.3rem 0.75rem;
-  font-size: 0.8rem;
+  min-height: 36px;
+  padding: 0.3rem 0.85rem;
+  font-size: 0.82rem;
 }
 
 /* ---------- Formlar ---------- */
@@ -350,7 +356,7 @@
 
 .ui-field label,
 .ui-filter label {
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: var(--color-text-muted);
 }
@@ -362,12 +368,13 @@
 .ui-filter select,
 .ui-input {
   width: 100%;
-  min-height: 42px;
-  padding: 0.55rem 0.8rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--color-border-strong);
+  min-height: 46px;
+  padding: 0.6rem 0.9rem;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--color-border);
   background: var(--color-surface);
-  font-size: 0.92rem;
+  font-size: 0.95rem;
+  font-weight: 600;
   color: var(--color-text);
   transition:
     border-color 0.15s var(--ease),
@@ -406,8 +413,8 @@
 }
 
 .ui-checkbox input {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   accent-color: var(--color-primary);
 }
 
@@ -462,10 +469,9 @@
   vertical-align: middle;
 }
 
-/* Fraunces aynı punto'da Manrope'tan küçük görünür; tablo tutarlarını göz hizasına çekiyoruz. */
+/* Tablo tutarları biraz büyük ve kalın: satırda ilk göze çarpan şey tutar olsun. */
 .ui-table td .money {
-  font-size: 1.12em;
-  font-weight: 600;
+  font-size: 1.05em;
 }
 
 .ui-table tbody tr {
@@ -501,7 +507,7 @@
 }
 
 .ui-table tr.warning > td:first-child {
-  box-shadow: inset 3px 0 0 var(--color-accent);
+  box-shadow: inset 3px 0 0 var(--color-warning);
 }
 
 .ui-table-expanded > td,
@@ -575,9 +581,9 @@
   max-height: 90vh;
   overflow-y: auto;
   background: var(--color-surface);
-  border-radius: var(--radius-lg);
+  border-radius: 26px;
   box-shadow: var(--shadow-lg);
-  padding: 1.35rem 1.5rem 1.5rem;
+  padding: 1.4rem 1.5rem 1.5rem;
   animation: ui-pop-in 0.2s var(--ease);
 }
 
@@ -624,8 +630,8 @@
 .ui-stat-tile {
   position: relative;
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
   padding: 1rem 1.1rem;
   display: flex;
   align-items: center;
@@ -652,12 +658,10 @@
 }
 
 .ui-stat-tile-body strong {
-  font-family: var(--font-display);
-  font-size: 1.45rem;
-  font-weight: 600;
+  font-size: 1.4rem;
+  font-weight: 800;
   letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
-  font-variation-settings: "opsz" 24;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -823,11 +827,10 @@
   }
 
   .ui-table tbody tr {
-    border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
-    padding: 0.35rem 0.85rem;
+    padding: 0.4rem 0.9rem;
     margin-bottom: 0.65rem;
-    background: var(--color-surface);
+    background: var(--color-surface-alt);
   }
 
   .ui-table tbody tr:hover > td {
@@ -872,7 +875,6 @@
   }
 
   .ui-table tr.warning {
-    border-color: var(--color-accent);
     background: var(--color-warning-soft);
   }
 
@@ -882,8 +884,7 @@
   }
 
   .ui-table tr.ui-table-expanded {
-    border-style: dashed;
-    background: var(--color-surface-alt);
+    background: var(--color-surface-sunken);
     margin-top: -0.4rem;
   }
 
@@ -911,7 +912,7 @@
   .ui-modal {
     max-width: none;
     max-height: 92dvh;
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    border-radius: 26px 26px 0 0;
     padding: 1.1rem 1.1rem calc(1.25rem + env(safe-area-inset-bottom));
     animation: ui-sheet-in 0.25s var(--ease);
   }

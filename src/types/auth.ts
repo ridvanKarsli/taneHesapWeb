@@ -34,13 +34,19 @@ export interface LoginResponse {
   fullName: string;
   role: UserRole;
   businessId: string | null;
+  businessName: string | null;
+  /** Süper yönetici bir işletmenin içinde (o işletmenin sahibi gibi) çalışıyor. */
+  isActingAsBusiness: boolean;
 }
 
 export interface AuthenticatedUser {
   userId: string;
   fullName: string;
+  /** Etkin rol: işletme içindeki süper yönetici burada Admin'dir (tüm sayfalar/uçlar işletme sahibi gibi çalışır). */
   role: UserRole;
   businessId: string | null;
+  businessName: string | null;
+  isActingAsBusiness: boolean;
 }
 
 export function toAuthenticatedUser(response: LoginResponse): AuthenticatedUser {
@@ -49,5 +55,7 @@ export function toAuthenticatedUser(response: LoginResponse): AuthenticatedUser 
     fullName: response.fullName,
     role: response.role,
     businessId: response.businessId,
+    businessName: response.businessName ?? null,
+    isActingAsBusiness: response.isActingAsBusiness ?? false,
   };
 }

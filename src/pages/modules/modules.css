@@ -144,3 +144,35 @@
   gap: 0.3rem;
   font-size: 0.8rem;
 }
+
+/* Tedarikçi alışı: ödeme çipleri (tıklayınca geri alma onayı) */
+.purchase-payments {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.purchase-payment-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.55rem;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.purchase-payment-chip .money {
+  font-size: 1em;
+}
+
+.purchase-payment-chip:hover {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}

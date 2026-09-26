@@ -9,9 +9,8 @@
 
 .dashboard-greeting h1 {
   margin: 0;
-  font-size: 2rem;
-  font-weight: 500;
-  font-variation-settings: "opsz" 72;
+  font-size: 1.8rem;
+  font-weight: 800;
 }
 
 .dashboard-greeting p {
@@ -20,105 +19,134 @@
   font-size: 0.9rem;
 }
 
-/* ---------- Günün fişi ---------- */
-.receipt {
-  position: relative;
-  max-width: 560px;
-  margin: 0 0 1.5rem;
-  padding: 1.5rem 1.6rem 1.25rem;
-  background: var(--receipt-bg);
-  color: var(--receipt-ink);
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  box-shadow: var(--shadow-sm);
+/* ---------- Bugün kartı: tek büyük sayı + üç büyük eylem ---------- */
+.today-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: center;
+  margin: 0 0 1rem;
+  padding: 1.5rem 1.6rem;
+  border-radius: var(--radius-lg);
+  background: var(--hero-bg);
+  color: var(--hero-ink);
 }
 
-/* Fişin yırtık alt kenarı */
-.receipt::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -9px;
-  height: 10px;
-  background: linear-gradient(135deg, var(--receipt-bg) 50%, transparent 50%) 0 0 / 14px 10px repeat-x,
-    linear-gradient(45deg, transparent 50%, var(--receipt-bg) 50%) 0 0 / 14px 10px repeat-x;
-}
-
-.receipt-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--receipt-rule);
-}
-
-.receipt-head h2 {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-}
-
-.receipt-head span {
-  color: var(--color-text-muted);
+.today-card-label,
+.today-tile-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   font-size: 0.86rem;
-  font-variant-numeric: tabular-nums;
-}
-
-.receipt-block {
-  padding: 0.85rem 0;
-  border-bottom: 1px dashed var(--receipt-rule);
-}
-
-.receipt-line {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  padding: 0.28rem 0;
-  font-size: 0.95rem;
-}
-
-.receipt-label {
-  flex-shrink: 0;
-}
-
-.receipt-dots {
-  flex: 1;
-  border-bottom: 2px dotted var(--receipt-rule);
-  transform: translateY(-0.3em);
-  min-width: 1.5rem;
-}
-
-.receipt-value {
-  flex-shrink: 0;
-  font-size: 1.15rem;
-}
-
-.receipt-line.strong {
-  margin-top: 0.3rem;
-  padding-top: 0.5rem;
-  border-top: 1px solid var(--receipt-rule);
   font-weight: 700;
+  color: var(--color-text-muted);
 }
 
-.receipt-line.strong .receipt-value {
-  font-size: 1.6rem;
-  font-weight: 600;
+.today-card-main .today-amount {
+  display: block;
+  margin: 0.15rem 0 0.6rem;
+  font-size: 2.6rem;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
-.receipt-value.positive {
+.today-amount.positive {
   color: var(--color-success);
 }
 
-.receipt-value.negative {
+.today-amount.negative {
   color: var(--color-danger);
 }
 
-.receipt-foot {
-  padding-top: 0.75rem;
-  color: var(--color-text-subtle);
-  font-size: 0.78rem;
+.today-card-split {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.today-card-split .money {
+  color: var(--color-text);
+  font-weight: 800;
+}
+
+.today-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.today-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 96px;
+  padding: 0.85rem 0.5rem;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.86rem;
+  font-weight: 800;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform 0.12s var(--ease),
+    box-shadow 0.15s var(--ease);
+}
+
+.today-action:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.today-action:active {
+  transform: scale(0.97);
+}
+
+.today-action-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.today-action:nth-child(2) .today-action-icon {
+  background: var(--tone-rose-fg);
+}
+
+.today-action:nth-child(3) .today-action-icon {
+  background: var(--tone-violet-fg);
+}
+
+/* Ay ve kasa şeridi */
+.today-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0 0 1.25rem;
+}
+
+.today-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.95rem 1.1rem;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.today-tile .today-amount {
+  font-size: 1.3rem;
 }
 
 .dashboard-section-title {
@@ -140,10 +168,10 @@
   padding: 1rem 1.1rem;
   border-radius: var(--radius-md);
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
   color: var(--color-text);
   text-decoration: none;
-  transition: border-color 0.15s var(--ease), background 0.15s var(--ease);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.15s var(--ease);
 }
 
 .dashboard-card-icon {
@@ -173,8 +201,7 @@
 }
 
 .dashboard-card:hover {
-  border-color: var(--color-border-strong);
-  background: var(--color-surface-alt);
+  box-shadow: var(--shadow-md);
 }
 
 .dashboard-card:hover .dashboard-card-arrow {
@@ -217,9 +244,23 @@
     font-size: 1.6rem;
   }
 
-  .receipt {
-    max-width: none;
-    padding: 1.2rem 1.15rem 1rem;
+  .today-card {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1.2rem 1.1rem 1.1rem;
+  }
+
+  .today-card-main .today-amount {
+    font-size: 2.2rem;
+  }
+
+  .today-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+  }
+
+  .today-tile .today-amount {
+    font-size: 1.1rem;
   }
 
   .dashboard-grid {

@@ -1,6 +1,6 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 import type { LoginResponse } from "../types/auth";
-import { clearSession, getAccessToken, getPersistedRefreshToken, persistRefreshToken, setAccessToken } from "./tokenStore";
+import { clearSession, getAccessToken, getActingBusinessId, getPersistedRefreshToken, persistRefreshToken, setAccessToken } from "./tokenStore";
 
 export const API_BASE_URL: string = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
@@ -31,7 +31,10 @@ async function refreshAccessToken(): Promise<string | null> {
   }
 
   try {
-    const response = await axios.post<LoginResponse>(`${API_BASE_URL}/api/auth/refresh`, { refreshToken });
+    const response = await axios.post<LoginResponse>(`${API_BASE_URL}/api/auth/refresh`, {
+      refreshToken,
+      actingBusinessId: getActingBusinessId(),
+    });
     setAccessToken(response.data.accessToken);
     persistRefreshToken(response.data.refreshToken);
     return response.data.accessToken;

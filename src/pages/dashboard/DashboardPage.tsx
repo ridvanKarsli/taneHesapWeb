@@ -4,7 +4,7 @@ import { useAuth } from "../../auth/useAuth";
 import { visibleGroups } from "../../config/navigation";
 import { ROLE_LABELS, UserRole } from "../../types/auth";
 import { AdminAlerts } from "./AdminAlerts";
-import { DailyReceipt } from "./DailyReceipt";
+import { TodayOverview } from "./TodayOverview";
 import "./DashboardPage.css";
 
 function greeting(): string {
@@ -41,12 +41,12 @@ export function DashboardPage() {
 
       {user.role === UserRole.Admin && (
         <>
-          <DailyReceipt />
+          <TodayOverview />
           <AdminAlerts />
         </>
       )}
 
-      <h2 className="dashboard-section-title">Hızlı erişim</h2>
+      <h2 className="dashboard-section-title">Bölümler</h2>
       <div className="dashboard-grid">
         {shortcuts.map((item) => (
           <Link key={item.path} to={item.to} className="dashboard-card">

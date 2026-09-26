@@ -9,7 +9,7 @@ import { Section } from "../../components/ui/Section";
 import { StatGrid, StatTile } from "../../components/ui/StatTile";
 import { useAsyncData } from "../../hooks/useAsyncData";
 import { formatDate, formatMoney, formatNumber, todayIso } from "../../lib/format";
-import type { DailySalesEntryDto, ImportDailySalesResult, ImportRowRequest } from "../../types/dailySales";
+import { DailySalesImportMode, type DailySalesEntryDto, type ImportDailySalesResult, type ImportRowRequest } from "../../types/dailySales";
 import { PAYMENT_METHOD_LABELS, SALES_CHANNEL_LABELS } from "../../types/enums";
 import { DateFilter } from "../../components/ui/DateFilter";
 import { Money } from "../../components/ui/Money";
@@ -31,8 +31,8 @@ export function DailySalesPage() {
   const summary = useAsyncData(() => dailySalesApi.getExpectedSummary(date), date);
   const catalog = dishes.data && platforms.data ? { dishes: dishes.data, platforms: platforms.data } : null;
 
-  async function importRows(fileName: string, rows: ImportRowRequest[]) {
-    const result = await dailySalesApi.import({ fileName, rows });
+  async function importRows(fileName: string, rows: ImportRowRequest[], mode: DailySalesImportMode) {
+    const result = await dailySalesApi.import({ fileName, rows, mode });
     setLastResult(result);
     await Promise.all([entries.reload(), summary.reload()]);
   }
@@ -72,7 +72,7 @@ export function DailySalesPage() {
               date={date}
               dishes={c.dishes}
               platforms={c.platforms}
-              onSubmit={(rows) => importRows(`manuel-giris-${date}`, rows)}
+              onSubmit={(rows) => importRows(`manuel-giris-${date}`, rows, DailySalesImportMode.Append)}
             />
           )}
         </AsyncState>

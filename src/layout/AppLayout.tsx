@@ -1,46 +1,24 @@
-import { LogOut, Menu, Moon, Sun, Wheat, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { LogOut, Moon, Sun, Undo2, Wheat } from "lucide-react";
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 import { NotificationsBell } from "../components/NotificationsBell";
 import { visibleGroups } from "../config/navigation";
 import { BottomNav } from "./BottomNav";
+import { initialsOf } from "./navigationShell";
 import { useTheme } from "../theme/useTheme";
 import { ROLE_LABELS } from "../types/auth";
 import "./AppLayout.css";
 
-const todayLabel = new Date().toLocaleDateString("tr-TR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-
-function initialsOf(fullName: string): string {
-  return fullName
-    .split(" ")
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
+const todayLabel = new Date().toLocaleDateString("tr-TR", { weekday: "long", day: "numeric", month: "long" });
 
 /**
- * Uygulama kabuğu: masaüstünde sabit kenar çubuğu, mobilde (≤ 960px) hamburger ile açılan çekmece.
- * Menü öğeleri `config/navigation.ts`'ten role göre üretilir (tek kaynak).
+ * Uygulama kabuğu. Masaüstünde (> 960px) açık renkli kenar çubuğu; mobilde kenar çubuğu ve çekmece yoktur —
+ * yalnızca alt sekme çubuğu vardır (bkz. BottomNav: 4 grup + "Daha fazla" sayfası). Menü öğeleri
+ * `config/navigation.ts`'ten role göre üretilir (tek kaynak).
  */
 export function AppLayout() {
-  const { user, logout } = useAuth();
+  const { user, logout, exitBusiness } = useAuth();
   const { theme, toggle: toggleTheme } = useTheme();
-  const [isNavOpen, setIsNavOpen] = useState(false);
-
-  useEffect(() => {
-    if (!isNavOpen) {
-      return;
-    }
-    const closeOnEscape = (event: KeyboardEvent) => event.key === "Escape" && setIsNavOpen(false);
-    window.addEventListener("keydown", closeOnEscape);
-    document.body.classList.add("nav-open");
-    return () => {
-      window.removeEventListener("keydown", closeOnEscape);
-      document.body.classList.remove("nav-open");
-    };
-  }, [isNavOpen]);
 
   if (!user) {
     // RequireAuth bu duruma girmeden yönlendirir; TypeScript için erken çıkış.
@@ -53,38 +31,30 @@ export function AppLayout() {
     to: group.pages.length === 1 ? group.pages[0].path : group.path,
     label: group.pages.length === 1 ? group.pages[0].label : group.label,
     shortLabel: group.pages.length === 1 ? group.pages[0].label : (group.shortLabel ?? group.label),
+    description: group.description,
     icon: group.icon,
+    tone: group.tone,
   }));
   const initials = initialsOf(user.fullName);
   const themeLabel = theme === "dark" ? "Açık temaya geç" : "Koyu temaya geç";
 
   return (
     <div className="app-shell">
-      <aside className={`app-sidebar${isNavOpen ? " open" : ""}`} aria-label="Ana menü">
+      <aside className="app-sidebar" aria-label="Ana menü">
         <div className="app-sidebar-brand">
           <span className="brand-mark app-brand-mark" aria-hidden="true">
             <Wheat size={20} strokeWidth={2.2} />
           </span>
           <div>
             <strong>taneHesap</strong>
-            <span>Meydan Pilavcısı</span>
+            <span>{user.businessName ?? ROLE_LABELS[user.role]}</span>
           </div>
-          <button type="button" className="app-icon-button app-sidebar-close" onClick={() => setIsNavOpen(false)} aria-label="Menüyü kapat">
-            <X size={20} />
-          </button>
         </div>
 
         <nav className="app-sidebar-nav">
-          <span className="app-nav-section">Menü</span>
           {navLinks.map((item) => (
-            <NavLink
-              key={item.key}
-              to={item.to}
-              end={item.to === "/"}
-              onClick={() => setIsNavOpen(false)}
-              className={({ isActive }) => (isActive ? "app-nav-link active" : "app-nav-link")}
-            >
-              <item.icon size={19} strokeWidth={1.9} aria-hidden="true" />
+            <NavLink key={item.key} to={item.to} end={item.to === "/"} className={({ isActive }) => (isActive ? "app-nav-link active" : "app-nav-link")}>
+              <item.icon size={20} strokeWidth={2} aria-hidden="true" />
               <span>{item.label}</span>
             </NavLink>
           ))}
@@ -104,14 +74,9 @@ export function AppLayout() {
         </div>
       </aside>
 
-      {isNavOpen && <div className="app-backdrop" onClick={() => setIsNavOpen(false)} aria-hidden="true" />}
-
       <div className="app-main">
         <header className="app-topbar">
           <div className="app-topbar-start">
-            <button type="button" className="app-icon-button app-menu-button" onClick={() => setIsNavOpen(true)} aria-label="Menüyü aç">
-              <Menu size={22} />
-            </button>
             <span className="app-topbar-brand">
               <span className="brand-mark" aria-hidden="true">
                 <Wheat size={16} strokeWidth={2.2} />
@@ -122,7 +87,7 @@ export function AppLayout() {
           </div>
           <div className="app-topbar-actions">
             <button type="button" className="app-icon-button" onClick={toggleTheme} aria-label={themeLabel} title={themeLabel}>
-              {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}
+              {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
             </button>
             <NotificationsBell />
             <div className="app-topbar-user">
@@ -134,18 +99,25 @@ export function AppLayout() {
                 <span>{ROLE_LABELS[user.role]}</span>
               </div>
             </div>
-            <button type="button" className="app-logout-button" onClick={() => void logout()}>
-              <LogOut size={16} aria-hidden="true" />
-              <span>Çıkış</span>
-            </button>
           </div>
         </header>
 
         <main className="app-content">
+          {user.isActingAsBusiness && (
+            <div className="app-acting-banner" role="status">
+              <span>
+                Süper yönetici olarak <strong>{user.businessName}</strong> içindesiniz; yaptığınız her işlem bu işletmeye yazılır.
+              </span>
+              <button type="button" className="ui-button secondary small" onClick={() => void exitBusiness()}>
+                <Undo2 size={14} aria-hidden="true" />
+                İşletmeden çık
+              </button>
+            </div>
+          )}
           <Outlet />
         </main>
 
-        <BottomNav items={navLinks} onOpenMenu={() => setIsNavOpen(true)} />
+        <BottomNav items={navLinks} />
       </div>
     </div>
   );

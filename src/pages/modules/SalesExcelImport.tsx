@@ -6,7 +6,7 @@ import { DataTable } from "../../components/ui/DataTable";
 import { Money } from "../../components/ui/Money";
 import { formatDate } from "../../lib/format";
 import { buildTemplateSheets, parseSalesSheet, type CellValue, type ParsedSales } from "../../lib/salesExcel";
-import type { ImportRowRequest } from "../../types/dailySales";
+import { DailySalesImportMode, type ImportRowRequest } from "../../types/dailySales";
 import type { DishDto } from "../../types/dish";
 import { PAYMENT_METHOD_LABELS, SALES_CHANNEL_LABELS } from "../../types/enums";
 import type { PlatformDto } from "../../types/platform";
@@ -15,7 +15,7 @@ interface SalesExcelImportProps {
   date: string;
   dishes: DishDto[];
   platforms: PlatformDto[];
-  onImport: (fileName: string, rows: ImportRowRequest[]) => Promise<void>;
+  onImport: (fileName: string, rows: ImportRowRequest[], mode: DailySalesImportMode) => Promise<void>;
 }
 
 const PREVIEW_LIMIT = 8;
@@ -28,6 +28,7 @@ const PREVIEW_LIMIT = 8;
 export function SalesExcelImport({ date, dishes, platforms, onImport }: SalesExcelImportProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [replaceExisting, setReplaceExisting] = useState(false);
   const [parsed, setParsed] = useState<ParsedSales | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isBusy, setIsBusy] = useState(false);
@@ -77,7 +78,7 @@ export function SalesExcelImport({ date, dishes, platforms, onImport }: SalesExc
     setError(null);
     setIsBusy(true);
     try {
-      await onImport(fileName, parsed.rows);
+      await onImport(fileName, parsed.rows, replaceExisting ? DailySalesImportMode.Replace : DailySalesImportMode.RejectIfExists);
       setParsed(null);
       setFileName(null);
     } catch (submitError) {
@@ -143,6 +144,15 @@ export function SalesExcelImport({ date, dishes, platforms, onImport }: SalesExc
               {parsed.rows.length > PREVIEW_LIMIT && (
                 <p className="ui-muted">… ve {parsed.rows.length - PREVIEW_LIMIT} satır daha.</p>
               )}
+              <label className="ui-checkbox" htmlFor="excel-replace-existing">
+                <input
+                  id="excel-replace-existing"
+                  type="checkbox"
+                  checked={replaceExisting}
+                  onChange={(e) => setReplaceExisting(e.target.checked)}
+                />
+                Dosyadaki günlerin mevcut satış kayıtlarını değiştir (düzeltilmiş dosyayı yeniden yüklerken)
+              </label>
               <div className="ui-form-actions excel-actions">
                 <button type="button" className="ui-button" onClick={() => void submit()} disabled={isBusy}>
                   <Upload size={16} aria-hidden="true" />

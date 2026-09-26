@@ -1,7 +1,8 @@
-import { Banknote, Plus } from "lucide-react";
+import { Banknote, Plus, Trash2, Undo2 } from "lucide-react";
 import { useState } from "react";
 import { ingredientApi, supplierApi } from "../../api/moduleApis";
 import { AsyncState } from "../../components/ui/AsyncState";
+import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { DataTable } from "../../components/ui/DataTable";
 import { EntityForm } from "../../components/ui/EntityForm";
 import { formValue } from "../../components/ui/formValues";
@@ -28,6 +29,8 @@ export function SupplierPurchasesPanel({ supplierId, onChanged }: SupplierPurcha
   const ingredients = useAsyncData(ingredientApi.getAll);
   const { cards } = usePaymentCards();
   const [paying, setPaying] = useState<SupplierPurchaseDto | null>(null);
+  const [undoing, setUndoing] = useState<{ purchase: SupplierPurchaseDto; paymentId: string; amount: number } | null>(null);
+  const [deleting, setDeleting] = useState<SupplierPurchaseDto | null>(null);
 
   function replacePurchase(updated: SupplierPurchaseDto) {
     purchases.setData((current) => current?.map((p) => (p.id === updated.id ? updated : p)) ?? current);
@@ -82,11 +85,21 @@ export function SupplierPurchasesPanel({ supplierId, onChanged }: SupplierPurcha
                 header: "Ödenen",
                 align: "right",
                 render: (row) => (
-                  <>
+                  <span className="purchase-payments">
                     <Money value={row.paidAmount} />
-                    {row.payments.length > 0 &&
-                      ` (${row.payments.map((p) => (p.paymentMethod === null ? "—" : PAYMENT_METHOD_LABELS[p.paymentMethod])).join(", ")})`}
-                  </>
+                    {row.payments.map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        className="purchase-payment-chip"
+                        title="Bu ödemeyi geri al"
+                        onClick={() => setUndoing({ purchase: row, paymentId: p.id, amount: p.amount })}
+                      >
+                        {formatDate(p.paymentDate)} · {p.paymentMethod === null ? "—" : PAYMENT_METHOD_LABELS[p.paymentMethod]} · <Money value={p.amount} />
+                        <Undo2 size={12} aria-hidden="true" />
+                      </button>
+                    ))}
+                  </span>
                 ),
               },
               {
@@ -99,17 +112,51 @@ export function SupplierPurchasesPanel({ supplierId, onChanged }: SupplierPurcha
                   ),
               },
             ]}
-            rowActions={(row) =>
-              row.isFullyPaid ? null : (
-                <button type="button" className="ui-button small" onClick={() => setPaying(row)}>
-                  <Banknote size={14} aria-hidden="true" />
-                  Ödeme yap
-                </button>
-              )
-            }
+            rowActions={(row) => (
+              <div className="ui-row-actions-inner">
+                {!row.isFullyPaid && (
+                  <button type="button" className="ui-button small" onClick={() => setPaying(row)}>
+                    <Banknote size={14} aria-hidden="true" />
+                    Ödeme yap
+                  </button>
+                )}
+                {row.payments.length === 0 && (
+                  <button type="button" className="ui-button danger-ghost small" onClick={() => setDeleting(row)} aria-label="Alışı sil" title="Alışı sil">
+                    <Trash2 size={15} aria-hidden="true" />
+                  </button>
+                )}
+              </div>
+            )}
           />
         )}
       </AsyncState>
+
+      {undoing && (
+        <ConfirmDialog
+          title="Ödemeyi geri al"
+          confirmLabel="Geri al"
+          message={`${undoing.purchase.ingredientName} alışına yapılan ${undoing.amount.toLocaleString("tr-TR", { style: "currency", currency: "TRY" })} ödeme silinecek; otomatik gider ve kasa hareketi de geri alınır.`}
+          onClose={() => setUndoing(null)}
+          onConfirm={async () => {
+            replacePurchase(await supplierApi.removePayment(undoing.purchase.id, undoing.paymentId));
+            setUndoing(null);
+          }}
+        />
+      )}
+
+      {deleting && (
+        <ConfirmDialog
+          title="Alışı sil"
+          message={`${formatDate(deleting.purchaseDate)} tarihli ${formatNumber(deleting.quantity)} birim ${deleting.ingredientName} alışı silinecek; stok girişi geri alınır.`}
+          onClose={() => setDeleting(null)}
+          onConfirm={async () => {
+            await supplierApi.removePurchase(deleting.id);
+            purchases.setData((current) => current?.filter((p) => p.id !== deleting.id) ?? current);
+            onChanged();
+            setDeleting(null);
+          }}
+        />
+      )}
 
       {paying && (
         <Modal title={`${paying.ingredientName} alışı — ödeme`} onClose={() => setPaying(null)}>

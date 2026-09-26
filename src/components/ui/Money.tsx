@@ -19,7 +19,7 @@ export function MoneyText({ text }: { text: string }) {
   );
 }
 
-/** Sayıdan para: tutar Fraunces ile, kuruş küçük — tablolar ve özetler aynı görünümü kullanır. */
+/** Sayıdan para: kuruş küçük — tablolar ve özetler aynı görünümü kullanır. */
 export function Money({ value }: { value: number }) {
   return <MoneyText text={formatMoney(value)} />;
 }

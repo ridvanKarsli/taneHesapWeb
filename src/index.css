@@ -1,91 +1,86 @@
 /*
  * Tasarım token'ları — tek tema kaynağı. Bileşenler renk/gölge/radius değerlerine doğrudan değil
- * bu değişkenlere başvurur; marka veya köşe yuvarlaklığı değişirse tek değişiklik noktası burasıdır.
- * Palet: sıcak safran/pilav tonları (Meydan Pilavcısı) + sakin, kurumsal nötrler.
- */
-/*
- * Tasarım token'ları — tek tema kaynağı. Bileşenler renk/gölge/radius değerlerine doğrudan değil
- * bu değişkenlere başvurur. Karakter: "kasa defteri" — gri-beyaz kağıt zemin, defne yeşili tek duvar
- * (kenar çubuğu), pirinç sarısı yalnızca para ve vurgu için, fiş/adisyon esinli noktalı çizgiler.
- * Yazı: Fraunces (başlık ve tutarlar) + Manrope (gövde ve arayüz).
+ * bu değişkenlere başvurur. Karakter: "yumuşak ve sıcak" — krem-beyaz zemin, mercan (eylem) + yeşil (para),
+ * geniş yuvarlak köşeler, yumuşak sıcak gölgeler, büyük dokunma alanları. Tek yazı tipi: Nunito.
  */
 :root {
-  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
-  --font-body: "Manrope", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-body: "Nunito", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-body);
 
-  --color-bg: #ecece5;
+  --color-bg: #faf6f0;
   --color-surface: #ffffff;
-  --color-surface-alt: #f4f4ef;
-  --color-surface-sunken: #e4e5dc;
-  --color-border: #dcdcd2;
-  --color-border-strong: #c3c4b6;
-  --color-text: #17201b;
-  --color-text-muted: #5f6b64;
-  --color-text-subtle: #8c968f;
+  --color-surface-alt: #f5efe7;
+  --color-surface-sunken: #eee6db;
+  --color-border: #ece4d9;
+  --color-border-strong: #d9cdbd;
+  --color-text: #2b2521;
+  --color-text-muted: #78706a;
+  --color-text-subtle: #a59c93;
 
-  --color-primary: #1e5a3c;
-  --color-primary-dark: #143f2a;
-  --color-primary-soft: #dfeee4;
-  --color-primary-soft-2: #c5dfcf;
-  --color-primary-ring: rgba(30, 90, 60, 0.28);
-  --color-accent: #b8892b;
-  --color-accent-soft: #f5ecd6;
+  /* Mercan: tek eylem rengi (düğme, aktif sekme, odak) */
+  --color-primary: #ef6a4c;
+  --color-primary-dark: #d2512f;
+  --color-primary-soft: #ffe9e1;
+  --color-primary-soft-2: #ffd3c4;
+  --color-primary-ring: rgba(239, 106, 76, 0.28);
+  /* Yeşil: para ve olumlu durum */
+  --color-accent: #2f9e6e;
+  --color-accent-soft: #e0f3ea;
 
-  --color-success: #1e7a4b;
-  --color-success-soft: #dff0e5;
-  --color-danger: #b4413a;
-  --color-danger-dark: #93332d;
-  --color-danger-soft: #f7e3e0;
-  --color-warning: #9a6f12;
-  --color-warning-soft: #f7edd2;
+  --color-success: #2f9e6e;
+  --color-success-soft: #e0f3ea;
+  --color-danger: #d8453c;
+  --color-danger-dark: #b5352d;
+  --color-danger-soft: #fde5e2;
+  --color-warning: #b9780e;
+  --color-warning-soft: #fdf0d5;
 
-  /* Kenar çubuğu — "yeşil çini duvar" */
-  --sidebar-bg: #1b4a33;
-  --sidebar-bg-deep: #143a28;
-  --sidebar-text: #eef4ef;
-  --sidebar-muted: #a9c4b3;
-  --sidebar-active-bg: rgba(255, 255, 255, 0.1);
-  --sidebar-active-text: #f3d98c;
-  --sidebar-border: rgba(255, 255, 255, 0.1);
+  /* Kenar çubuğu — açık, kağıt tonunda; aktif öğe mercan hap */
+  --sidebar-bg: #ffffff;
+  --sidebar-bg-deep: #ffffff;
+  --sidebar-text: #2b2521;
+  --sidebar-muted: #78706a;
+  --sidebar-active-bg: #ffe9e1;
+  --sidebar-active-text: #d2512f;
+  --sidebar-border: #ece4d9;
 
-  /* Modül ikon tonları (arka plan / ön plan) — yeşil-pirinç paletle uyumlu, sessiz */
-  --tone-saffron-bg: #f5ecd6;
-  --tone-saffron-fg: #96701f;
-  --tone-green-bg: #dfeee4;
-  --tone-green-fg: #1e5a3c;
-  --tone-blue-bg: #e1e9f1;
-  --tone-blue-fg: #34597a;
-  --tone-rose-bg: #f4e2df;
-  --tone-rose-fg: #9d4038;
-  --tone-violet-bg: #e8e3ee;
-  --tone-violet-fg: #5d4a7a;
-  --tone-teal-bg: #dcece9;
-  --tone-teal-fg: #256a62;
-  --tone-amber-bg: #f5ecd6;
-  --tone-amber-fg: #96701f;
-  --tone-slate-bg: #e6e8e4;
-  --tone-slate-fg: #4f5a55;
+  /* Modül ikon tonları (arka plan / ön plan) — pastel, sıcak */
+  --tone-saffron-bg: #fff0d6;
+  --tone-saffron-fg: #b9780e;
+  --tone-green-bg: #e0f3ea;
+  --tone-green-fg: #23805a;
+  --tone-blue-bg: #e2ecf8;
+  --tone-blue-fg: #3563a3;
+  --tone-rose-bg: #ffe9e1;
+  --tone-rose-fg: #d2512f;
+  --tone-violet-bg: #ede6f8;
+  --tone-violet-fg: #6b4fb0;
+  --tone-teal-bg: #dcf1ef;
+  --tone-teal-fg: #237a72;
+  --tone-amber-bg: #fff0d6;
+  --tone-amber-fg: #b9780e;
+  --tone-slate-bg: #eeeae6;
+  --tone-slate-fg: #5f5751;
 
-  --color-overlay: rgba(23, 32, 27, 0.45);
-  --color-bg-translucent: rgba(236, 236, 229, 0.88);
+  --color-overlay: rgba(43, 37, 33, 0.45);
+  --color-bg-translucent: rgba(250, 246, 240, 0.9);
 
-  /* Fiş (panel) */
-  --receipt-bg: #fffdf7;
-  --receipt-ink: #17201b;
-  --receipt-rule: #cfd0c4;
+  /* Panel "bugün" kartı */
+  --hero-bg: #fff3ee;
+  --hero-ink: #2b2521;
 
-  --radius-xs: 6px;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 14px;
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
   --radius-pill: 999px;
 
-  --shadow-xs: none;
-  --shadow-sm: 0 1px 2px rgba(23, 32, 27, 0.06);
-  --shadow-md: 0 8px 24px rgba(23, 32, 27, 0.12);
-  --shadow-lg: 0 16px 40px rgba(23, 32, 27, 0.2);
+  --shadow-xs: 0 1px 2px rgba(80, 50, 30, 0.05);
+  --shadow-sm: 0 2px 8px rgba(80, 50, 30, 0.06);
+  --shadow-md: 0 10px 30px rgba(80, 50, 30, 0.1);
+  --shadow-lg: 0 20px 50px rgba(80, 50, 30, 0.18);
 
-  --sidebar-width: 256px;
+  --sidebar-width: 248px;
   --topbar-height: 64px;
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 
@@ -94,69 +89,69 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Koyu tema — "gece mutfağı": yeşil-siyah zemin, pirinç vurgu. `applyTheme` `<html data-theme="dark">` yazar. */
+/* Koyu tema — "sıcak gece": kahve-siyah zemin, aynı mercan/yeşil. `applyTheme` `<html data-theme="dark">` yazar. */
 :root[data-theme="dark"] {
-  --color-bg: #121917;
-  --color-surface: #1a2320;
-  --color-surface-alt: #212c28;
-  --color-surface-sunken: #0e1412;
-  --color-border: #2a3632;
-  --color-border-strong: #3d4c46;
-  --color-text: #eef2ee;
-  --color-text-muted: #a6b3ac;
-  --color-text-subtle: #75827b;
+  --color-bg: #191512;
+  --color-surface: #221d19;
+  --color-surface-alt: #2b2521;
+  --color-surface-sunken: #14110f;
+  --color-border: #332c27;
+  --color-border-strong: #4a403a;
+  --color-text: #f3ede6;
+  --color-text-muted: #b1a79d;
+  --color-text-subtle: #7f766e;
 
-  --color-primary: #59b183;
-  --color-primary-dark: #7fc9a0;
-  --color-primary-soft: #1f3a2d;
-  --color-primary-soft-2: #27493a;
-  --color-primary-ring: rgba(89, 177, 131, 0.35);
-  --color-accent: #d8b35a;
-  --color-accent-soft: #3a3120;
+  --color-primary: #f6836a;
+  --color-primary-dark: #ff9f8a;
+  --color-primary-soft: #3d2620;
+  --color-primary-soft-2: #4e2d25;
+  --color-primary-ring: rgba(246, 131, 106, 0.35);
+  --color-accent: #5cc493;
+  --color-accent-soft: #1e3a2d;
 
-  --color-success: #6cc793;
-  --color-success-soft: #1d3327;
-  --color-danger: #ee8078;
-  --color-danger-dark: #d9645b;
-  --color-danger-soft: #3d2320;
-  --color-warning: #e0bb62;
-  --color-warning-soft: #3a3118;
+  --color-success: #5cc493;
+  --color-success-soft: #1e3a2d;
+  --color-danger: #ff8078;
+  --color-danger-dark: #ff9d96;
+  --color-danger-soft: #3f2321;
+  --color-warning: #e8b458;
+  --color-warning-soft: #3a2f17;
 
-  --sidebar-bg: #0f1f18;
-  --sidebar-bg-deep: #0a1610;
-  --sidebar-text: #eef4ef;
-  --sidebar-muted: #8fa89a;
-  --sidebar-active-bg: rgba(255, 255, 255, 0.08);
-  --sidebar-active-text: #e8cc7a;
-  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-bg: #221d19;
+  --sidebar-bg-deep: #221d19;
+  --sidebar-text: #f3ede6;
+  --sidebar-muted: #b1a79d;
+  --sidebar-active-bg: #3d2620;
+  --sidebar-active-text: #ff9f8a;
+  --sidebar-border: #332c27;
 
-  --tone-saffron-bg: #3a3120;
-  --tone-saffron-fg: #e0bb62;
-  --tone-green-bg: #1f3a2d;
-  --tone-green-fg: #7fc9a0;
-  --tone-blue-bg: #1f2e3c;
-  --tone-blue-fg: #8db3d6;
-  --tone-rose-bg: #3d2320;
-  --tone-rose-fg: #ee9a92;
-  --tone-violet-bg: #2c2637;
-  --tone-violet-fg: #b8a5d8;
+  --tone-saffron-bg: #3a2f17;
+  --tone-saffron-fg: #e8b458;
+  --tone-green-bg: #1e3a2d;
+  --tone-green-fg: #7fd4ab;
+  --tone-blue-bg: #1f2c40;
+  --tone-blue-fg: #8fb4e8;
+  --tone-rose-bg: #3d2620;
+  --tone-rose-fg: #ff9f8a;
+  --tone-violet-bg: #2c2540;
+  --tone-violet-fg: #b8a5e8;
   --tone-teal-bg: #183330;
   --tone-teal-fg: #74c4b9;
-  --tone-amber-bg: #3a3120;
-  --tone-amber-fg: #e0bb62;
-  --tone-slate-bg: #263029;
-  --tone-slate-fg: #aab7b0;
+  --tone-amber-bg: #3a2f17;
+  --tone-amber-fg: #e8b458;
+  --tone-slate-bg: #2b2521;
+  --tone-slate-fg: #b1a79d;
 
   --color-overlay: rgba(0, 0, 0, 0.6);
-  --color-bg-translucent: rgba(18, 25, 23, 0.86);
+  --color-bg-translucent: rgba(25, 21, 18, 0.88);
 
-  --receipt-bg: #1e2823;
-  --receipt-ink: #eef2ee;
-  --receipt-rule: #3a4740;
+  --hero-bg: #2e221d;
+  --hero-ink: #f3ede6;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.55);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.6);
 
   color-scheme: dark;
 }
@@ -179,6 +174,7 @@ body {
   overscroll-behavior-y: none; /* ana ekran uygulamasında sayfa dışına "lastik" kayma olmasın */
   font-size: 15px;
   line-height: 1.5;
+  font-weight: 500;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -186,18 +182,15 @@ body {
 h1,
 h2,
 h3 {
-  font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 800;
   letter-spacing: -0.01em;
   line-height: 1.2;
-  font-variation-settings: "opsz" 40;
 }
 
-/* Para: Fraunces, tablo hizalı rakamlar; kuruş kısmı küçük ve soluk ("₺4.468.492,50" tek bakışta okunsun). */
+/* Para: tablo hizalı rakamlar, kuruş kısmı küçük ve soluk ("₺4.468.492,50" tek bakışta okunsun). */
 .money {
-  font-family: var(--font-display);
   font-variant-numeric: tabular-nums;
-  font-variation-settings: "opsz" 24;
+  font-weight: 800;
   letter-spacing: -0.01em;
   white-space: nowrap;
 }
@@ -247,14 +240,14 @@ textarea {
 .tone-amber { background: var(--tone-amber-bg); color: var(--tone-amber-fg); }
 .tone-slate { background: var(--tone-slate-bg); color: var(--tone-slate-fg); }
 
-/* Marka rozeti (logo): yeşil kare, pirinç başak */
+/* Marka rozeti (logo): mercan yuvarlak kare, beyaz başak */
 .brand-mark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border-radius: 10px;
-  color: var(--color-accent);
+  border-radius: 12px;
+  color: #ffffff;
   background: var(--color-primary);
 }
 

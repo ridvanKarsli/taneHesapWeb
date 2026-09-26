@@ -24,8 +24,8 @@ export default defineConfig({
           { name: "Gün sonu satışları", short_name: "Satışlar", url: "/gun-sonu/satislar", icons: [{ src: "pwa-192.png", sizes: "192x192" }] },
           { name: "Kasa", short_name: "Kasa", url: "/finans/kasa", icons: [{ src: "pwa-192.png", sizes: "192x192" }] },
         ],
-        background_color: "#FBF6EC",
-        theme_color: "#B5651D",
+        background_color: "#FAF6F0",
+        theme_color: "#EF6A4C",
         icons: [
           { src: "pwa-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
           { src: "pwa-512.png", sizes: "512x512", type: "image/png", purpose: "any" },

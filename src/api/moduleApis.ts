@@ -197,6 +197,14 @@ export const supplierApi = {
   async addPayment(purchaseId: string, request: CreateSupplierPaymentRequest): Promise<SupplierPurchaseDto> {
     return (await httpClient.post<SupplierPurchaseDto>(`/api/suppliers/purchases/${purchaseId}/payments`, request)).data;
   },
+  /** Yanlış girilen ödemeyi geri alır (otomatik gider ve kasa hareketi de silinir). */
+  async removePayment(purchaseId: string, paymentId: string): Promise<SupplierPurchaseDto> {
+    return (await httpClient.delete<SupplierPurchaseDto>(`/api/suppliers/purchases/${purchaseId}/payments/${paymentId}`)).data;
+  },
+  /** Ödemesi olmayan alışı geri alır (stok girişi ters çevrilir). */
+  async removePurchase(purchaseId: string): Promise<void> {
+    await httpClient.delete(`/api/suppliers/purchases/${purchaseId}`);
+  },
 };
 
 export const recurringExpenseApi = {
