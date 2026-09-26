@@ -12,8 +12,8 @@
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  background: var(--color-surface);
-  border-right: 1px solid var(--color-border);
+  background: linear-gradient(180deg, var(--sidebar-bg) 0%, var(--sidebar-bg-deep) 100%);
+  color: var(--sidebar-text);
   z-index: 60;
 }
 
@@ -31,15 +31,31 @@
 
 .app-sidebar-brand strong {
   display: block;
-  font-size: 1.08rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--sidebar-text);
 }
 
 .app-sidebar-brand span {
   display: block;
-  font-size: 0.75rem;
-  color: var(--color-text-muted);
+  font-size: 0.76rem;
+  color: var(--sidebar-muted);
+}
+
+.app-sidebar .app-brand-mark {
+  background: var(--color-accent);
+  color: var(--sidebar-bg-deep);
+}
+
+.app-sidebar .app-icon-button {
+  color: var(--sidebar-muted);
+}
+
+.app-sidebar .app-icon-button:hover {
+  background: var(--sidebar-active-bg);
+  color: var(--sidebar-text);
 }
 
 .app-sidebar .app-sidebar-close {
@@ -57,12 +73,7 @@
 }
 
 .app-nav-section {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-text-subtle);
-  padding: 0.5rem 0.75rem 0.4rem;
+  display: none;
 }
 
 .app-nav-link {
@@ -72,9 +83,9 @@
   gap: 0.75rem;
   padding: 0.62rem 0.8rem;
   border-radius: var(--radius-sm);
-  color: var(--color-text-muted);
+  color: var(--sidebar-muted);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   font-weight: 600;
   transition:
     background 0.15s var(--ease),
@@ -86,24 +97,24 @@
 }
 
 .app-nav-link:hover {
-  background: var(--color-surface-alt);
-  color: var(--color-text);
+  background: var(--sidebar-active-bg);
+  color: var(--sidebar-text);
 }
 
 .app-nav-link.active {
-  background: var(--color-primary-soft);
-  color: var(--color-primary-dark);
+  background: var(--sidebar-active-bg);
+  color: var(--sidebar-active-text);
 }
 
 .app-nav-link.active::before {
   content: "";
   position: absolute;
   left: -0.85rem;
-  top: 22%;
-  bottom: 22%;
-  width: 4px;
-  border-radius: 0 4px 4px 0;
-  background: var(--color-primary);
+  top: 24%;
+  bottom: 24%;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--color-accent);
 }
 
 .app-sidebar-footer {
@@ -113,12 +124,26 @@
   margin: 0 0.85rem 0.85rem;
   padding: 0.7rem 0.75rem;
   border-radius: var(--radius-md);
-  background: var(--color-surface-alt);
+  background: var(--sidebar-active-bg);
+  border: 1px solid var(--sidebar-border);
 }
 
 .app-sidebar-user {
   flex: 1;
   min-width: 0;
+}
+
+.app-sidebar-user strong {
+  color: var(--sidebar-text);
+}
+
+.app-sidebar-user span {
+  color: var(--sidebar-muted) !important;
+}
+
+.app-sidebar .app-user-avatar {
+  background: var(--color-accent);
+  color: var(--sidebar-bg-deep);
 }
 
 .app-sidebar-user strong,
@@ -141,7 +166,7 @@
   width: 36px;
   height: 36px;
   border-radius: var(--radius-pill);
-  background: linear-gradient(145deg, var(--color-primary-soft), var(--color-primary-soft-2));
+  background: var(--color-primary-soft);
   color: var(--color-primary-dark);
   display: inline-flex;
   align-items: center;
@@ -209,8 +234,9 @@
 .app-topbar-brand {
   align-items: center;
   gap: 0.5rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
 .app-topbar-brand .brand-mark {

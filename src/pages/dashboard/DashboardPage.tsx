@@ -1,10 +1,10 @@
-import { ChevronRight, Wheat } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../auth/useAuth";
 import { visibleGroups } from "../../config/navigation";
 import { ROLE_LABELS, UserRole } from "../../types/auth";
 import { AdminAlerts } from "./AdminAlerts";
-import { AdminKpis } from "./AdminKpis";
+import { DailyReceipt } from "./DailyReceipt";
 import "./DashboardPage.css";
 
 function greeting(): string {
@@ -26,26 +26,22 @@ export function DashboardPage() {
       ...group,
       to: group.pages.length === 1 ? group.pages[0].path : group.path,
       label: group.pages.length === 1 ? group.pages[0].label : group.label,
-      description: group.pages.length === 1 ? (group.pages[0].description ?? group.description) : group.pages.map((p) => p.label).join(" · "),
+      description: group.pages.length === 1 ? (group.pages[0].description ?? group.description) : group.pages.map((p) => p.label).join(", "),
     }));
   const firstName = user.fullName.split(" ")[0];
 
   return (
     <div className="dashboard">
-      <section className="dashboard-hero">
-        <div>
-          <span className="dashboard-role-chip">{ROLE_LABELS[user.role]}</span>
-          <h1>
-            {greeting()}, {firstName}
-          </h1>
-          <p>Bugün işletmende neler olup bittiğine hızlıca göz at.</p>
-        </div>
-        <Wheat className="dashboard-hero-art" size={132} strokeWidth={1.1} aria-hidden="true" />
-      </section>
+      <header className="dashboard-greeting">
+        <h1>
+          {greeting()}, {firstName}
+        </h1>
+        <p>{ROLE_LABELS[user.role]}</p>
+      </header>
 
       {user.role === UserRole.Admin && (
         <>
-          <AdminKpis />
+          <DailyReceipt />
           <AdminAlerts />
         </>
       )}

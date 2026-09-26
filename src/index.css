@@ -3,147 +3,160 @@
  * bu değişkenlere başvurur; marka veya köşe yuvarlaklığı değişirse tek değişiklik noktası burasıdır.
  * Palet: sıcak safran/pilav tonları (Meydan Pilavcısı) + sakin, kurumsal nötrler.
  */
+/*
+ * Tasarım token'ları — tek tema kaynağı. Bileşenler renk/gölge/radius değerlerine doğrudan değil
+ * bu değişkenlere başvurur. Karakter: "kasa defteri" — gri-beyaz kağıt zemin, defne yeşili tek duvar
+ * (kenar çubuğu), pirinç sarısı yalnızca para ve vurgu için, fiş/adisyon esinli noktalı çizgiler.
+ * Yazı: Fraunces (başlık ve tutarlar) + Manrope (gövde ve arayüz).
+ */
 :root {
-  --color-bg: #faf6f1;
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-body: "Manrope", "Segoe UI", system-ui, -apple-system, sans-serif;
+
+  --color-bg: #ecece5;
   --color-surface: #ffffff;
-  --color-surface-alt: #f7f1e9;
-  --color-surface-sunken: #f3ece2;
-  --color-border: #ede4d8;
-  --color-border-strong: #ddd0bf;
-  --color-text: #2a211c;
-  --color-text-muted: #7c6d61;
-  --color-text-subtle: #a3968a;
+  --color-surface-alt: #f4f4ef;
+  --color-surface-sunken: #e4e5dc;
+  --color-border: #dcdcd2;
+  --color-border-strong: #c3c4b6;
+  --color-text: #17201b;
+  --color-text-muted: #5f6b64;
+  --color-text-subtle: #8c968f;
 
-  --color-primary: #c8691f;
-  --color-primary-dark: #9c4f14;
-  --color-primary-soft: #fcecd9;
-  --color-primary-soft-2: #f8dcb8;
-  --color-primary-ring: rgba(200, 105, 31, 0.22);
-  --color-accent: #f0b64a;
+  --color-primary: #1e5a3c;
+  --color-primary-dark: #143f2a;
+  --color-primary-soft: #dfeee4;
+  --color-primary-soft-2: #c5dfcf;
+  --color-primary-ring: rgba(30, 90, 60, 0.28);
+  --color-accent: #b8892b;
+  --color-accent-soft: #f5ecd6;
 
-  --color-success: #2e8656;
-  --color-success-soft: #e2f3e8;
-  --color-danger: #c64336;
-  --color-danger-dark: #a8352a;
-  --color-danger-soft: #fbe6e3;
-  --color-warning: #a8700f;
-  --color-warning-soft: #fdf1d6;
+  --color-success: #1e7a4b;
+  --color-success-soft: #dff0e5;
+  --color-danger: #b4413a;
+  --color-danger-dark: #93332d;
+  --color-danger-soft: #f7e3e0;
+  --color-warning: #9a6f12;
+  --color-warning-soft: #f7edd2;
 
-  /* Modül ikon tonları (arka plan / ön plan) */
-  --tone-saffron-bg: #fdebd6;
-  --tone-saffron-fg: #b85d16;
-  --tone-green-bg: #e1f3e6;
-  --tone-green-fg: #2e8656;
-  --tone-blue-bg: #e3edfb;
-  --tone-blue-fg: #2f63b5;
-  --tone-rose-bg: #fce4e6;
-  --tone-rose-fg: #c23d53;
-  --tone-violet-bg: #eee7fb;
-  --tone-violet-fg: #6a47b8;
-  --tone-teal-bg: #dff3f1;
-  --tone-teal-fg: #1f7f76;
-  --tone-amber-bg: #fdf1d4;
-  --tone-amber-fg: #a8700f;
-  --tone-slate-bg: #ebeef2;
-  --tone-slate-fg: #4b5563;
+  /* Kenar çubuğu — "yeşil çini duvar" */
+  --sidebar-bg: #1b4a33;
+  --sidebar-bg-deep: #143a28;
+  --sidebar-text: #eef4ef;
+  --sidebar-muted: #a9c4b3;
+  --sidebar-active-bg: rgba(255, 255, 255, 0.1);
+  --sidebar-active-text: #f3d98c;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
 
-  --color-overlay: rgba(42, 33, 28, 0.4);
-  --color-bg-translucent: rgba(250, 246, 241, 0.85);
+  /* Modül ikon tonları (arka plan / ön plan) — yeşil-pirinç paletle uyumlu, sessiz */
+  --tone-saffron-bg: #f5ecd6;
+  --tone-saffron-fg: #96701f;
+  --tone-green-bg: #dfeee4;
+  --tone-green-fg: #1e5a3c;
+  --tone-blue-bg: #e1e9f1;
+  --tone-blue-fg: #34597a;
+  --tone-rose-bg: #f4e2df;
+  --tone-rose-fg: #9d4038;
+  --tone-violet-bg: #e8e3ee;
+  --tone-violet-fg: #5d4a7a;
+  --tone-teal-bg: #dcece9;
+  --tone-teal-fg: #256a62;
+  --tone-amber-bg: #f5ecd6;
+  --tone-amber-fg: #96701f;
+  --tone-slate-bg: #e6e8e4;
+  --tone-slate-fg: #4f5a55;
 
-  /* Panel karşılama alanı */
-  --hero-bg:
-    radial-gradient(circle at 85% 20%, rgba(255, 255, 255, 0.55), transparent 40%),
-    linear-gradient(120deg, #fde7c8 0%, #fbd7a6 55%, #f6c283 100%);
-  --hero-border: #f3cf9d;
-  --hero-text: #3b2410;
-  --hero-text-muted: #7a4d24;
-  --hero-chip-bg: rgba(255, 255, 255, 0.65);
-  --hero-chip-text: #9c4f14;
-  --hero-art: rgba(156, 79, 20, 0.16);
+  --color-overlay: rgba(23, 32, 27, 0.45);
+  --color-bg-translucent: rgba(236, 236, 229, 0.88);
 
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
+  /* Fiş (panel) */
+  --receipt-bg: #fffdf7;
+  --receipt-ink: #17201b;
+  --receipt-rule: #cfd0c4;
+
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 14px;
   --radius-pill: 999px;
 
-  --shadow-xs: 0 1px 2px rgba(42, 33, 28, 0.05);
-  --shadow-sm: 0 1px 2px rgba(42, 33, 28, 0.04), 0 2px 8px rgba(42, 33, 28, 0.05);
-  --shadow-md: 0 4px 12px rgba(42, 33, 28, 0.06), 0 12px 32px rgba(42, 33, 28, 0.08);
-  --shadow-lg: 0 12px 28px rgba(42, 33, 28, 0.1), 0 32px 64px rgba(42, 33, 28, 0.14);
+  --shadow-xs: none;
+  --shadow-sm: 0 1px 2px rgba(23, 32, 27, 0.06);
+  --shadow-md: 0 8px 24px rgba(23, 32, 27, 0.12);
+  --shadow-lg: 0 16px 40px rgba(23, 32, 27, 0.2);
 
-  --sidebar-width: 264px;
-  --topbar-height: 68px;
+  --sidebar-width: 256px;
+  --topbar-height: 64px;
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 
-  font-family: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body);
   color-scheme: light;
   -webkit-tap-highlight-color: transparent;
 }
 
-/*
- * Koyu tema — aynı token adları, farklı değerler. `applyTheme` `<html data-theme="dark">` yazar; tercih
- * yoksa sistem ayarı (main.tsx). Bileşenlerin hiçbiri sabit renk kullanmaz, bu yüzden tek blok yeter.
- */
+/* Koyu tema — "gece mutfağı": yeşil-siyah zemin, pirinç vurgu. `applyTheme` `<html data-theme="dark">` yazar. */
 :root[data-theme="dark"] {
-  --color-bg: #17130f;
-  --color-surface: #211b16;
-  --color-surface-alt: #2a221c;
-  --color-surface-sunken: #1c1612;
-  --color-border: #332a23;
-  --color-border-strong: #4a3d33;
-  --color-text: #f1e9e0;
-  --color-text-muted: #b3a294;
-  --color-text-subtle: #7f7166;
+  --color-bg: #121917;
+  --color-surface: #1a2320;
+  --color-surface-alt: #212c28;
+  --color-surface-sunken: #0e1412;
+  --color-border: #2a3632;
+  --color-border-strong: #3d4c46;
+  --color-text: #eef2ee;
+  --color-text-muted: #a6b3ac;
+  --color-text-subtle: #75827b;
 
-  --color-primary: #e8853a;
-  --color-primary-dark: #f2a462;
-  --color-primary-soft: #3a2616;
-  --color-primary-soft-2: #4a2f18;
-  --color-primary-ring: rgba(232, 133, 58, 0.32);
-  --color-accent: #f0b64a;
+  --color-primary: #59b183;
+  --color-primary-dark: #7fc9a0;
+  --color-primary-soft: #1f3a2d;
+  --color-primary-soft-2: #27493a;
+  --color-primary-ring: rgba(89, 177, 131, 0.35);
+  --color-accent: #d8b35a;
+  --color-accent-soft: #3a3120;
 
-  --color-success: #5cc48a;
+  --color-success: #6cc793;
   --color-success-soft: #1d3327;
-  --color-danger: #f07a6e;
-  --color-danger-dark: #d95c4f;
-  --color-danger-soft: #3d221f;
-  --color-warning: #e8b45a;
-  --color-warning-soft: #3a2c15;
+  --color-danger: #ee8078;
+  --color-danger-dark: #d9645b;
+  --color-danger-soft: #3d2320;
+  --color-warning: #e0bb62;
+  --color-warning-soft: #3a3118;
 
-  --tone-saffron-bg: #3a2616;
-  --tone-saffron-fg: #f0a25d;
-  --tone-green-bg: #1d3327;
-  --tone-green-fg: #6fd39c;
-  --tone-blue-bg: #1c2a42;
-  --tone-blue-fg: #7fa9ee;
-  --tone-rose-bg: #3d1f26;
-  --tone-rose-fg: #f08497;
-  --tone-violet-bg: #2b2140;
-  --tone-violet-fg: #b39cf0;
-  --tone-teal-bg: #16302e;
-  --tone-teal-fg: #63c9bd;
-  --tone-amber-bg: #3a2c15;
-  --tone-amber-fg: #f0c25a;
-  --tone-slate-bg: #262b33;
-  --tone-slate-fg: #aab4c3;
+  --sidebar-bg: #0f1f18;
+  --sidebar-bg-deep: #0a1610;
+  --sidebar-text: #eef4ef;
+  --sidebar-muted: #8fa89a;
+  --sidebar-active-bg: rgba(255, 255, 255, 0.08);
+  --sidebar-active-text: #e8cc7a;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
 
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.35);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35), 0 12px 32px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.45), 0 32px 64px rgba(0, 0, 0, 0.5);
+  --tone-saffron-bg: #3a3120;
+  --tone-saffron-fg: #e0bb62;
+  --tone-green-bg: #1f3a2d;
+  --tone-green-fg: #7fc9a0;
+  --tone-blue-bg: #1f2e3c;
+  --tone-blue-fg: #8db3d6;
+  --tone-rose-bg: #3d2320;
+  --tone-rose-fg: #ee9a92;
+  --tone-violet-bg: #2c2637;
+  --tone-violet-fg: #b8a5d8;
+  --tone-teal-bg: #183330;
+  --tone-teal-fg: #74c4b9;
+  --tone-amber-bg: #3a3120;
+  --tone-amber-fg: #e0bb62;
+  --tone-slate-bg: #263029;
+  --tone-slate-fg: #aab7b0;
 
   --color-overlay: rgba(0, 0, 0, 0.6);
-  --color-bg-translucent: rgba(23, 19, 15, 0.85);
+  --color-bg-translucent: rgba(18, 25, 23, 0.86);
 
-  --hero-bg:
-    radial-gradient(circle at 85% 20%, rgba(255, 255, 255, 0.06), transparent 40%),
-    linear-gradient(120deg, #3a2616 0%, #4a2f18 55%, #5c3a1c 100%);
-  --hero-border: #5c3f22;
-  --hero-text: #f7e9d8;
-  --hero-text-muted: #d3b493;
-  --hero-chip-bg: rgba(0, 0, 0, 0.25);
-  --hero-chip-text: #f2a462;
-  --hero-art: rgba(240, 182, 74, 0.14);
+  --receipt-bg: #1e2823;
+  --receipt-ink: #eef2ee;
+  --receipt-rule: #3a4740;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.55);
 
   color-scheme: dark;
 }
@@ -173,9 +186,19 @@ body {
 h1,
 h2,
 h3 {
-  font-weight: 700;
-  letter-spacing: -0.015em;
-  line-height: 1.25;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  font-variation-settings: "opsz" 40;
+}
+
+/* Para ve sayılar: Fraunces, tablo hizalı rakamlar — uygulamanın imzası. */
+.money {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  font-variation-settings: "opsz" 24;
+  letter-spacing: -0.01em;
 }
 
 a {
@@ -217,16 +240,15 @@ textarea {
 .tone-amber { background: var(--tone-amber-bg); color: var(--tone-amber-fg); }
 .tone-slate { background: var(--tone-slate-bg); color: var(--tone-slate-fg); }
 
-/* Marka rozeti (logo) */
+/* Marka rozeti (logo): yeşil kare, pirinç başak */
 .brand-mark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border-radius: 12px;
-  color: white;
-  background: linear-gradient(145deg, var(--color-accent), var(--color-primary) 70%);
-  box-shadow: 0 6px 14px rgba(200, 105, 31, 0.28);
+  border-radius: 10px;
+  color: var(--color-accent);
+  background: var(--color-primary);
 }
 
 .page-loading {
@@ -243,10 +265,7 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: center;
-  background:
-    radial-gradient(circle at 12% 18%, rgba(240, 182, 74, 0.2), transparent 42%),
-    radial-gradient(circle at 88% 82%, rgba(200, 105, 31, 0.14), transparent 45%),
-    var(--color-bg);
+  background: var(--color-bg);
   padding: 1.5rem;
 }
 
