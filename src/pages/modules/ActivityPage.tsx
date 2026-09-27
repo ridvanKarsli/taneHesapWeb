@@ -8,14 +8,15 @@ import { PageHeader } from "../../components/ui/PageHeader";
 import { Section } from "../../components/ui/Section";
 import { StatusBadge } from "../../components/ui/StatusBadge";
 import { useAsyncData } from "../../hooks/useAsyncData";
-import { addDaysIso, formatDateTime, todayIso } from "../../lib/format";
+import { addDaysIso, formatDateOf, formatTimeOf, todayIso } from "../../lib/format";
 import type { ActivityQuery } from "../../types/activity";
 
 const ACTION_TONE: Record<string, "success" | "danger" | "neutral"> = { Ekledi: "success", Sildi: "danger", Değiştirdi: "neutral" };
 
 /**
- * İşlem geçmişi: elle girilen her gider/satış/ödeme/saat kaydı için kim, ne zaman, ne yaptı — kullanıcıya,
- * türe ve tarihe göre süzülebilir. Kaynak, sistemin otomatik tuttuğu değiştirilemez denetim kaydıdır (3.6).
+ * İşlem geçmişi: gider, satış, kasa (transfer, bakiye ayarı, kart ödemesi), gelir doğrulama, ayarlar, ürün/malzeme
+ * ve çalışan kayıtları için kim, hangi gün ve saatte, ne yaptı — en yeni en üstte; kullanıcıya, türe ve tarihe göre
+ * süzülebilir. Kaynak, sistemin otomatik tuttuğu değiştirilemez denetim kaydıdır (3.6).
  */
 export function ActivityPage() {
   const [query, setQuery] = useState<ActivityQuery>({ fromDate: addDaysIso(todayIso(), -6), toDate: todayIso() });
@@ -66,7 +67,8 @@ export function ActivityPage() {
               rows={rows}
               rowKey={(row) => row.id}
               columns={[
-                { header: "Zaman", render: (row) => formatDateTime(row.timestampUtc) },
+                { header: "Tarih", render: (row) => formatDateOf(row.timestampUtc) },
+                { header: "Saat", render: (row) => <span className="ui-cell-strong">{formatTimeOf(row.timestampUtc)}</span> },
                 { header: "Kullanıcı", render: (row) => <span className="ui-cell-strong">{row.userName}</span> },
                 { header: "İşlem", render: (row) => <StatusBadge tone={ACTION_TONE[row.action] ?? "neutral"}>{row.action}</StatusBadge> },
                 { header: "Kayıt", render: (row) => row.kind },

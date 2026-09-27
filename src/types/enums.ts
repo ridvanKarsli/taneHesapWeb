@@ -90,7 +90,7 @@ export const TreasuryTransactionKind = { SalesRevenue: 0, CardFee: 1, Expense: 2
 export type TreasuryTransactionKind = (typeof TreasuryTransactionKind)[keyof typeof TreasuryTransactionKind];
 export const TREASURY_KIND_LABELS: Record<TreasuryTransactionKind, string> = {
   [TreasuryTransactionKind.SalesRevenue]: "Satış geliri",
-  [TreasuryTransactionKind.CardFee]: "Kart komisyonu",
+  [TreasuryTransactionKind.CardFee]: "POS komisyonu",
   [TreasuryTransactionKind.Expense]: "Gider",
   [TreasuryTransactionKind.Transfer]: "Transfer",
   [TreasuryTransactionKind.CardPayment]: "Kart ödemesi",

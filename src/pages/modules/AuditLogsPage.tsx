@@ -8,7 +8,7 @@ import { PageHeader } from "../../components/ui/PageHeader";
 import { Section } from "../../components/ui/Section";
 import { StatusBadge } from "../../components/ui/StatusBadge";
 import { useAsyncData } from "../../hooks/useAsyncData";
-import { addDaysIso, formatDateTime, todayIso } from "../../lib/format";
+import { addDaysIso, formatDateOf, formatTimeOf, todayIso } from "../../lib/format";
 import type { AuditLogDto } from "../../types/auditLog";
 
 /** Backend'in entity adlarını (C# sınıf adı) kullanıcıya Türkçe gösterir. */
@@ -33,6 +33,12 @@ const ENTITY_LABELS: Record<string, string> = {
   DailyActualConsumptionItem: "Gerçek tüketim kalemi",
   DailyLossReport: "Fire raporu",
   DailyLossReportItem: "Fire raporu kalemi",
+  DailyIncomeVerification: "Gelir doğrulama",
+  TreasuryTransaction: "Kasa hareketi",
+  PaymentCard: "Kredi kartı",
+  EmployeeProfile: "Çalışan ücreti",
+  EmployeeWorkLog: "Çalışma saati",
+  MonthlyReport: "Aylık rapor",
 };
 
 // Backend EF Core `EntityState` adını yazar (Added/Modified/Deleted).
@@ -97,7 +103,8 @@ export function AuditLogsPage() {
               rows={rows}
               rowKey={(row) => row.id}
               columns={[
-                { header: "Zaman", render: (row) => formatDateTime(row.timestampUtc) },
+                { header: "Tarih", render: (row) => formatDateOf(row.timestampUtc) },
+                { header: "Saat", render: (row) => <span className="ui-cell-strong">{formatTimeOf(row.timestampUtc)}</span> },
                 {
                   header: "İşlem",
                   render: (row) => (

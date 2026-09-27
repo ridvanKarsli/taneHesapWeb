@@ -28,6 +28,16 @@ export function formatDateTime(isoDateTime: string): string {
   return new Date(isoDateTime).toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" });
 }
 
+/** Zaman damgasının yerel tarihi: `gg.aa.yyyy`. */
+export function formatDateOf(isoDateTime: string): string {
+  return new Date(isoDateTime).toLocaleDateString("tr-TR", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+
+/** Zaman damgasının yerel saati: `ss:dd`. */
+export function formatTimeOf(isoDateTime: string): string {
+  return new Date(isoDateTime).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+}
+
 function toIso(date: Date): string {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;

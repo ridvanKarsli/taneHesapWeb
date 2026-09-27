@@ -12,7 +12,7 @@ import { PageHeader } from "../../components/ui/PageHeader";
 import { Section } from "../../components/ui/Section";
 import { StatGrid, StatTile } from "../../components/ui/StatTile";
 import { useAsyncData } from "../../hooks/useAsyncData";
-import { formatDate, formatMoney, startOfMonthIso, todayIso } from "../../lib/format";
+import { formatDate, formatDateOf, formatMoney, formatTimeOf, startOfMonthIso, todayIso } from "../../lib/format";
 import { TREASURY_ACCOUNT_LABELS, TREASURY_KIND_LABELS, TreasuryAccount, TreasuryTransactionKind, toOptions } from "../../types/enums";
 import type { TreasuryTransactionDto, TreasuryTransactionFilter } from "../../types/treasury";
 import { TreasuryActions } from "./TreasuryActions";
@@ -22,6 +22,13 @@ const MANUAL_KINDS: TreasuryTransactionKind[] = [
   TreasuryTransactionKind.CardPayment,
   TreasuryTransactionKind.ManualAdjustment,
 ];
+
+/** Kaydın girildiği saat; işlem tarihinden farklı bir gün girildiyse gün de yazılır (örn. dünkü Excel bugün yüklendi). */
+function recordedAt(row: TreasuryTransactionDto): string {
+  const time = formatTimeOf(row.createdAtUtc);
+  const recordedDay = formatDateOf(row.createdAtUtc);
+  return recordedDay === formatDate(row.transactionDate) ? time : `${recordedDay.slice(0, 5)} ${time}`;
+}
 
 function accountLabel(row: TreasuryTransactionDto): string {
   return row.account === TreasuryAccount.CreditCard ? `Kart · ${row.paymentCardName ?? "—"}` : TREASURY_ACCOUNT_LABELS[row.account];
@@ -51,12 +58,12 @@ export function TreasuryPage() {
         actions={
           <>
             <ModalFormButton
-              label={`Kart komisyonu %${summary.data?.cardFeePercentage ?? "…"}`}
-              title="Kart komisyon oranı"
+              label={`POS komisyonu %${summary.data?.cardFeePercentage ?? "…"}`}
+              title="POS komisyon oranı"
               icon={Percent}
               buttonClassName="ui-button ghost"
-              intro={<p className="ui-muted">Dükkan içi kart (POS) satışlarında bankanın kestiği yüzde. Her günün kesintisi otomatik bir "Kart Komisyonu" gideri olarak işlenir.</p>}
-              fields={[{ name: "cardFeePercentage", label: "Komisyon (%)", type: "number", required: true, min: 0, step: "0.01" }]}
+              intro={<p className="ui-muted">Dükkân içi kartlı satışlarda bankanın POS cihazı için kestiği yüzde. Her günün kesintisi otomatik bir "POS Komisyonu" gideri olarak işlenir.</p>}
+              fields={[{ name: "cardFeePercentage", label: "POS komisyonu (%)", type: "number", required: true, min: 0, step: "0.01" }]}
               initialValues={{ cardFeePercentage: String(summary.data?.cardFeePercentage ?? 3) }}
               onSubmit={async (values) => {
                 await treasuryApi.updateSettings(formValue.number(values, "cardFeePercentage"));
@@ -131,6 +138,7 @@ export function TreasuryPage() {
               rowKey={(row) => row.id}
               columns={[
                 { header: "Tarih", render: (row) => formatDate(row.transactionDate) },
+                { header: "Saat", render: (row) => recordedAt(row) },
                 { header: "Hesap", render: accountLabel },
                 { header: "Tür", render: (row) => TREASURY_KIND_LABELS[row.kind] },
                 {
