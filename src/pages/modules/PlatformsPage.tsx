@@ -15,12 +15,15 @@ function toRequest(values: FormValues) {
   return { name: formValue.text(values, "name"), commissionPercentage: formValue.number(values, "commissionPercentage") };
 }
 
-/** Paket servis platformları; gün sonu içe aktarımında komisyon otomatik gidere dönüşür (bkz. proje raporu 3.4). */
+/**
+ * Paket servis platformları; gün sonu içe aktarımında komisyon otomatik gidere dönüşür (bkz. proje raporu 3.4).
+ * Yalnızca işletmeye girmiş süper admin görür (bkz. navigation `actingSuperAdminOnly`).
+ */
 export function PlatformsPage() {
   return (
     <CrudPage<PlatformDto>
       load={platformApi.getAll}
-      emptyText="Henüz platform yok — ilk platformu sağ üstteki düğmeyle ekleyin."
+      emptyText="Henüz platform yok — “Yemeksepeti” ve “Uber” adlarıyla ekleyin; Gün Sonu'ndaki Excel kartları bu adlarla eşleşir."
       columns={[
         { header: "Ad", render: (row) => row.name },
         { header: "Komisyon", align: "right", render: (row) => formatPercent(row.commissionPercentage) },

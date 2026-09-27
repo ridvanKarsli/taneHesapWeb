@@ -243,3 +243,102 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Gün sonu: gelir doğrulama (beklenen / gerçek / fark) */
+.verify {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.verify-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.verify-head,
+.verify-row {
+  display: grid;
+  grid-template-columns: minmax(90px, 0.8fr) 1fr minmax(150px, 1.2fr) 1fr;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.verify-head {
+  padding: 0 1rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.verify-row {
+  padding: 0.7rem 1rem;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+}
+
+.verify-row.total {
+  background: transparent;
+  border: 1px dashed var(--color-border);
+}
+
+.verify-row .ui-input {
+  width: 100%;
+}
+
+.verify-diff {
+  font-weight: 700;
+}
+
+.verify-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.6rem;
+}
+
+.verify-note {
+  margin: 0;
+}
+
+.verify-summary {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 640px) {
+  .verify-head {
+    display: none;
+  }
+
+  .verify-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 0.75rem;
+  }
+
+  .verify-row > strong {
+    grid-column: 1 / -1;
+  }
+
+  .verify-row > [data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+  }
+
+  .verify-row > [data-label="Gerçek"] {
+    grid-column: 1 / -1;
+    order: 3;
+  }
+
+  .verify-row > [data-label="Fark"] {
+    order: 2;
+  }
+
+  .verify-actions > * {
+    flex: 1 1 100%;
+  }
+}

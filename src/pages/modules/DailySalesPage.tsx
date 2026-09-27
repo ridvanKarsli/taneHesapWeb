@@ -13,17 +13,23 @@ import type { DailySalesEntryDto, DailySalesImportMode, ImportDailySalesResult, 
 import { PAYMENT_METHOD_LABELS, SALES_CHANNEL_LABELS } from "../../types/enums";
 import { DateFilter } from "../../components/ui/DateFilter";
 import { Money } from "../../components/ui/Money";
+import { IncomeVerificationHistory } from "./IncomeVerificationHistory";
+import { IncomeVerificationPanel } from "./IncomeVerificationPanel";
 import { SalesExcelImport } from "./SalesExcelImport";
 import "./modules.css";
 
 /**
- * Gün sonu satışları: o günün siparişleri girilir, sistem beklenen geliri ve reçeteye göre beklenen
- * malzeme tüketimini hesaplar (bkz. proje raporu 3.5, 3.10 adım 1).
+ * Gün sonu: (1) günün Kasa, Yemeksepeti ve Uber Excel'leri yüklenir — satışlar, stok düşümü, komisyonlar;
+ * (2) gelir doğrulama — kasadaki gerçek nakit ve POS'taki gerçek kart geliri girilir, kasaya gerçek tutar yazılır
+ * (bkz. proje raporu 3.5, 3.10).
  */
 export function DailySalesPage() {
   const [date, setDate] = useState(todayIso());
   const [lastResult, setLastResult] = useState<ImportDailySalesResult | null>(null);
   const [pendingDelete, setPendingDelete] = useState<DailySalesEntryDto | "day" | null>(null);
+  // Satış ya da doğrulama değişince doğrulama paneli ve geçmişi yeniden okunur.
+  const [version, setVersion] = useState(0);
+  const bump = () => setVersion((v) => v + 1);
   const dishes = useAsyncData(dishApi.getAll);
   const platforms = useAsyncData(platformApi.getAll);
   const entries = useAsyncData(() => dailySalesApi.getByDate(date), date);
@@ -34,17 +40,18 @@ export function DailySalesPage() {
     const result = await dailySalesApi.import({ fileName, rows, mode });
     setLastResult(result);
     await Promise.all([entries.reload(), summary.reload()]);
+    bump();
   }
 
   return (
     <div>
       <PageHeader
-        description="Satışlar Excel ile girilir: günün Kasa, Yemeksepeti ve Uber dosyalarını yükleyin. Aynı dosya ikinci kez yüklenirse gün iki kez sayılmaz; paket servis komisyonları otomatik gider olarak işlenir."
+        description="Önce günün Kasa, Yemeksepeti ve Uber Excel'lerini yükleyin; sonra kasadaki gerçek nakdi ve POS'taki gerçek kart toplamını girip doğrulayın. Aynı dosya ikinci kez yüklenirse gün iki kez sayılmaz."
         actions={<DateFilter id="sales-date" label="Tarih" value={date} onChange={setDate} />}
       />
 
       <StatGrid>
-        <StatTile icon={Coins} label="Günün geliri" value={summary.data ? formatMoney(summary.data.expectedRevenue) : "…"} />
+        <StatTile icon={Coins} label="Excel'deki satış" value={summary.data ? formatMoney(summary.data.expectedRevenue) : "…"} />
         <StatTile icon={ReceiptText} iconTone="blue" label="Satış satırı" value={String(entries.data?.length ?? 0)} />
         <StatTile icon={Soup} iconTone="green" label="Satılan adet" value={String((entries.data ?? []).reduce((sum, e) => sum + e.quantity, 0))} />
       </StatGrid>
@@ -58,11 +65,13 @@ export function DailySalesPage() {
         </div>
       )}
 
-      <Section title="Excel ile yükle" icon={FileSpreadsheet}>
+      <Section title="1. Excel ile yükle" icon={FileSpreadsheet}>
         <AsyncState data={catalog} error={dishes.error ?? platforms.error ?? entries.error} isLoading={!catalog && !dishes.error && !platforms.error && !entries.error}>
           {(c) => <SalesExcelImport date={date} ctx={c} entries={c.entries} onImport={importRows} />}
         </AsyncState>
       </Section>
+
+      <IncomeVerificationPanel date={date} reloadKey={String(version)} onChanged={bump} />
 
       {pendingDelete && (
         <ConfirmDialog
@@ -81,6 +90,7 @@ export function DailySalesPage() {
             }
             setLastResult(null);
             await Promise.all([entries.reload(), summary.reload()]);
+            bump();
           }}
         />
       )}
@@ -131,6 +141,8 @@ export function DailySalesPage() {
           </AsyncState>
         </Section>
       </div>
+
+      <IncomeVerificationHistory reloadKey={String(version)} onPick={setDate} />
     </div>
   );
 }

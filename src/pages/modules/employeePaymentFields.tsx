@@ -29,7 +29,7 @@ export function employeePaymentAmountFields(
     {
       name: "amount",
       label: "Tutar (₺)",
-      type: "number",
+      type: "money",
       required: true,
       min: 0,
       visibleWhen: (v) => !paysByHours(v),

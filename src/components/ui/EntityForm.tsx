@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import { useState, type FormEvent, type ReactNode } from "react";
 import { extractErrorMessage } from "../../api/apiError";
 import { ErrorMessage } from "./AsyncState";
+import { MoneyInput } from "./MoneyInput";
 import type { FormValues } from "./formValues";
 import "./ui.css";
 
@@ -9,7 +10,8 @@ import "./ui.css";
 export interface FieldDef {
   name: string;
   label: string;
-  type?: "text" | "number" | "password" | "date" | "time" | "select" | "checkbox" | "textarea";
+  /** "money": binlik ayırıcılı tutar kutusu (bkz. MoneyInput); değer yine makine biçimindedir ("1250.5"). */
+  type?: "text" | "number" | "money" | "password" | "date" | "time" | "select" | "checkbox" | "textarea";
   options?: { value: string; label: string }[];
   required?: boolean;
   min?: number;
@@ -137,6 +139,15 @@ function FormField({ field, value, hint, onChange }: FormFieldProps) {
             </option>
           ))}
         </select>
+      ) : field.type === "money" ? (
+        <MoneyInput
+          id={id}
+          className=""
+          value={common.value}
+          required={field.required}
+          placeholder={field.placeholder}
+          onChange={(next) => onChange(field.name, next)}
+        />
       ) : field.type === "textarea" ? (
         <textarea {...common} rows={2} onChange={(e) => onChange(field.name, e.target.value)} />
       ) : (

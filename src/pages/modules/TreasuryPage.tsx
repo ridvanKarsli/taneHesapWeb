@@ -28,7 +28,7 @@ function accountLabel(row: TreasuryTransactionDto): string {
 }
 
 /**
- * Kasa: nakit kasası ve kart kasası (banka) bakiyeleri, kredi kartları ve limitleri, transfer/kart ödemesi,
+ * Kasa: nakit kasası ve banka hesabı bakiyeleri, kredi kartları ve limitleri, transfer/kart ödemesi,
  * hareket defteri. Satış gelirleri ve gider ödemeleri buraya otomatik yazılır (bkz. proje raporu 3.15).
  */
 export function TreasuryPage() {
@@ -63,7 +63,11 @@ export function TreasuryPage() {
                 await summary.reload();
               }}
             />
-            <TreasuryActions cards={cards} onDone={refreshAll} />
+            <TreasuryActions
+              cards={cards}
+              balances={summary.data ? { cash: summary.data.cashBalance, bank: summary.data.bankBalance } : undefined}
+              onDone={refreshAll}
+            />
           </>
         }
       />
@@ -79,7 +83,7 @@ export function TreasuryPage() {
         <StatTile
           icon={Landmark}
           iconTone="teal"
-          label="Kart kasası (banka)"
+          label="Banka hesabı"
           value={money(summary.data?.bankBalance)}
           tone={summary.data && summary.data.bankBalance < 0 ? "negative" : undefined}
         />

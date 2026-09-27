@@ -6,25 +6,25 @@
 
 /**
  * Satışta yalnızca Cash/Card kullanılır; giderde ödemenin hangi kasadan çıktığını belirler
- * (Cash = nakit kasası, Card = tanımlı kredi kartı, Bank = kart kasası/banka). bkz. proje raporu 3.15.
+ * (Cash = nakit kasası, Card = tanımlı kredi kartı, Bank = banka hesabı). bkz. proje raporu 3.15.
  */
 export const PaymentMethod = { Cash: 0, Card: 1, Bank: 2 } as const;
 export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod];
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   [PaymentMethod.Cash]: "Nakit",
   [PaymentMethod.Card]: "Kart",
-  [PaymentMethod.Bank]: "Banka / kart kasası",
+  [PaymentMethod.Bank]: "Banka hesabı",
 };
 /** Satış girişinde sunulan ödeme şekilleri (banka/havale satışta kullanılmaz). */
 export const SALES_PAYMENT_METHOD_LABELS: Partial<Record<PaymentMethod, string>> = {
   [PaymentMethod.Cash]: "Nakit",
   [PaymentMethod.Card]: "Kart",
 };
-/** Gider girişinde sunulan ödeme şekilleri — nakit kasası, kredi kartı (kart seçilir) veya kart kasası. */
+/** Gider girişinde sunulan ödeme şekilleri — nakit kasası, kredi kartı (kart seçilir) veya banka hesabı. */
 export const EXPENSE_PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   [PaymentMethod.Cash]: "Nakit (nakit kasası)",
   [PaymentMethod.Card]: "Kredi kartı",
-  [PaymentMethod.Bank]: "Kart kasası / banka",
+  [PaymentMethod.Bank]: "Banka hesabı",
 };
 
 /** "Sabit gider" kaldırıldı — sabit giderler Düzenli Giderler'de yönetilir; Personnel: çalışan ödemeleri (cüzdandan düşer). */
@@ -82,7 +82,7 @@ export const TreasuryAccount = { Cash: 0, Bank: 1, CreditCard: 2 } as const;
 export type TreasuryAccount = (typeof TreasuryAccount)[keyof typeof TreasuryAccount];
 export const TREASURY_ACCOUNT_LABELS: Record<TreasuryAccount, string> = {
   [TreasuryAccount.Cash]: "Nakit kasası",
-  [TreasuryAccount.Bank]: "Kart kasası",
+  [TreasuryAccount.Bank]: "Banka hesabı",
   [TreasuryAccount.CreditCard]: "Kredi kartı",
 };
 

@@ -4,6 +4,7 @@ import { extractErrorMessage } from "../../api/apiError";
 import { ErrorMessage } from "../../components/ui/AsyncState";
 import type { DishSizeDto, RecipeItemRequest } from "../../types/dish";
 import type { IngredientDto } from "../../types/ingredient";
+import { MoneyInput } from "../../components/ui/MoneyInput";
 
 export interface DishSizeFormValues {
   name: string;
@@ -57,7 +58,7 @@ export function DishSizeForm({ ingredients, initial, onSubmit, onCancel }: DishS
 
     setIsSubmitting(true);
     try {
-      await onSubmit({ name: name.trim(), salePrice: Number(salePrice.replace(",", ".")), isActive, recipeItems });
+      await onSubmit({ name: name.trim(), salePrice: Number(salePrice), isActive, recipeItems });
     } catch (submitError) {
       setError(extractErrorMessage(submitError));
     } finally {
@@ -73,7 +74,7 @@ export function DishSizeForm({ ingredients, initial, onSubmit, onCancel }: DishS
       </div>
       <div className="ui-field">
         <label htmlFor="size-price">Satış fiyatı (₺)</label>
-        <input id="size-price" type="number" step="any" min={0} value={salePrice} onChange={(e) => setSalePrice(e.target.value)} required />
+        <MoneyInput id="size-price" className="" value={salePrice} onChange={setSalePrice} required />
       </div>
       {initial && (
         <label className="ui-checkbox">

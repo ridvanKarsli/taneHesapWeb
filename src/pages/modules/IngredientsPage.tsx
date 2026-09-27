@@ -10,7 +10,7 @@ import type { IngredientDto } from "../../types/ingredient";
 const baseFields: FieldDef[] = [
   { name: "name", label: "Malzeme adı", required: true, placeholder: "örn. Baldo pirinç" },
   { name: "unit", label: "Birim", required: true, placeholder: "kg, lt, adet" },
-  { name: "currentUnitPrice", label: "Birim fiyat (₺)", type: "number", required: true, min: 0 },
+  { name: "currentUnitPrice", label: "Birim fiyat (₺)", type: "money", required: true, min: 0 },
   { name: "minimumStockThreshold", label: "Minimum stok eşiği", type: "number", required: true, min: 0 },
 ];
 

@@ -8,7 +8,7 @@ import type { PaymentCardDto } from "../../types/treasury";
 
 const baseFields: FieldDef[] = [
   { name: "name", label: "Kart adı", required: true, placeholder: "örn. İş Bankası Ticari" },
-  { name: "limit", label: "Limit (₺)", type: "number", required: true, min: 0 },
+  { name: "limit", label: "Limit (₺)", type: "money", required: true, min: 0 },
 ];
 
 /**

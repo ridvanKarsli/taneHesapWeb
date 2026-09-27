@@ -1,6 +1,6 @@
 import { Navigate, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
-import type { NavGroup } from "../config/navigation";
+import { canSeePage, type NavGroup } from "../config/navigation";
 import { NavGroupContext } from "./NavGroupContext";
 
 interface GroupLayoutProps {
@@ -19,7 +19,7 @@ export function GroupLayout({ group }: GroupLayoutProps) {
     return null;
   }
 
-  const pages = group.pages.filter((page) => page.roles.includes(user.role));
+  const pages = group.pages.filter((page) => canSeePage(page, user));
   if (pages.length === 0) {
     return <Navigate to="/" replace />; // Rolün bu grupta hiç sayfası yok (adres elle yazılmış).
   }

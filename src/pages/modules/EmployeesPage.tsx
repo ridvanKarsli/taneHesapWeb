@@ -9,7 +9,7 @@ import { ActiveBadge } from "../../components/ui/StatusBadge";
 import type { EmployeeDto } from "../../types/employee";
 import { EmployeeWalletPanel } from "./EmployeeWalletPanel";
 
-const wageField: FieldDef = { name: "hourlyWage", label: "Saatlik ücret (₺)", type: "number", required: true, min: 0 };
+const wageField: FieldDef = { name: "hourlyWage", label: "Saatlik ücret (₺)", type: "money", required: true, min: 0 };
 
 /**
  * ADMIN kendi işletmesine çalışan ekler; ad soyad, kullanıcı adı, şifre ve saatlik ücreti ADMIN belirler.

@@ -26,7 +26,7 @@ export function AppLayout() {
   }
 
   // Tek görünür sayfası olan grup, o sayfanın adıyla ve adresiyle bağlanır (örn. SUPER_ADMIN için "Denetim Kayıtları").
-  const navLinks = visibleGroups(user.role).map((group) => ({
+  const navLinks = visibleGroups(user).map((group) => ({
     key: group.path,
     to: group.pages.length === 1 ? group.pages[0].path : group.path,
     label: group.pages.length === 1 ? group.pages[0].label : group.label,

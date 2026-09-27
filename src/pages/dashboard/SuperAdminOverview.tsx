@@ -38,7 +38,7 @@ export function SuperAdminOverview() {
             </span>
             Yeni işletme
           </Link>
-          <Link to="/tanimlar/denetim" className="today-action">
+          <Link to="/isletmeler/denetim" className="today-action">
             <span className="today-action-icon">
               <Settings2 size={22} strokeWidth={2.2} aria-hidden="true" />
             </span>

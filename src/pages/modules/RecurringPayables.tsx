@@ -15,6 +15,7 @@ import {
 } from "../../types/enums";
 import type { RecurringPayableDto } from "../../types/recurringExpense";
 import type { PaymentCardDto } from "../../types/treasury";
+import { MoneyInput } from "../../components/ui/MoneyInput";
 
 interface RecurringPayablesProps {
   cards: PaymentCardDto[];
@@ -128,14 +129,10 @@ function PayableRow({ row, cards, onPaid }: PayableRowProps) {
       <div className="payable-row-form">
         <label className="payable-field" htmlFor={`${idPrefix}-amount`}>
           <span>Tutar (₺)</span>
-          <input
+          <MoneyInput
             id={`${idPrefix}-amount`}
-            className="ui-input"
-            type="number"
-            min={0}
-            step="any"
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            onChange={setAmount}
           />
         </label>
         <label className="payable-field" htmlFor={`${idPrefix}-method`}>

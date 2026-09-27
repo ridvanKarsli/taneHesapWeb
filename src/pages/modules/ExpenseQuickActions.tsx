@@ -76,9 +76,9 @@ export function ExpenseQuickActions({ cards, onDone }: ExpenseQuickActionsProps)
           { name: "supplierId", label: "Tedarikçi", type: "select", required: true, options: supplierOptions },
           { name: "ingredientId", label: "Malzeme", type: "select", required: true, options: ingredientOptions },
           { name: "quantity", label: "Miktar (malzemenin biriminde)", type: "number", required: true, min: 0 },
-          { name: "unitPrice", label: "Birim fiyat (₺)", type: "number", required: true, min: 0 },
+          { name: "unitPrice", label: "Birim fiyat (₺)", type: "money", required: true, min: 0 },
           { name: "purchaseDate", label: "Tarih", type: "date", required: true },
-          { name: "paidAmount", label: "Şimdi ödenen tutar (₺, boş = borç)", type: "number", min: 0 },
+          { name: "paidAmount", label: "Şimdi ödenen tutar (₺, boş = borç)", type: "money", min: 0 },
           ...paymentFields(cards).map((field) => ({ ...field, visibleWhen: (values: FormValues) => paysNow(values) && (!field.visibleWhen || field.visibleWhen(values)) })),
         ]}
         initialValues={{ supplierId: "", ingredientId: "", quantity: "", unitPrice: "", purchaseDate: todayIso(), paidAmount: "", ...paymentInitialValues }}

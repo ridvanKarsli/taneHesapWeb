@@ -49,10 +49,11 @@ import type {
   SupplierPurchaseDto,
   UpdateSupplierRequest,
 } from "../types/supplier";
+import type { IncomeVerificationDayDto, SaveIncomeVerificationRequest } from "../types/incomeVerification";
 import type {
   CardPaymentRequest,
   CreatePaymentCardRequest,
-  ManualAdjustmentRequest,
+  SetBalanceRequest,
   PaymentCardDto,
   TransferRequest,
   TreasurySummaryDto,
@@ -102,7 +103,7 @@ export const myWalletApi = {
   },
 };
 
-/** Kasa: nakit/kart kasası bakiyeleri, kredi kartları, transfer ve kart ödemesi (bkz. proje raporu 3.15). */
+/** Kasa: nakit kasası ve banka hesabı bakiyeleri, kredi kartları, transfer ve kart ödemesi (bkz. proje raporu 3.15). */
 export const treasuryApi = {
   ...createCrudApi<PaymentCardDto, CreatePaymentCardRequest, UpdatePaymentCardRequest>("/api/treasury/cards"),
   async getSummary(): Promise<TreasurySummaryDto> {
@@ -123,8 +124,8 @@ export const treasuryApi = {
   async payCard(request: CardPaymentRequest): Promise<TreasuryTransactionDto[]> {
     return (await httpClient.post<TreasuryTransactionDto[]>("/api/treasury/card-payments", request)).data;
   },
-  async adjust(request: ManualAdjustmentRequest): Promise<TreasuryTransactionDto> {
-    return (await httpClient.post<TreasuryTransactionDto>("/api/treasury/adjustments", request)).data;
+  async setBalance(request: SetBalanceRequest): Promise<TreasuryTransactionDto> {
+    return (await httpClient.post<TreasuryTransactionDto>("/api/treasury/balance", request)).data;
   },
 };
 
@@ -217,6 +218,22 @@ export const recurringExpenseApi = {
   /** Ödenmemiş dönemler (gecikmiş + içinde bulunulan); ödenince listeden çıkar. */
   async getPayables(): Promise<RecurringPayableDto[]> {
     return (await httpClient.get<RecurringPayableDto[]>("/api/recurring-expenses/payables")).data;
+  },
+};
+
+/** Gün sonu gelir doğrulaması: dükkân içi gerçek nakit ve kart geliri (bkz. proje raporu 3.10). */
+export const incomeVerificationApi = {
+  async getDay(date: string): Promise<IncomeVerificationDayDto> {
+    return (await httpClient.get<IncomeVerificationDayDto>("/api/income-verifications/day", { params: { date } })).data;
+  },
+  async getVerified(fromDate: string, toDate: string): Promise<IncomeVerificationDayDto[]> {
+    return (await httpClient.get<IncomeVerificationDayDto[]>("/api/income-verifications", { params: { fromDate, toDate } })).data;
+  },
+  async save(date: string, request: SaveIncomeVerificationRequest): Promise<IncomeVerificationDayDto> {
+    return (await httpClient.put<IncomeVerificationDayDto>(`/api/income-verifications/${date}`, request)).data;
+  },
+  async remove(date: string): Promise<void> {
+    await httpClient.delete(`/api/income-verifications/${date}`);
   },
 };
 

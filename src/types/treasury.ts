@@ -63,10 +63,11 @@ export interface CardPaymentRequest {
   note: string | null;
 }
 
-export interface ManualAdjustmentRequest {
+/** Bakiyeyi ayarla: nakit/banka için olması gereken bakiye (≥ 0), kredi kartı için kartın güncel borcu. */
+export interface SetBalanceRequest {
   account: TreasuryAccount;
   paymentCardId: string | null;
-  amount: number;
+  balance: number;
   date: string;
   note: string | null;
 }

@@ -86,7 +86,7 @@ export function TodayOverview() {
         </Link>
         <Link to="/finans/kasa" className="today-tile">
           <span className="today-tile-label">
-            <CreditCard size={15} aria-hidden="true" /> Kart kasası
+            <CreditCard size={15} aria-hidden="true" /> Banka hesabı
           </span>
           <Amount value={data?.treasury.bankBalance} signed />
           <span className="today-tile-note">Şu anki bakiye (tüm zamanlar)</span>

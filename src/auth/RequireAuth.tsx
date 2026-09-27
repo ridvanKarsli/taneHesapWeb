@@ -1,13 +1,13 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "./useAuth";
-import type { UserRole } from "../types/auth";
+import type { AuthenticatedUser } from "../types/auth";
 
 interface RequireAuthProps {
-  /** Belirtilmezse sadece giriş yapmış olmak yeterlidir; belirtilirse rol de eşleşmelidir. */
-  allowedRoles?: UserRole[];
+  /** Belirtilmezse sadece giriş yapmış olmak yeterlidir; belirtilirse kullanıcı bu koşulu sağlamalıdır (rol vb.). */
+  allow?: (user: AuthenticatedUser) => boolean;
 }
 
-export function RequireAuth({ allowedRoles }: RequireAuthProps) {
+export function RequireAuth({ allow }: RequireAuthProps) {
   const { status, user } = useAuth();
   const location = useLocation();
 
@@ -19,7 +19,7 @@ export function RequireAuth({ allowedRoles }: RequireAuthProps) {
     return <Navigate to="/giris" state={{ from: location }} replace />;
   }
 
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
+  if (allow && !allow(user)) {
     return <Navigate to="/" replace />;
   }
 

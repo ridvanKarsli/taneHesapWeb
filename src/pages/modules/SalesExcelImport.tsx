@@ -125,7 +125,7 @@ export function SalesExcelImport({ date, ctx, entries, onImport }: SalesExcelImp
                   <span className="sales-source-status muted">{formatDate(date)} için yüklenmedi</span>
                 )}
               </div>
-              <p className="ui-muted">{missingPlatform ? `Önce Tanımlar → Paket Servis'e "${source.label}" ekleyin (komisyon oranıyla).` : source.hint}</p>
+              <p className="ui-muted">{missingPlatform ? `${source.label} platformu henüz tanımlı değil — sistem yöneticiniz komisyon oranıyla birlikte ekleyince açılır.` : source.hint}</p>
               <div className="sales-source-actions">
                 <button type="button" className="ui-button small" onClick={() => pickFile(source)} disabled={isBusy || missingPlatform}>
                   <FileSpreadsheet size={15} aria-hidden="true" />

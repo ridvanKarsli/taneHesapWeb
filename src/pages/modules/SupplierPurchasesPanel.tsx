@@ -53,7 +53,7 @@ export function SupplierPurchasesPanel({ supplierId, onChanged }: SupplierPurcha
           fields={[
             { name: "ingredientId", label: "Malzeme", type: "select", required: true, options: ingredientOptions },
             { name: "quantity", label: "Miktar", type: "number", required: true, min: 0 },
-            { name: "unitPrice", label: "Birim fiyat (₺)", type: "number", required: true, min: 0 },
+            { name: "unitPrice", label: "Birim fiyat (₺)", type: "money", required: true, min: 0 },
             { name: "purchaseDate", label: "Tarih", type: "date", required: true },
           ]}
           initialValues={{ ingredientId: "", quantity: "", unitPrice: "", purchaseDate: todayIso() }}
@@ -163,7 +163,7 @@ export function SupplierPurchasesPanel({ supplierId, onChanged }: SupplierPurcha
           <p className="ui-muted">Kalan borç: <Money value={paying.remainingAmount} />. Ödeme, seçilen kasadan/karttan düşen bir Malzeme gideri olarak da işlenir.</p>
           <EntityForm
             fields={[
-              { name: "amount", label: "Ödeme tutarı (₺)", type: "number", required: true, min: 0 },
+              { name: "amount", label: "Ödeme tutarı (₺)", type: "money", required: true, min: 0 },
               { name: "paymentDate", label: "Ödeme tarihi", type: "date", required: true },
               ...paymentFields(cards),
             ]}

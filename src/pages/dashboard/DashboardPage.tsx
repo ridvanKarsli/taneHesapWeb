@@ -22,7 +22,7 @@ export function DashboardPage() {
     return null;
   }
 
-  const shortcuts = visibleGroups(user.role)
+  const shortcuts = visibleGroups(user)
     .filter((group) => group.path !== "/")
     .map((group) => ({
       ...group,

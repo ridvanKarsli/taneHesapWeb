@@ -21,7 +21,7 @@ export interface SalesSource {
   label: string;
   /** Kaynağın satırları hangi kanala yazılır. */
   channel: SalesChannel;
-  /** Paket servis kaynaklarında platform, Tanımlar → Paket Servis'teki adla eşleşir (bu kelimelerden biri geçmeli). */
+  /** Paket servis kaynaklarında platform, Gün Sonu → Paket Servis'teki (süper admin) adla eşleşir (bu kelimelerden biri geçmeli). */
   platformKeywords?: string[];
   /** Dosyada ödeme sütunu boşsa kullanılacak ödeme şekli (platform ödemesi bankaya gelir → Kart). */
   defaultPayment: PaymentMethod;
@@ -56,7 +56,7 @@ export const SALES_SOURCES: SalesSource[] = [
 
 const normalize = (text: string) => text.trim().toLocaleLowerCase("tr-TR");
 
-/** Paket servis kaynağının Tanımlar'daki platformu (yoksa null → önce platform eklenmeli). */
+/** Paket servis kaynağının tanımlı platformu (yoksa null → önce platform eklenmeli). */
 export function platformOf(source: SalesSource, platforms: PlatformDto[]): PlatformDto | null {
   if (!source.platformKeywords) {
     return null;

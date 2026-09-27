@@ -18,7 +18,7 @@ export function MorePage() {
     return null;
   }
 
-  const groups = visibleGroups(user.role).slice(MAX_BOTTOM_TABS);
+  const groups = visibleGroups(user).slice(MAX_BOTTOM_TABS);
 
   return (
     <div className="more-page">

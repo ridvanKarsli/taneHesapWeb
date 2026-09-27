@@ -27,7 +27,7 @@ const baseFields: FieldDef[] = [
   {
     name: "amount",
     label: "Tutar (₺)",
-    type: "number",
+    type: "money",
     required: true,
     min: 0,
   },

@@ -4,11 +4,11 @@ import {
   ChefHat,
   LayoutDashboard,
   MoonStar,
-  Settings2,
+  Users,
   Wallet,
   type LucideIcon,
 } from "lucide-react";
-import { UserRole } from "../types/auth";
+import { UserRole, type AuthenticatedUser } from "../types/auth";
 
 /** Modül ikonunun zemin tonu (panel kartları ve sayfa başlığında) — bkz. `index.css` `--tone-*`. */
 export type NavTone = "saffron" | "green" | "blue" | "rose" | "violet" | "teal" | "amber" | "slate";
@@ -22,6 +22,11 @@ export interface NavPage {
   description?: string;
   /** Tek sayfalık grupta mobil alt sekme için kısa ad. */
   shortLabel?: string;
+  /**
+   * Yalnızca bir işletmeye girmiş süper admin görür (rolü o sırada Admin'dir). İşletme sahibinin değiştirmemesi
+   * gereken sistem ayarları için (örn. paket servis platformları ve komisyonları). Backend de aynı kuralı uygular.
+   */
+  actingSuperAdminOnly?: boolean;
 }
 
 /**
@@ -62,21 +67,31 @@ export const NAV_GROUPS: NavGroup[] = [
     icon: Building2,
     tone: "saffron",
     description: "İşletmeler ve yöneticileri",
-    pages: [{ path: "/isletmeler", label: "İşletmeler", roles: [UserRole.SuperAdmin], description: "Yeni işletme açın ve her işletmeye giriş yapabilecek bir yönetici atayın." }],
+    pages: [
+      { path: "/isletmeler", label: "İşletmeler", roles: [UserRole.SuperAdmin], description: "Yeni işletme açın ve her işletmeye giriş yapabilecek bir yönetici atayın." },
+      { path: "/isletmeler/denetim", label: "Denetim Kayıtları", shortLabel: "Denetim", roles: [UserRole.SuperAdmin], description: "Teknik denetim kaydı (ham eski/yeni değerler). İşletme sahibi Finans → İşlem Geçmişi'ni kullanır." },
+    ],
   },
   {
     path: "/gun-sonu",
     label: "Gün Sonu",
     icon: MoonStar,
     tone: "violet",
-    description: "Günün Kasa, Yemeksepeti ve Uber Excel'leri",
+    description: "Günün Excel'leri ve gelir doğrulama",
     pages: [
       {
         path: "/gun-sonu/satislar",
         label: "Gün Sonu",
         roles: ADMIN,
         description:
-          "Gün sonu kapanışı = günün Kasa, Yemeksepeti ve Uber Excel'lerini yüklemek. Satışlar kaydedilir, gelir kasaya yazılır, malzemeler reçeteye göre stoktan düşer, komisyonlar gider olur.",
+          "Günün Kasa, Yemeksepeti ve Uber Excel'lerini yükleyin, ardından kasadaki gerçek nakdi ve POS'taki gerçek kart gelirini girin. Kasaya ve banka hesabına gerçek tutar yazılır, fark raporlanır.",
+      },
+      {
+        path: "/gun-sonu/paket-servis",
+        label: "Paket Servis",
+        roles: ADMIN,
+        actingSuperAdminOnly: true,
+        description: "Yemeksepeti, Uber gibi platformlar ve komisyon oranları. Yalnızca süper admin görür ve değiştirir.",
       },
     ],
   },
@@ -89,7 +104,7 @@ export const NAV_GROUPS: NavGroup[] = [
     pages: [
       { path: "/finans/giderler", label: "Giderler", roles: [UserRole.Admin, UserRole.Employee] },
       { path: "/finans/cuzdanim", label: "Cüzdanım", roles: [UserRole.Employee], description: "Çalıştığınız saatlere göre hak edişiniz, size yapılan ödemeler ve kalan bakiyeniz." },
-      { path: "/finans/kasa", label: "Kasa", roles: ADMIN, description: "Nakit ve kart kasası satışlarla artar, giderlerle azalır. Transfer, kart borcu ödemesi ve düzeltme buradan." },
+      { path: "/finans/kasa", label: "Kasa", roles: ADMIN, description: "Nakit kasası ve banka hesabı satışlarla artar, giderlerle azalır. Transfer, kart borcu ödemesi ve bakiye ayarı buradan." },
       { path: "/finans/kartlarim", label: "Kartlarım", roles: ADMIN, description: "Kredi kartları ve limitleri. Kartla ödenen giderler limitten düşer; kart borcu Kasa'dan ödenince limit geri açılır." },
       { path: "/finans/duzenli-giderler", label: "Düzenli Giderler", roles: ADMIN, description: "Üstte ödenmemiş dönemler: nereden ödeneceğini seçip “Öde” deyin, listeden çıkar. Altta tanımlar (kira, fatura; “3 ayda bir” gibi serbest periyot)." },
       { path: "/finans/islem-gecmisi", label: "İşlem Geçmişi", roles: ADMIN, description: "Kim, ne zaman, hangi gideri/satışı/ödemeyi ekledi, değiştirdi veya sildi." },
@@ -121,23 +136,25 @@ export const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    path: "/tanimlar",
-    label: "Tanımlar",
-    icon: Settings2,
+    path: "/calisanlar",
+    label: "Çalışanlar",
+    icon: Users,
     tone: "slate",
-    description: "Gider türleri, platformlar, çalışanlar",
-    pages: [
-      { path: "/tanimlar/gider-turleri", label: "Gider Türleri", roles: ADMIN, description: "Gider girişinde kullanılan katalog: ad, birim, kategori." },
-      { path: "/tanimlar/platformlar", label: "Paket Servis", roles: ADMIN, description: "Platform komisyon oranları; komisyon satıştan otomatik gidere dönüşür." },
-      { path: "/tanimlar/calisanlar", label: "Çalışanlar", roles: ADMIN, description: "Çalışan hesapları, saatlik ücret ve cüzdan." },
-      { path: "/tanimlar/denetim", label: "Denetim Kayıtları", shortLabel: "Denetim", roles: [UserRole.SuperAdmin], description: "Teknik denetim kaydı (ham eski/yeni değerler) — yalnızca süper yönetici. İşletme sahibi Finans → İşlem Geçmişi'ni kullanır." },
-    ],
+    description: "Çalışan hesapları, saatlik ücret ve cüzdan",
+    pages: [{ path: "/calisanlar", label: "Çalışanlar", roles: ADMIN, description: "Çalışan hesapları, saatlik ücret ve cüzdan." }],
   },
 ];
 
-/** Bir rolün görebildiği gruplar — içindeki sayfalar da role göre süzülmüş olarak. */
-export function visibleGroups(role: UserRole): NavGroup[] {
-  return NAV_GROUPS.map((group) => ({ ...group, pages: group.pages.filter((page) => page.roles.includes(role)) })).filter(
+type Viewer = Pick<AuthenticatedUser, "role" | "isActingAsBusiness">;
+
+/** Sayfa bu kullanıcıya açık mı (rol + süper admine özel sayfalar). Menü, sekmeler ve rota koruması aynı kuralı kullanır. */
+export function canSeePage(page: NavPage, viewer: Viewer): boolean {
+  return page.roles.includes(viewer.role) && (!page.actingSuperAdminOnly || viewer.isActingAsBusiness);
+}
+
+/** Kullanıcının görebildiği gruplar — içindeki sayfalar da süzülmüş olarak. */
+export function visibleGroups(viewer: Viewer): NavGroup[] {
+  return NAV_GROUPS.map((group) => ({ ...group, pages: group.pages.filter((page) => canSeePage(page, viewer)) })).filter(
     (group) => group.pages.length > 0,
   );
 }

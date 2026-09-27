@@ -37,6 +37,12 @@ import type {
 import type { ExpenseTypeDto } from "../../types/expenseType";
 import type { PaymentCardDto } from "../../types/treasury";
 import { ExpenseQuickActions } from "./ExpenseQuickActions";
+import {
+  expenseTypeFields,
+  expenseTypeInitialValues,
+  resolveExpenseTypeId,
+  selectedExpenseCategory,
+} from "./expenseTypeChoice";
 
 type Option = { value: string; label: string };
 
@@ -57,21 +63,14 @@ function expenseFields({
   employees,
 }: ExpenseFieldSources): FieldDef[] {
   const isPersonnel = (values: FormValues) =>
-    types.find((t) => t.id === values.expenseTypeId)?.category ===
-    ExpenseCategory.Personnel;
+    selectedExpenseCategory(values, types) === ExpenseCategory.Personnel;
 
   return [
-    {
-      name: "expenseTypeId",
-      label: "Gider türü",
-      type: "select",
-      required: true,
-      options: types.map(typeOption),
-    },
+    ...expenseTypeFields(types),
     {
       name: "amount",
       label: "Tutar (₺)",
-      type: "number",
+      type: "money",
       required: true,
       min: 0,
     },
@@ -93,19 +92,15 @@ function expenseFields({
   ];
 }
 
-function typeOption(t: ExpenseTypeDto): Option {
-  return { value: t.id, label: `${t.name} (${t.unit})` };
-}
-
-function toRequest(
+/** Form → istek. "+ Yeni tür" seçildiyse tür burada oluşturulur. */
+async function toRequest(
   values: FormValues,
   types: ExpenseTypeDto[],
-): CreateExpenseRequest {
+): Promise<CreateExpenseRequest> {
   const isPersonnel =
-    types.find((t) => t.id === values.expenseTypeId)?.category ===
-    ExpenseCategory.Personnel;
+    selectedExpenseCategory(values, types) === ExpenseCategory.Personnel;
   return {
-    expenseTypeId: formValue.text(values, "expenseTypeId"),
+    expenseTypeId: await resolveExpenseTypeId(values),
     amount: formValue.number(values, "amount"),
     quantity: formValue.optionalNumber(values, "quantity"),
     expenseDate: formValue.text(values, "expenseDate"),
@@ -119,6 +114,7 @@ function toRequest(
 
 function toFormValues(expense: ExpenseDto): FormValues {
   return {
+    ...expenseTypeInitialValues,
     expenseTypeId: expense.expenseTypeId,
     amount: String(expense.amount),
     quantity: expense.quantity === null ? "" : String(expense.quantity),
@@ -167,7 +163,7 @@ export function ExpensesPage() {
   const total = (expenses.data ?? []).reduce((sum, e) => sum + e.amount, 0);
 
   async function refresh() {
-    await Promise.all([expenses.reload(), reloadCards()]);
+    await Promise.all([expenses.reload(), reloadCards(), expenseTypes.reload()]);
   }
 
   function updateFilter(patch: Partial<ExpenseListFilter>) {
@@ -190,14 +186,13 @@ export function ExpensesPage() {
             <ModalFormButton
               label="Yeni gider"
               icon={Plus}
-              disabled={activeTypes.length === 0}
               fields={expenseFields({
                 types: activeTypes,
                 cards,
                 employees: employeeOptions,
               })}
               initialValues={{
-                expenseTypeId: "",
+                ...expenseTypeInitialValues,
                 amount: "",
                 quantity: "",
                 expenseDate: todayIso(),
@@ -214,19 +209,13 @@ export function ExpensesPage() {
             }
             submitLabel="Gider ekle"
               onSubmit={async (values) => {
-                await expenseApi.create(toRequest(values, allTypes));
+                await expenseApi.create(await toRequest(values, allTypes));
                 await refresh();
               }}
             />
           </>
         }
       />
-      {expenseTypes.data && activeTypes.length === 0 && (
-        <p className="ui-muted">
-          Önce işletme sahibinin Tanımlar → Gider Türleri sayfasından en az bir
-          gider türü tanımlaması gerekiyor.
-        </p>
-      )}
 
       <Section
         actions={
@@ -360,7 +349,7 @@ export function ExpensesPage() {
             submitLabel="Kaydet"
             onCancel={() => setEditing(null)}
             onSubmit={async (values) => {
-              await expenseApi.update(editing.id, toRequest(values, allTypes));
+              await expenseApi.update(editing.id, await toRequest(values, allTypes));
               setEditing(null);
               await refresh();
             }}

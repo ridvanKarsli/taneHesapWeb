@@ -1,4 +1,4 @@
-import { Banknote, Bike, Coins, CreditCard, PieChart, Scale, Store, TrendingDown, TrendingUp, UtensilsCrossed, Wallet } from "lucide-react";
+import { Banknote, Bike, Coins, CreditCard, PieChart, TrendingDown, TrendingUp, UtensilsCrossed, Wallet } from "lucide-react";
 import { useState } from "react";
 import { reportApi } from "../../api/moduleApis";
 import { AsyncState } from "../../components/ui/AsyncState";
@@ -60,15 +60,6 @@ export function PeriodReportPage() {
             <StatGrid>
               <StatTile icon={Coins} label="Toplam gelir" value={<Money value={data.totalRevenue} />} />
               <StatTile icon={Wallet} iconTone="rose" label="Toplam gider" value={<Money value={data.totalExpense} />} />
-              {data.closingVariance !== 0 && (
-                <StatTile
-                  icon={Scale}
-                  iconTone="amber"
-                  label="Gün sonu kasa farkı"
-                  value={<Money value={data.closingVariance} />}
-                  tone={data.closingVariance < 0 ? "negative" : "positive"}
-                />
-              )}
               <StatTile
                 icon={data.netProfit < 0 ? TrendingDown : TrendingUp}
                 iconTone={data.netProfit < 0 ? "rose" : "green"}
@@ -78,7 +69,6 @@ export function PeriodReportPage() {
               />
               <StatTile icon={Banknote} iconTone="green" label="Nakit gelir" value={<Money value={data.cashRevenue} />} />
               <StatTile icon={CreditCard} iconTone="blue" label="Kart gelir" value={<Money value={data.cardRevenue} />} />
-              <StatTile icon={Store} iconTone="amber" label="Dükkan içi" value={<Money value={data.inStoreRevenue} />} />
               <StatTile icon={Bike} iconTone="violet" label="Paket servis" value={<Money value={data.platformRevenue} />} />
             </StatGrid>
 
