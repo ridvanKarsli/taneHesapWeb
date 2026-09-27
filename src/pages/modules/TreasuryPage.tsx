@@ -12,7 +12,7 @@ import { PageHeader } from "../../components/ui/PageHeader";
 import { Section } from "../../components/ui/Section";
 import { StatGrid, StatTile } from "../../components/ui/StatTile";
 import { useAsyncData } from "../../hooks/useAsyncData";
-import { formatDate, formatDateOf, formatMoney, formatTimeOf, startOfMonthIso, todayIso } from "../../lib/format";
+import { formatDate, formatMoney, formatRecordedAt, startOfMonthIso, todayIso } from "../../lib/format";
 import { TREASURY_ACCOUNT_LABELS, TREASURY_KIND_LABELS, TreasuryAccount, TreasuryTransactionKind, toOptions } from "../../types/enums";
 import type { TreasuryTransactionDto, TreasuryTransactionFilter } from "../../types/treasury";
 import { TreasuryActions } from "./TreasuryActions";
@@ -22,13 +22,6 @@ const MANUAL_KINDS: TreasuryTransactionKind[] = [
   TreasuryTransactionKind.CardPayment,
   TreasuryTransactionKind.ManualAdjustment,
 ];
-
-/** Kaydın girildiği saat; işlem tarihinden farklı bir gün girildiyse gün de yazılır (örn. dünkü Excel bugün yüklendi). */
-function recordedAt(row: TreasuryTransactionDto): string {
-  const time = formatTimeOf(row.createdAtUtc);
-  const recordedDay = formatDateOf(row.createdAtUtc);
-  return recordedDay === formatDate(row.transactionDate) ? time : `${recordedDay.slice(0, 5)} ${time}`;
-}
 
 function accountLabel(row: TreasuryTransactionDto): string {
   return row.account === TreasuryAccount.CreditCard ? `Kart · ${row.paymentCardName ?? "—"}` : TREASURY_ACCOUNT_LABELS[row.account];
@@ -138,7 +131,7 @@ export function TreasuryPage() {
               rowKey={(row) => row.id}
               columns={[
                 { header: "Tarih", render: (row) => formatDate(row.transactionDate) },
-                { header: "Saat", render: (row) => recordedAt(row) },
+                { header: "Kayıt saati", render: (row) => formatRecordedAt(row.createdAtUtc, row.transactionDate) },
                 { header: "Hesap", render: accountLabel },
                 { header: "Tür", render: (row) => TREASURY_KIND_LABELS[row.kind] },
                 {

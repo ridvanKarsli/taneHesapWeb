@@ -24,6 +24,7 @@ import {
   formatDate,
   formatMoney,
   formatNumber,
+  formatRecordedAt,
   startOfMonthIso,
   todayIso,
 } from "../../lib/format";
@@ -285,6 +286,10 @@ export function ExpensesPage() {
                 {
                   header: "Tarih",
                   render: (row) => formatDate(row.expenseDate),
+                },
+                {
+                  header: "Kayıt saati",
+                  render: (row) => formatRecordedAt(row.createdAtUtc, row.expenseDate),
                 },
                 { header: "Tür", render: (row) => row.expenseTypeName },
                 {

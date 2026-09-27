@@ -38,6 +38,16 @@ export function formatTimeOf(isoDateTime: string): string {
   return new Date(isoDateTime).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
 }
 
+/**
+ * Kaydın sisteme girildiği saat ("Kayıt saati" sütunu). Kayıt, işlemin tarihinden farklı bir günde girildiyse
+ * (örn. dünkü gider bugün yazıldı) gün de eklenir: "27.09 14:32".
+ */
+export function formatRecordedAt(createdAtUtc: string, businessDateIso?: string): string {
+  const time = formatTimeOf(createdAtUtc);
+  const recordedDay = formatDateOf(createdAtUtc);
+  return businessDateIso === undefined || recordedDay === formatDate(businessDateIso) ? time : `${recordedDay.slice(0, 5)} ${time}`;
+}
+
 function toIso(date: Date): string {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;

@@ -342,3 +342,25 @@
     flex: 1 1 100%;
   }
 }
+
+/* Çalışanlar: cüzdan durumu (alacağı / vereceği) */
+.wallet-balance {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.wallet-balance > span:first-child {
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.wallet-balance.owed {
+  color: var(--color-warning);
+}
+
+.wallet-balance.overpaid {
+  color: var(--color-danger);
+}

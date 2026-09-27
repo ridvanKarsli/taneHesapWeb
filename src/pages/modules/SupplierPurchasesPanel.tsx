@@ -14,7 +14,7 @@ import { StatusBadge } from "../../components/ui/StatusBadge";
 import { useAsyncData } from "../../hooks/useAsyncData";
 import { usePaymentCards } from "../../hooks/usePaymentCards";
 import { PAYMENT_METHOD_LABELS } from "../../types/enums";
-import { formatDate, formatNumber, todayIso } from "../../lib/format";
+import { formatDate, formatNumber, formatRecordedAt, todayIso } from "../../lib/format";
 import type { SupplierPurchaseDto } from "../../types/supplier";
 
 interface SupplierPurchasesPanelProps {
@@ -77,6 +77,7 @@ export function SupplierPurchasesPanel({ supplierId, onChanged }: SupplierPurcha
             rowKey={(row) => row.id}
             columns={[
               { header: "Tarih", render: (row) => formatDate(row.purchaseDate) },
+              { header: "Kayıt saati", render: (row) => formatRecordedAt(row.createdAtUtc, row.purchaseDate) },
               { header: "Malzeme", render: (row) => row.ingredientName },
               { header: "Miktar", align: "right", render: (row) => formatNumber(row.quantity) },
               { header: "Birim fiyat", align: "right", render: (row) => <Money value={row.unitPrice} /> },

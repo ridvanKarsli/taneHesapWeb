@@ -11,7 +11,7 @@ import { paymentFields, paymentInitialValues, readPayment } from "../../componen
 import { StatGrid, StatTile } from "../../components/ui/StatTile";
 import { useAsyncData } from "../../hooks/useAsyncData";
 import { usePaymentCards } from "../../hooks/usePaymentCards";
-import { formatDate, formatMoney, formatNumber, todayIso } from "../../lib/format";
+import { formatDate, formatMoney, formatNumber, formatRecordedAt, todayIso } from "../../lib/format";
 import type { EmployeeWalletDto, EmployeeWorkLogDto } from "../../types/employee";
 import { PAYMENT_METHOD_LABELS } from "../../types/enums";
 import { employeePaymentAmountFields, employeePaymentAmountInitialValues, readEmployeePaymentAmount } from "./employeePaymentFields";
@@ -119,6 +119,7 @@ export function EmployeeWalletPanel({ load, employeeId }: EmployeeWalletPanelPro
                   rowKey={(row) => row.id}
                   columns={[
                     { header: "Tarih", render: (row) => formatDate(row.workDate) },
+                    { header: "Kayıt saati", render: (row) => formatRecordedAt(row.createdAtUtc, row.workDate) },
                     { header: "Saat", align: "right", render: (row) => formatNumber(row.hours, 1) },
                     { header: "Ücret", align: "right", render: (row) => <Money value={row.hourlyWage} /> },
                     { header: "Hak ediş", align: "right", render: (row) => <Money value={row.amount} /> },
@@ -138,6 +139,7 @@ export function EmployeeWalletPanel({ load, employeeId }: EmployeeWalletPanelPro
                   rowKey={(row) => row.expenseId}
                   columns={[
                     { header: "Tarih", render: (row) => formatDate(row.date) },
+                    { header: "Kayıt saati", render: (row) => formatRecordedAt(row.createdAtUtc, row.date) },
                     { header: "Tutar", align: "right", render: (row) => <Money value={row.amount} /> },
                     {
                       header: "Ödeme",

@@ -8,6 +8,20 @@ import { Money } from "../../components/ui/Money";
 import { ActiveBadge } from "../../components/ui/StatusBadge";
 import type { EmployeeDto } from "../../types/employee";
 import { EmployeeWalletPanel } from "./EmployeeWalletPanel";
+import "./modules.css";
+
+/** Cüzdan durumu: pozitif bakiye çalışanın alacağı (işletme ödeyecek), negatif bakiye çalışanın vereceği (fazla ödenmiş). */
+function WalletBalance({ balance }: { balance: number }) {
+  if (balance === 0) {
+    return <span className="ui-muted">Hesap kapalı</span>;
+  }
+  return (
+    <span className={`wallet-balance ${balance > 0 ? "owed" : "overpaid"}`}>
+      <span>{balance > 0 ? "Alacağı" : "Vereceği"}</span>
+      <Money value={Math.abs(balance)} />
+    </span>
+  );
+}
 
 const wageField: FieldDef = { name: "hourlyWage", label: "Saatlik ücret (₺)", type: "money", required: true, min: 0 };
 
@@ -27,6 +41,7 @@ export function EmployeesPage() {
         { header: "Kullanıcı adı", render: (row) => row.username },
         { header: "Saatlik ücret", align: "right", render: (row) => <Money value={row.hourlyWage} /> },
         { header: "Durum", render: (row) => <ActiveBadge isActive={row.isActive} /> },
+        { header: "Cüzdan", align: "right", render: (row) => <WalletBalance balance={row.balance} /> },
       ]}
       rowActions={(row) => (
         <button type="button" className="ui-button small" onClick={() => setExpandedId((id) => (id === row.id ? null : row.id))}>

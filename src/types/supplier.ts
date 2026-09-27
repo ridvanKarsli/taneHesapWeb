@@ -23,6 +23,7 @@ export interface SupplierPaymentDto {
   amount: number;
   paymentDate: string;
   paymentMethod: PaymentMethod | null;
+  createdAtUtc: string;
 }
 
 export interface SupplierPurchaseDto {
@@ -38,6 +39,8 @@ export interface SupplierPurchaseDto {
   paidAmount: number;
   remainingAmount: number;
   payments: SupplierPaymentDto[];
+  /** Kaydın girildiği an. */
+  createdAtUtc: string;
 }
 
 export interface CreateSupplierPurchaseRequest {

@@ -7,6 +7,8 @@ export interface EmployeeDto {
   fullName: string;
   isActive: boolean;
   hourlyWage: number;
+  /** Cüzdan bakiyesi = hak ediş − ödenen. Pozitif: çalışanın alacağı; negatif: çalışanın vereceği (fazla ödenmiş). */
+  balance: number;
 }
 
 export interface CreateEmployeeRequest {
@@ -34,6 +36,7 @@ export interface EmployeeWorkLogDto {
   hourlyWage: number;
   amount: number;
   note: string | null;
+  createdAtUtc: string;
 }
 
 export interface CreateWorkLogRequest {
@@ -49,6 +52,7 @@ export interface EmployeePaymentDto {
   paymentMethod: PaymentMethod | null;
   paymentCardName: string | null;
   description: string | null;
+  createdAtUtc: string;
 }
 
 /** Ödeme ya tutar ya saat: saat verilirse tutar sunucuda saat × saatlik ücret olarak hesaplanır. */

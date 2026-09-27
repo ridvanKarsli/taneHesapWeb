@@ -1,4 +1,4 @@
-import { CreditCard, FileSpreadsheet, Landmark, ReceiptText, Wallet } from "lucide-react";
+import { CreditCard, FileSpreadsheet, Landmark, ReceiptText, Users, Wallet } from "lucide-react";
 import { Link } from "react-router-dom";
 import { reportApi, supplierApi, treasuryApi } from "../../api/moduleApis";
 import { Money } from "../../components/ui/Money";
@@ -28,7 +28,7 @@ function Amount({ value, signed }: { value: number | undefined; signed?: boolean
   );
 }
 
-/** Panelin ana parçası: bugün ne oldu (tek büyük sayı), ne yapılacak (üç büyük düğme) ve ayın durumu. */
+/** Panelin ana parçası: bugün ne oldu (tek büyük sayı), ne yapılacak (dört büyük düğme) ve ayın durumu. */
 export function TodayOverview() {
   const { data } = useAsyncData(loadOverview);
   const t = data?.todayReport;
@@ -67,6 +67,12 @@ export function TodayOverview() {
               <Landmark size={22} strokeWidth={2.2} aria-hidden="true" />
             </span>
             Kasa
+          </Link>
+          <Link to="/calisanlar" className="today-action">
+            <span className="today-action-icon">
+              <Users size={22} strokeWidth={2.2} aria-hidden="true" />
+            </span>
+            Çalışanlar
           </Link>
         </div>
       </section>
