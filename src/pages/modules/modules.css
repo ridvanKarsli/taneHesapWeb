@@ -343,7 +343,7 @@
   }
 }
 
-/* Çalışanlar: cüzdan durumu (alacağı / vereceği) */
+/* Çalışanlar: cüzdan durumu (alacaklı / borçlu) */
 .wallet-balance {
   display: inline-flex;
   align-items: baseline;
@@ -357,10 +357,10 @@
   font-weight: 700;
 }
 
-.wallet-balance.owed {
-  color: var(--color-warning);
+.wallet-balance.positive {
+  color: var(--color-success);
 }
 
-.wallet-balance.overpaid {
+.wallet-balance.negative {
   color: var(--color-danger);
 }

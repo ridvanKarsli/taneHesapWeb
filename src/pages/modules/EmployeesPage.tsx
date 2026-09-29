@@ -8,17 +8,19 @@ import { Money } from "../../components/ui/Money";
 import { ActiveBadge } from "../../components/ui/StatusBadge";
 import type { EmployeeDto } from "../../types/employee";
 import { EmployeeWalletPanel } from "./EmployeeWalletPanel";
+import { walletStanding } from "../../lib/walletStanding";
 import "./modules.css";
 
-/** Cüzdan durumu: pozitif bakiye çalışanın alacağı (işletme ödeyecek), negatif bakiye çalışanın vereceği (fazla ödenmiş). */
+/** Cüzdan durumu: "Alacaklı ₺X" (işletme ödeyecek), "Borçlu ₺X" (fazla ödenmiş) ya da "Hesap kapalı". */
 function WalletBalance({ balance }: { balance: number }) {
-  if (balance === 0) {
-    return <span className="ui-muted">Hesap kapalı</span>;
+  const standing = walletStanding(balance);
+  if (standing.tone === undefined) {
+    return <span className="ui-muted">{standing.label}</span>;
   }
   return (
-    <span className={`wallet-balance ${balance > 0 ? "owed" : "overpaid"}`}>
-      <span>{balance > 0 ? "Alacağı" : "Vereceği"}</span>
-      <Money value={Math.abs(balance)} />
+    <span className={`wallet-balance ${standing.tone}`}>
+      <span>{standing.label}</span>
+      <Money value={standing.amount} />
     </span>
   );
 }
@@ -31,10 +33,13 @@ const wageField: FieldDef = { name: "hourlyWage", label: "Saatlik ücret (₺)",
  */
 export function EmployeesPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  // Cüzdanda saat/ödeme girilince listedeki "Cüzdan" sütunu da yenilenir.
+  const [version, setVersion] = useState(0);
 
   return (
     <CrudPage<EmployeeDto>
       load={employeeApi.getAll}
+      reloadKey={String(version)}
       emptyText="Henüz çalışan yok — ilk çalışanı sağ üstteki düğmeyle ekleyin."
       columns={[
         { header: "Ad soyad", render: (row) => row.fullName },
@@ -50,7 +55,7 @@ export function EmployeesPage() {
         </button>
       )}
       renderExpanded={(row) =>
-        expandedId === row.id ? <EmployeeWalletPanel employeeId={row.id} load={() => employeeApi.getWallet(row.id)} /> : null
+        expandedId === row.id ? <EmployeeWalletPanel employeeId={row.id} load={() => employeeApi.getWallet(row.id)} onChanged={() => setVersion((v) => v + 1)} /> : null
       }
       createLabel="Yeni çalışan"
       createFields={[

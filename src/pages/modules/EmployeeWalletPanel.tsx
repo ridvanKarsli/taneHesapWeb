@@ -15,6 +15,7 @@ import { formatDate, formatMoney, formatNumber, formatRecordedAt, todayIso } fro
 import type { EmployeeWalletDto, EmployeeWorkLogDto } from "../../types/employee";
 import { PAYMENT_METHOD_LABELS } from "../../types/enums";
 import { employeePaymentAmountFields, employeePaymentAmountInitialValues, readEmployeePaymentAmount } from "./employeePaymentFields";
+import { walletStanding } from "../../lib/walletStanding";
 import "./modules.css";
 
 interface EmployeeWalletPanelProps {
@@ -22,14 +23,20 @@ interface EmployeeWalletPanelProps {
   load: () => Promise<EmployeeWalletDto>;
   /** ADMIN için çalışma saati girişi ve ödeme; EMPLOYEE'de verilmez (salt okunur, bkz. proje raporu 2). */
   employeeId?: string;
+  /** Saat/ödeme eklenince ya da silinince (örn. Çalışanlar listesindeki bakiye yenilensin). */
+  onChanged?: () => void;
 }
 
 /**
  * Çalışan cüzdanı: hak ediş (saat × saatlik ücret), ödemeler ve bakiye. Aynı panel hem ADMIN'in Çalışanlar
  * sayfasında (satır altında, yazma yetkili) hem EMPLOYEE'nin "Cüzdanım" sayfasında (salt okunur) kullanılır.
  */
-export function EmployeeWalletPanel({ load, employeeId }: EmployeeWalletPanelProps) {
+export function EmployeeWalletPanel({ load, employeeId, onChanged }: EmployeeWalletPanelProps) {
   const wallet = useAsyncData(load, employeeId ?? "me");
+  const refresh = async () => {
+    await wallet.reload();
+    onChanged?.();
+  };
   const { cards } = usePaymentCards();
   const [deletingLog, setDeletingLog] = useState<EmployeeWorkLogDto | null>(null);
   const canEdit = Boolean(employeeId);
@@ -45,9 +52,9 @@ export function EmployeeWalletPanel({ load, employeeId }: EmployeeWalletPanelPro
             <StatTile
               icon={Scale}
               iconTone="amber"
-              label={data.balance >= 0 ? "Alacağı (bakiye)" : "Fazla ödenen"}
-              value={<Money value={Math.abs(data.balance)} />}
-              tone={data.balance > 0 ? "positive" : data.balance < 0 ? "negative" : undefined}
+              label={`Bakiye — ${walletStanding(data.balance).label}`}
+              value={<Money value={walletStanding(data.balance).amount} />}
+              tone={walletStanding(data.balance).tone}
             />
           </StatGrid>
           <div className="wallet-toolbar">
@@ -71,7 +78,7 @@ export function EmployeeWalletPanel({ load, employeeId }: EmployeeWalletPanelPro
                       hours: formValue.number(values, "hours"),
                       note: formValue.optionalText(values, "note"),
                     });
-                    await wallet.reload();
+                    await refresh();
                   }}
                 />
                 <ModalFormButton
@@ -101,7 +108,7 @@ export function EmployeeWalletPanel({ load, employeeId }: EmployeeWalletPanelPro
                       ...readPayment(values),
                       note: formValue.optionalText(values, "note"),
                     });
-                    await wallet.reload();
+                    await refresh();
                   }}
                 />
               </div>
@@ -163,7 +170,7 @@ export function EmployeeWalletPanel({ load, employeeId }: EmployeeWalletPanelPro
               onClose={() => setDeletingLog(null)}
               onConfirm={async () => {
                 await employeeApi.removeWorkLog(employeeId!, deletingLog.id);
-                await wallet.reload();
+                await refresh();
               }}
             />
           )}

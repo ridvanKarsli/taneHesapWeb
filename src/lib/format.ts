@@ -42,7 +42,10 @@ export function formatTimeOf(isoDateTime: string): string {
  * Kaydın sisteme girildiği saat ("Kayıt saati" sütunu). Kayıt, işlemin tarihinden farklı bir günde girildiyse
  * (örn. dünkü gider bugün yazıldı) gün de eklenir: "27.09 14:32".
  */
-export function formatRecordedAt(createdAtUtc: string, businessDateIso?: string): string {
+export function formatRecordedAt(createdAtUtc: string | null | undefined, businessDateIso?: string): string {
+  if (!createdAtUtc || Number.isNaN(new Date(createdAtUtc).getTime())) {
+    return "—";
+  }
   const time = formatTimeOf(createdAtUtc);
   const recordedDay = formatDateOf(createdAtUtc);
   return businessDateIso === undefined || recordedDay === formatDate(businessDateIso) ? time : `${recordedDay.slice(0, 5)} ${time}`;
