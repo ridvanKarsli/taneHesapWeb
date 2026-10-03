@@ -1,4 +1,4 @@
-import { CircleCheck, Download, FileSpreadsheet, Upload, X } from "lucide-react";
+import { CircleCheck, Download, FileSpreadsheet, History, Upload, X } from "lucide-react";
 import { useRef, useState, type ChangeEvent } from "react";
 import { extractErrorMessage } from "../../api/apiError";
 import { ErrorMessage } from "../../components/ui/AsyncState";
@@ -9,12 +9,17 @@ import type { CellValue, ParsedSales } from "../../lib/salesExcel";
 import { SALES_SOURCES, buildSourceTemplate, parseSourceSheet, platformOf, type SalesSource, type SalesSourceContext } from "../../lib/salesSources";
 import { DailySalesImportMode, type DailySalesEntryDto, type ImportRowRequest } from "../../types/dailySales";
 import { PAYMENT_METHOD_LABELS, SalesChannel } from "../../types/enums";
+import { SalesUploadHistory } from "./SalesUploadHistory";
 
 interface SalesExcelImportProps {
   date: string;
+  /** Geçmiş yüklemelerden bir gün seçilince sayfanın tarihi değişir. */
+  onDateChange: (date: string) => void;
   ctx: SalesSourceContext;
   /** O günün kayıtlı satışları — her kaynağın "yüklendi" durumu buradan çıkar. */
   entries: DailySalesEntryDto[];
+  /** Satışlar değişince geçmiş listesi yeniden okunur. */
+  reloadKey: string;
   onImport: (fileName: string, rows: ImportRowRequest[], mode: DailySalesImportMode) => Promise<void>;
 }
 
@@ -25,6 +30,11 @@ interface Pending {
 }
 
 const PREVIEW_LIMIT = 8;
+
+/** Dosyadaki satırların günleri (tekrarsız, sıralı). */
+function datesOf(rows: ImportRowRequest[]): string[] {
+  return [...new Set(rows.map((r) => r.saleDate))].sort();
+}
 
 /** Seçilen gün için bu kaynaktan girilmiş satış satırları (kanal + platform eşleşmesi). */
 function entriesOf(source: SalesSource, entries: DailySalesEntryDto[], ctx: SalesSourceContext) {
@@ -37,13 +47,22 @@ function entriesOf(source: SalesSource, entries: DailySalesEntryDto[], ctx: Sale
  * gösterir; dosya seçilince tarayıcıda okunur, önizlenir ve onaylanınca kaydedilir. Aynı kaynağın aynı günü
  * ikinci kez yüklenirse sunucu reddeder ("değiştir" işaretlenirse o kaynağın o günkü satırları yenilenir).
  */
-export function SalesExcelImport({ date, ctx, entries, onImport }: SalesExcelImportProps) {
+export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, onImport }: SalesExcelImportProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [picking, setPicking] = useState<SalesSource | null>(null);
   const [pending, setPending] = useState<Pending | null>(null);
   const [replaceExisting, setReplaceExisting] = useState(false);
+  const [acceptOtherDates, setAcceptOtherDates] = useState(false);
+  const [historyOf, setHistoryOf] = useState<SalesSource | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isBusy, setIsBusy] = useState(false);
+
+  // Gece yüklemesi: 4'ünde saat 03:00'te 3'ünün dosyası yüklenir. Dosyadaki tarih seçili günden farklıysa uyarılır;
+  // tek bir gün varsa seçili gün tek tıkla o güne alınır, birden çok gün varsa açıkça onaylanır.
+  const fileDates = pending ? datesOf(pending.parsed.rows) : [];
+  const otherDates = fileDates.filter((d) => d !== date);
+  const dateMismatch = otherDates.length > 0;
+  const canSave = pending !== null && pending.parsed.rows.length > 0 && (!dateMismatch || acceptOtherDates);
 
   const sizeLabel = new Map(ctx.dishes.flatMap((d) => d.sizes.map((s) => [s.id, `${d.name} — ${s.name}`] as const)));
 
@@ -80,6 +99,7 @@ export function SalesExcelImport({ date, ctx, entries, onImport }: SalesExcelImp
       const sheet = (await readSheet(file)) as CellValue[][];
       setPending({ source: picking, fileName: file.name, parsed: parseSourceSheet(picking, sheet, ctx) });
       setReplaceExisting(false);
+      setAcceptOtherDates(false);
     } catch {
       setError("Dosya okunamadı. Lütfen .xlsx formatında kaydedin.");
     } finally {
@@ -88,7 +108,7 @@ export function SalesExcelImport({ date, ctx, entries, onImport }: SalesExcelImp
   }
 
   async function submit() {
-    if (!pending || pending.parsed.rows.length === 0) {
+    if (!pending || !canSave) {
       return;
     }
     setError(null);
@@ -135,12 +155,30 @@ export function SalesExcelImport({ date, ctx, entries, onImport }: SalesExcelImp
                   <Download size={15} aria-hidden="true" />
                   Şablon
                 </button>
+                <button type="button" className="ui-button ghost small" onClick={() => setHistoryOf(source)}>
+                  <History size={15} aria-hidden="true" />
+                  Geçmiş yüklemeler
+                </button>
               </div>
             </article>
           );
         })}
       </div>
       <input ref={fileInputRef} type="file" accept=".xlsx" hidden onChange={(e) => void handleFile(e)} />
+
+      {historyOf && (
+        <SalesUploadHistory
+          source={historyOf}
+          ctx={ctx}
+          reloadKey={reloadKey}
+          onClose={() => setHistoryOf(null)}
+          onUploadDay={(day) => {
+            onDateChange(day);
+            setHistoryOf(null);
+            pickFile(historyOf);
+          }}
+        />
+      )}
 
       {isBusy && !pending && <p className="ui-muted">Dosya okunuyor…</p>}
       {error && <ErrorMessage message={error} />}
@@ -166,6 +204,24 @@ export function SalesExcelImport({ date, ctx, entries, onImport }: SalesExcelImp
               </div>
             </div>
           )}
+          {dateMismatch && (
+            <div className="excel-date-warning" role="alert">
+              <span>
+                Dosyadaki satırlar <strong>{fileDates.map(formatDate).join(", ")}</strong> tarihli; seçili gün <strong>{formatDate(date)}</strong>.
+                Satışlar dosyadaki tarihe kaydedilir.
+              </span>
+              {fileDates.length === 1 ? (
+                <button type="button" className="ui-button small" onClick={() => onDateChange(fileDates[0])}>
+                  Seçili günü {formatDate(fileDates[0])} yap
+                </button>
+              ) : (
+                <label className="ui-checkbox" htmlFor="excel-accept-dates">
+                  <input id="excel-accept-dates" type="checkbox" checked={acceptOtherDates} onChange={(e) => setAcceptOtherDates(e.target.checked)} />
+                  Dosyada birden çok gün var, bu tarihlerle kaydedilsin
+                </label>
+              )}
+            </div>
+          )}
           {pending.parsed.rows.length > 0 && (
             <>
               <DataTable
@@ -185,7 +241,7 @@ export function SalesExcelImport({ date, ctx, entries, onImport }: SalesExcelImp
                 Bu dosyadaki günlerin mevcut {pending.source.label} satışlarını değiştir (düzeltilmiş dosyayı yeniden yüklerken)
               </label>
               <div className="ui-form-actions excel-actions">
-                <button type="button" className="ui-button" onClick={() => void submit()} disabled={isBusy}>
+                <button type="button" className="ui-button" onClick={() => void submit()} disabled={isBusy || !canSave}>
                   <Upload size={16} aria-hidden="true" />
                   {isBusy ? "Yükleniyor…" : `${pending.parsed.rows.length} satırı kaydet`}
                 </button>

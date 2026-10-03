@@ -73,14 +73,15 @@ export function PeriodReportPage() {
             </StatGrid>
 
             <div className="ui-two-columns">
-              <Section title="Gider kategorileri" icon={PieChart}>
-                {data.expenseByCategory.length === 0 ? (
+              <Section title="Gider kalemleri" icon={PieChart}>
+                {data.expenseByType.length === 0 ? (
                   <p className="ui-muted">Bu aralıkta gider yok.</p>
                 ) : (
                   <DataTable
-                    rows={data.expenseByCategory}
-                    rowKey={(row) => String(row.category)}
+                    rows={data.expenseByType}
+                    rowKey={(row) => row.expenseTypeId}
                     columns={[
+                      { header: "Gider", render: (row) => <span className="ui-cell-strong">{row.expenseTypeName}</span> },
                       { header: "Kategori", render: (row) => EXPENSE_CATEGORY_LABELS[row.category] ?? "Diğer" },
                       { header: "Tutar", align: "right", render: (row) => <Money value={row.amount} /> },
                     ]}

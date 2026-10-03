@@ -12,6 +12,8 @@ export interface PeriodReportDto {
   /** Gelir − gider. Gelir, doğrulanan günlerde gerçek nakit/kart tutarıdır (kasaya yazılanla aynı). */
   netProfit: number;
   expenseByCategory: { category: ExpenseCategory; amount: number }[];
+  /** Gider türüne göre ("Kira", "Pirinç", "POS Komisyonu"…), büyükten küçüğe. */
+  expenseByType: { expenseTypeId: string; expenseTypeName: string; category: ExpenseCategory; amount: number }[];
   /** Tabak (boy) bazlı satış; maliyet güncel malzeme fiyatlarıyla tahminidir. */
   salesByDish: {
     dishSizeId: string;

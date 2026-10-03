@@ -43,6 +43,17 @@ export interface RecurringPayableDto {
   isOverdue: boolean;
 }
 
+/** Backend `RecurringUpcomingDto`: bugünden sonra başlayan (henüz ödenmesi gerekmeyen) dönem. */
+export interface RecurringUpcomingDto {
+  recurringExpenseId: string;
+  name: string;
+  amount: number;
+  period: RecurringPeriod;
+  intervalCount: number;
+  periodStartDate: string;
+  periodEndDate: string;
+}
+
 /** Ödeme, ödeme şekline göre kasadan/karttan düşen otomatik bir gider olarak da işlenir (bkz. proje raporu 3.8, 3.15). */
 export interface MarkPeriodPaidRequest {
   periodStartDate: string;

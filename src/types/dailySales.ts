@@ -17,6 +17,16 @@ export interface DailySalesEntryDto {
   discountAmount: number | null;
 }
 
+/** Backend `DailySalesUploadDto`: bir günün bir kaynaktan yüklenmiş satış özeti ("Geçmiş yüklemeler"). */
+export interface DailySalesUploadDto {
+  date: string;
+  channel: SalesChannel;
+  platformId: string | null;
+  rowCount: number;
+  totalAmount: number;
+  lastUploadedAtUtc: string;
+}
+
 export interface ImportRowRequest {
   saleDate: string;
   saleTime: string | null;

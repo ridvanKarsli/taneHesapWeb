@@ -40,11 +40,11 @@ export function RecurringPayables({
   const payables = useAsyncData(recurringExpenseApi.getPayables, reloadKey);
 
   return (
-    <Section title="Ödenecekler" icon={CalendarCheck}>
+    <Section title="Bu ay ödenecekler" icon={CalendarCheck}>
       <AsyncState
         {...payables}
         isEmpty={(rows) => rows.length === 0}
-        emptyText="Şu an ödenecek düzenli gider yok."
+        emptyText="Bu ay ödenecek düzenli gider kalmadı."
       >
         {(rows) => (
           <div className="payable-list">

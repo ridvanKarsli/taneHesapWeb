@@ -5,6 +5,7 @@ import type { ActivityEntryDto, ActivityKindDto, ActivityQuery, ActivityUserDto 
 import type { AuditLogDto, AuditLogQuery } from "../types/auditLog";
 import type {
   DailySalesEntryDto,
+  DailySalesUploadDto,
   ExpectedDaySummaryDto,
   ImportDailySalesRequest,
   ImportDailySalesResult,
@@ -37,6 +38,7 @@ import type {
   MarkPeriodPaidRequest,
   RecurringExpenseDto,
   RecurringPayableDto,
+  RecurringUpcomingDto,
   UpdateRecurringExpenseRequest,
 } from "../types/recurringExpense";
 import type { MonthlyReportDto, PeriodReportDto } from "../types/report";
@@ -219,6 +221,9 @@ export const recurringExpenseApi = {
   async getPayables(): Promise<RecurringPayableDto[]> {
     return (await httpClient.get<RecurringPayableDto[]>("/api/recurring-expenses/payables")).data;
   },
+  async getUpcoming(untilDate: string): Promise<RecurringUpcomingDto[]> {
+    return (await httpClient.get<RecurringUpcomingDto[]>("/api/recurring-expenses/upcoming", { params: { untilDate } })).data;
+  },
 };
 
 /** Gün sonu gelir doğrulaması: dükkân içi gerçek nakit ve kart geliri (bkz. proje raporu 3.10). */
@@ -240,6 +245,9 @@ export const incomeVerificationApi = {
 export const dailySalesApi = {
   async getByDate(date: string): Promise<DailySalesEntryDto[]> {
     return (await httpClient.get<DailySalesEntryDto[]>("/api/daily-sales/by-date", { params: { date } })).data;
+  },
+  async getUploads(fromDate: string, toDate: string): Promise<DailySalesUploadDto[]> {
+    return (await httpClient.get<DailySalesUploadDto[]>("/api/daily-sales/uploads", { params: { fromDate, toDate } })).data;
   },
   async getExpectedSummary(date: string): Promise<ExpectedDaySummaryDto> {
     return (await httpClient.get<ExpectedDaySummaryDto>("/api/daily-sales/expected-summary", { params: { date } })).data;

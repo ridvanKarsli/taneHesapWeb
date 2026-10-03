@@ -600,6 +600,10 @@
   animation: ui-pop-in 0.2s var(--ease);
 }
 
+.ui-modal.wide {
+  max-width: 820px;
+}
+
 .ui-modal-header {
   display: flex;
   justify-content: space-between;

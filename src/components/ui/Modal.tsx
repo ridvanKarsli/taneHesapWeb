@@ -6,10 +6,12 @@ interface ModalProps {
   title: string;
   onClose: () => void;
   children: ReactNode;
+  /** Tablo içeren diyaloglar için daha geniş kutu. */
+  wide?: boolean;
 }
 
 /** Düzenleme formları için basit diyalog (Esc veya arka plana tıklayınca kapanır). */
-export function Modal({ title, onClose, children }: ModalProps) {
+export function Modal({ title, onClose, children, wide = false }: ModalProps) {
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
@@ -22,7 +24,7 @@ export function Modal({ title, onClose, children }: ModalProps) {
 
   return (
     <div className="ui-modal-backdrop" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
-      <div className="ui-modal" role="dialog" aria-modal="true" aria-label={title}>
+      <div className={`ui-modal${wide ? " wide" : ""}`} role="dialog" aria-modal="true" aria-label={title}>
         <div className="ui-modal-header">
           <h2>{title}</h2>
           <button type="button" className="ui-button ghost" onClick={onClose} aria-label="Kapat">

@@ -10,6 +10,7 @@ import { formatDate, todayIso } from "../../lib/format";
 import { RecurringPeriod, recurringScheduleLabel } from "../../types/enums";
 import type { RecurringExpenseDto } from "../../types/recurringExpense";
 import { RecurringPayables } from "./RecurringPayables";
+import { RecurringUpcoming } from "./RecurringUpcoming";
 import {
   readRecurringSchedule,
   recurringScheduleFields,
@@ -43,8 +44,9 @@ function toBaseRequest(values: FormValues) {
 }
 
 /**
- * Düzenli giderler iki parçadır: üstte "Ödenecekler" (ödenmemiş dönemler; satırda nereden ödeneceği seçilip
- * "Öde" denir, satır listeden çıkar), altta tanımlar (kira, fatura; periyot serbest: "3 ayda bir" gibi).
+ * Düzenli giderler üç parçadır: üstte "Bu ay ödenecekler" (ödenmemiş dönemler; satırda nereden ödeneceği seçilip
+ * "Öde" denir, satır listeden çıkar), ortada "Yaklaşan ödemeler" (yıl sonuna kadar ay ay), altta tanımlar
+ * (kira, fatura; periyot serbest: "3 ayda bir" gibi).
  */
 export function RecurringExpensesPage() {
   const { cards } = usePaymentCards();
@@ -59,11 +61,14 @@ export function RecurringExpensesPage() {
   return (
     <CrudPage<RecurringExpenseDto>
       summary={
-        <RecurringPayables
-          cards={cards}
-          reloadKey={String(version)}
-          onPaid={changed}
-        />
+        <>
+          <RecurringPayables
+            cards={cards}
+            reloadKey={String(version)}
+            onPaid={changed}
+          />
+          <RecurringUpcoming reloadKey={String(version)} />
+        </>
       }
       listTitle="Tanımlı düzenli giderler"
       reloadKey={String(version)}
