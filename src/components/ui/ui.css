@@ -574,6 +574,174 @@
   color: var(--color-text-muted);
 }
 
+/* ---------- Tarih seçici ---------- */
+.ui-date {
+  position: relative;
+  width: 100%;
+}
+
+.ui-date-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: 46px;
+  padding: 0.6rem 0.9rem;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.15s var(--ease),
+    box-shadow 0.15s var(--ease);
+}
+
+.ui-date-field svg {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+.ui-date-field.empty span {
+  color: var(--color-text-subtle);
+  font-weight: 500;
+}
+
+.ui-date-field:hover {
+  border-color: var(--color-border-strong);
+}
+
+.ui-date-field:focus-visible,
+.ui-date-field[aria-expanded="true"] {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px var(--color-primary-ring);
+}
+
+.ui-date-native {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+  border: 0;
+}
+
+.ui-date-pop {
+  position: fixed;
+  z-index: 130;
+  padding: 0.75rem 0.75rem 0.6rem;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+  animation: ui-pop-in 0.16s var(--ease);
+}
+
+.ui-date-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.ui-date-head strong {
+  font-size: 0.98rem;
+  text-transform: capitalize;
+}
+
+.ui-date-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.ui-date-nav:hover,
+.ui-date-nav:focus-visible {
+  outline: none;
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+}
+
+.ui-date-weekdays,
+.ui-date-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.ui-date-weekdays span {
+  padding: 0.25rem 0;
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--color-text-subtle);
+}
+
+.ui-date-day {
+  height: 38px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background 0.12s var(--ease);
+}
+
+.ui-date-day.outside {
+  color: var(--color-text-subtle);
+  font-weight: 500;
+}
+
+.ui-date-day:hover {
+  background: var(--color-surface-alt);
+}
+
+.ui-date-day:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-primary-ring);
+}
+
+.ui-date-day.today {
+  box-shadow: inset 0 0 0 1.5px var(--color-primary);
+  color: var(--color-primary-dark);
+}
+
+.ui-date-day.selected,
+.ui-date-day.selected:hover {
+  background: var(--color-primary);
+  color: #fff;
+  box-shadow: none;
+}
+
+.ui-date-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--color-border);
+  font-size: 0.78rem;
+}
+
 /* ---------- Diyalog ---------- */
 .ui-modal-backdrop {
   position: fixed;
@@ -745,7 +913,8 @@
   .ui-field textarea,
   .ui-filter input,
   .ui-filter select,
-  .ui-input {
+  .ui-input,
+  .ui-date-field {
     font-size: 16px;
     min-height: 44px;
   }

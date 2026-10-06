@@ -4,6 +4,7 @@ import { employeeApi, expenseApi, expenseTypeApi } from "../../api/moduleApis";
 import { useAuth } from "../../auth/useAuth";
 import { AsyncState } from "../../components/ui/AsyncState";
 import { DataTable } from "../../components/ui/DataTable";
+import { DateFilter } from "../../components/ui/DateFilter";
 import { ConfirmDialog, DeleteButton } from "../../components/ui/ConfirmDialog";
 import { EntityForm, type FieldDef } from "../../components/ui/EntityForm";
 import { Modal } from "../../components/ui/Modal";
@@ -219,24 +220,8 @@ export function ExpensesPage() {
       <Section
         actions={
           <div className="ui-toolbar">
-            <div className="ui-filter">
-              <label htmlFor="expense-from">Başlangıç</label>
-              <input
-                id="expense-from"
-                type="date"
-                value={filter.fromDate ?? ""}
-                onChange={(e) => updateFilter({ fromDate: e.target.value })}
-              />
-            </div>
-            <div className="ui-filter">
-              <label htmlFor="expense-to">Bitiş</label>
-              <input
-                id="expense-to"
-                type="date"
-                value={filter.toDate ?? ""}
-                onChange={(e) => updateFilter({ toDate: e.target.value })}
-              />
-            </div>
+            <DateFilter id="expense-from" label="Başlangıç" value={filter.fromDate ?? ""} onChange={(fromDate) => updateFilter({ fromDate })} />
+            <DateFilter id="expense-to" label="Bitiş" value={filter.toDate ?? ""} onChange={(toDate) => updateFilter({ toDate })} />
             <div className="ui-filter">
               <label htmlFor="expense-type">Tür</label>
               <select

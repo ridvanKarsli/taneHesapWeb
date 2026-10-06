@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import { useState, type FormEvent, type ReactNode } from "react";
 import { extractErrorMessage } from "../../api/apiError";
 import { ErrorMessage } from "./AsyncState";
+import { DateInput } from "./DateInput";
 import { MoneyInput } from "./MoneyInput";
 import type { FormValues } from "./formValues";
 import "./ui.css";
@@ -148,6 +149,8 @@ function FormField({ field, value, hint, onChange }: FormFieldProps) {
           placeholder={field.placeholder}
           onChange={(next) => onChange(field.name, next)}
         />
+      ) : field.type === "date" ? (
+        <DateInput id={id} value={common.value} required={field.required} placeholder={field.placeholder} onChange={(next) => onChange(field.name, next)} />
       ) : field.type === "textarea" ? (
         <textarea {...common} rows={2} onChange={(e) => onChange(field.name, e.target.value)} />
       ) : (

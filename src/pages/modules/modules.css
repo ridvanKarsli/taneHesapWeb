@@ -201,11 +201,13 @@
   background: var(--color-success-soft);
 }
 
+/* Başlık solda, "Komisyonu güncelle" sağ üstte; dar kartta düğme alt satıra (yine sağa) iner, hiçbir şey üst üste binmez. */
 .sales-source-head {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.35rem;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 0.5rem;
+  row-gap: 0.3rem;
 }
 
 .sales-source-head strong {
@@ -213,8 +215,23 @@
   font-size: 1.05rem;
 }
 
-.sales-source-commission {
-  padding-inline: 0;
+.sales-source-head .sales-source-status {
+  flex-basis: 100%;
+}
+
+.sales-source-head .ui-button.sales-source-commission {
+  margin-left: auto;
+  min-height: 30px;
+  padding: 0.2rem 0.5rem;
+  gap: 0.25rem;
+  font-size: 0.74rem;
+  white-space: nowrap;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.sales-source.done .ui-button.sales-source-commission {
+  border-color: transparent;
 }
 
 .sales-source-status {

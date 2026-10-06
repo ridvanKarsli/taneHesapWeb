@@ -51,12 +51,12 @@ export function formatRecordedAt(createdAtUtc: string | null | undefined, busine
   return businessDateIso === undefined || recordedDay === formatDate(businessDateIso) ? time : `${recordedDay.slice(0, 5)} ${time}`;
 }
 
-function toIso(date: Date): string {
+export function toIso(date: Date): string {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
-function fromIso(isoDate: string): Date {
+export function fromIso(isoDate: string): Date {
   const [year, month, day] = isoDate.split("-").map(Number);
   return new Date(year, month - 1, day);
 }

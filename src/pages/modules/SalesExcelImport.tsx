@@ -159,8 +159,8 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
                     onClick={() => setCommissionOf(platform)}
                     title="Bu platformun komisyon yüzdesini değiştir"
                   >
-                    <Percent size={14} aria-hidden="true" />
-                    Komisyonu güncelle · {formatPercent(platform.commissionPercentage)}
+                    <Percent size={13} aria-hidden="true" />
+                    Komisyonu güncelle
                   </button>
                 )}
                 {done.length > 0 ? (
@@ -174,7 +174,9 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
               <p className="ui-muted">
                 {missingPlatform
                   ? `${source.label} platformu pasif ya da silinmiş — Paket Servis'ten (süper admin) yeniden etkinleştirilince açılır.`
-                  : source.hint}
+                  : platform
+                    ? `${source.hint} Komisyon: ${formatPercent(platform.commissionPercentage)}.`
+                    : source.hint}
               </p>
               {commissionUnset && (
                 <p className="sales-source-warning" role="note">

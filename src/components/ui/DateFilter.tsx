@@ -1,3 +1,4 @@
+import { DateInput } from "./DateInput";
 import "./ui.css";
 
 interface DateFilterProps {
@@ -12,7 +13,7 @@ export function DateFilter({ id, label, value, onChange }: DateFilterProps) {
   return (
     <div className="ui-filter">
       <label htmlFor={id}>{label}</label>
-      <input id={id} type="date" value={value} onChange={(e) => e.target.value && onChange(e.target.value)} />
+      <DateInput id={id} value={value} onChange={onChange} />
     </div>
   );
 }
