@@ -45,7 +45,7 @@ function buildDays(days: number, uploads: DailySalesUploadDto[], source: SalesSo
 }
 
 /**
- * Bir kaynağın (Kasa / Yemeksepeti / Uber) geçmiş yüklemeleri: son N gün, her gün için "yüklendi · satır · tutar"
+ * Bir kaynağın (Kasa / Yemeksepeti / Trendyol Go) geçmiş yüklemeleri: son N gün, her gün için "yüklendi · satır · tutar"
  * ya da "yüklenmedi" + Yükle düğmesi. Böylece atlanan bir gün sonradan tamamlanabilir.
  */
 export function SalesUploadHistory({ source, ctx, reloadKey, onClose, onUploadDay }: SalesUploadHistoryProps) {

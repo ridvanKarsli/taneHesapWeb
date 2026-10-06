@@ -115,7 +115,7 @@ export function PeriodReportPage() {
                   <p className="ui-muted">Maliyet, reçete × malzemelerin güncel birim fiyatıyla hesaplanan tahmini değerdir.</p>
                   <DataTable
                     rows={data.salesByDish}
-                    rowKey={(row) => row.dishSizeId}
+                    rowKey={(row) => row.dishSizeId ?? `ext:${row.dishName}`}
                     columns={[
                       { header: "Ürün", render: (row) => <span className="ui-cell-strong">{`${row.dishName} — ${row.sizeName}`}</span> },
                       { header: "Adet", align: "right", render: (row) => String(row.quantity) },

@@ -1,11 +1,11 @@
 import type { ImportRowRequest } from "../types/dailySales";
 import type { DishDto } from "../types/dish";
-import { PAYMENT_METHOD_LABELS, PaymentMethod, SalesChannel } from "../types/enums";
+import { PaymentMethod, SalesChannel } from "../types/enums";
 
 /**
- * taneHesap satış şablonu: kolon tanımları, şablon verisi ve yüklenen sayfanın backend `ImportRowRequest`
- * satırlarına çevrilmesi. Kanal ve platform dosyadan değil, yüklenen kaynaktan gelir (Kasa / Yemeksepeti /
- * Uber — bkz. `salesSources.ts`). Excel kütüphanesinden bağımsız saf fonksiyonlardır.
+ * Kasa (dükkân içi) satış sayfası: kolon tanımları ve yüklenen sayfanın backend `ImportRowRequest` satırlarına
+ * çevrilmesi. Gerçek kasa dökümü gelene kadar bu biçim kullanılır (Tarih, Saat, Ürün, Boy, Adet, Tutar, Ödeme, İndirim).
+ * Platform dosyaları için bkz. `platformSheets.ts`. Excel kütüphanesinden bağımsız saf fonksiyonlardır.
  */
 
 export const SALES_COLUMNS = ["Tarih", "Saat", "Ürün", "Boy", "Adet", "Tutar", "Ödeme", "İndirim"] as const;
@@ -23,6 +23,8 @@ export type CellValue = string | number | boolean | Date | null | undefined;
 export interface ParsedSales {
   rows: ImportRowRequest[];
   errors: string[];
+  /** Sistemde eşleşmeyen platform ürünleri (satır yine kaydedilir, stoktan düşmez) — önizlemede uyarı olarak gösterilir. */
+  unmatchedProducts?: { name: string; quantity: number }[];
 }
 
 const PAYMENT_ALIASES: Record<string, PaymentMethod> = {
@@ -86,35 +88,6 @@ function toNumber(value: CellValue): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-/** Şablon dosyasının içeriği: satış sayfası (örnek satırlı) + geçerli ürün listesi. */
-export function buildTemplateSheets(dishes: DishDto[], date: string, defaultPayment: PaymentMethod) {
-  const activeSizes = dishes
-    .filter((dish) => dish.isActive)
-    .flatMap((dish) => dish.sizes.filter((size) => size.isActive).map((size) => ({ dish: dish.name, size })));
-  const example = activeSizes[0];
-  const [year, month, day] = date.split("-");
-
-  const salesSheet: CellValue[][] = [
-    [...SALES_COLUMNS],
-    example
-      ? [`${day}.${month}.${year}`, "12:30", example.dish, example.size.name, 2, example.size.salePrice * 2, PAYMENT_METHOD_LABELS[defaultPayment], ""]
-      : [],
-  ];
-
-  const listSheet: CellValue[][] = [
-    ["Ürün", "Boy", "Satış fiyatı", "", "Ödeme"],
-    ...Array.from({ length: Math.max(activeSizes.length, 2) }, (_, i) => [
-      activeSizes[i]?.dish ?? "",
-      activeSizes[i]?.size.name ?? "",
-      activeSizes[i]?.size.salePrice ?? "",
-      "",
-      ["Nakit", "Kart"][i] ?? "",
-    ]),
-  ];
-
-  return { salesSheet, listSheet };
-}
-
 /**
  * Yüklenen satış sayfasını backend satırlarına çevirir. İlk satır başlıktır; kolon sırası
  * önemsizdir (başlık adıyla eşleşir). Hatalı satırlar atlanır ve satır numarasıyla raporlanır.
@@ -131,7 +104,7 @@ export function parseSalesSheet(sheet: CellValue[][], dishes: DishDto[], format:
 
   const missing = (["Tarih", "Ürün", "Boy", "Adet"] as const).filter((c) => !columnIndex.has(c));
   if (missing.length > 0) {
-    return { rows: [], errors: [`Şablon başlıkları eksik: ${missing.join(", ")}. Lütfen "Şablonu indir" ile gelen dosyayı kullanın.`] };
+    return { rows: [], errors: [`Kasa dosyasında başlıklar eksik: ${missing.join(", ")} (Tarih, Saat, Ürün, Boy, Adet, Tutar, Ödeme, İndirim bekleniyor).`] };
   }
 
   const sizeByKey = new Map(
@@ -178,6 +151,8 @@ export function parseSalesSheet(sheet: CellValue[][], dishes: DishDto[], format:
       saleDate,
       saleTime: toTime(cell("Saat")),
       dishSizeId: size.id,
+      productName: `${cell("Ürün") ?? ""} ${cell("Boy") ?? ""}`.trim(),
+      externalOrderNumber: null,
       quantity,
       // Tutar boşsa fiyat × adet − indirim (net tahsilat); doluysa girilen değer nettir.
       totalAmount: toNumber(cell("Tutar")) ?? Math.max(0, size.salePrice * quantity - (toNumber(cell("İndirim")) ?? 0)),

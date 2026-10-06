@@ -1,12 +1,13 @@
-import { CircleCheck, Download, FileSpreadsheet, History, Upload, X } from "lucide-react";
+import { CircleCheck, FileSpreadsheet, History, TriangleAlert, Upload, X } from "lucide-react";
 import { useRef, useState, type ChangeEvent } from "react";
 import { extractErrorMessage } from "../../api/apiError";
 import { ErrorMessage } from "../../components/ui/AsyncState";
 import { DataTable } from "../../components/ui/DataTable";
 import { Money } from "../../components/ui/Money";
 import { formatDate } from "../../lib/format";
-import type { CellValue, ParsedSales } from "../../lib/salesExcel";
-import { SALES_SOURCES, buildSourceTemplate, parseSourceSheet, platformOf, type SalesSource, type SalesSourceContext } from "../../lib/salesSources";
+import { readFirstSheet } from "../../lib/excelReader";
+import type { ParsedSales } from "../../lib/salesExcel";
+import { SALES_SOURCES, parseSourceSheet, platformOf, type SalesSource, type SalesSourceContext } from "../../lib/salesSources";
 import { DailySalesImportMode, type DailySalesEntryDto, type ImportRowRequest } from "../../types/dailySales";
 import { PAYMENT_METHOD_LABELS, SalesChannel } from "../../types/enums";
 import { SalesUploadHistory } from "./SalesUploadHistory";
@@ -31,6 +32,14 @@ interface Pending {
 
 const PREVIEW_LIMIT = 8;
 
+/** Önizleme: eşleşmeyen satırlar başa alınır ki ne eksik hemen görülsün; sonra dosya sırası. */
+function previewRows(rows: ImportRowRequest[]) {
+  return rows
+    .map((row, index) => ({ ...row, key: String(index), order: row.dishSizeId === null ? 0 : 1 }))
+    .sort((a, b) => a.order - b.order || Number(a.key) - Number(b.key))
+    .slice(0, PREVIEW_LIMIT);
+}
+
 /** Dosyadaki satırların günleri (tekrarsız, sıralı). */
 function datesOf(rows: ImportRowRequest[]): string[] {
   return [...new Set(rows.map((r) => r.saleDate))].sort();
@@ -43,9 +52,10 @@ function entriesOf(source: SalesSource, entries: DailySalesEntryDto[], ctx: Sale
 }
 
 /**
- * Satışların tek giriş yolu: üç kaynak kartı (Kasa, Yemeksepeti, Uber). Her kart seçili gün için yüklendi mi
- * gösterir; dosya seçilince tarayıcıda okunur, önizlenir ve onaylanınca kaydedilir. Aynı kaynağın aynı günü
- * ikinci kez yüklenirse sunucu reddeder ("değiştir" işaretlenirse o kaynağın o günkü satırları yenilenir).
+ * Satışların tek giriş yolu: üç kaynak kartı (Kasa, Yemeksepeti, Trendyol Go). Platform dosyaları panelden
+ * indirildiği gibi yüklenir (şablon yok). Her kart seçili gün için yüklendi mi gösterir; dosya seçilince tarayıcıda
+ * okunur, önizlenir ve onaylanınca kaydedilir. Aynı kaynağın aynı günü ikinci kez yüklenirse sunucu reddeder
+ * ("değiştir" işaretlenirse o kaynağın o günkü satırları yenilenir).
  */
 export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, onImport }: SalesExcelImportProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -65,19 +75,8 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
   const canSave = pending !== null && pending.parsed.rows.length > 0 && (!dateMismatch || acceptOtherDates);
 
   const sizeLabel = new Map(ctx.dishes.flatMap((d) => d.sizes.map((s) => [s.id, `${d.name} — ${s.name}`] as const)));
-
-  async function downloadTemplate(source: SalesSource) {
-    const { default: writeXlsxFile } = await import("write-excel-file/browser");
-    const { salesSheet, listSheet } = buildSourceTemplate(source, ctx, date);
-    const toCells = (rows: CellValue[][]) => rows.map((row) => row.map((value) => (value === "" ? null : value)));
-    await writeXlsxFile(
-      [
-        { sheet: "Satışlar", data: toCells(salesSheet) as never, columns: [{ width: 12 }, { width: 8 }, { width: 24 }, { width: 12 }, { width: 8 }, { width: 10 }, { width: 10 }, { width: 10 }] },
-        { sheet: "Liste", data: toCells(listSheet) as never, columns: [{ width: 24 }, { width: 12 }, { width: 12 }, { width: 4 }, { width: 10 }] },
-      ],
-      {},
-    ).toFile(`${source.id}-satis-sablonu-${date}.xlsx`);
-  }
+  const unmatched = pending?.parsed.unmatchedProducts ?? [];
+  const unmatchedRowCount = pending?.parsed.rows.filter((r) => r.dishSizeId === null).length ?? 0;
 
   function pickFile(source: SalesSource) {
     setPicking(source);
@@ -95,8 +94,7 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
     setPending(null);
     setIsBusy(true);
     try {
-      const { readSheet } = await import("read-excel-file/browser");
-      const sheet = (await readSheet(file)) as CellValue[][];
+      const sheet = await readFirstSheet(file);
       setPending({ source: picking, fileName: file.name, parsed: parseSourceSheet(picking, sheet, ctx) });
       setReplaceExisting(false);
       setAcceptOtherDates(false);
@@ -151,10 +149,6 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
                   <FileSpreadsheet size={15} aria-hidden="true" />
                   Excel yükle
                 </button>
-                <button type="button" className="ui-button ghost small" onClick={() => void downloadTemplate(source)}>
-                  <Download size={15} aria-hidden="true" />
-                  Şablon
-                </button>
                 <button type="button" className="ui-button ghost small" onClick={() => setHistoryOf(source)}>
                   <History size={15} aria-hidden="true" />
                   Geçmiş yüklemeler
@@ -204,6 +198,16 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
               </div>
             </div>
           )}
+          {unmatched.length > 0 && (
+            <div className="excel-unmatched" role="status">
+              <TriangleAlert size={16} aria-hidden="true" />
+              <div>
+                <strong>{unmatchedRowCount} satır sistemdeki ürünlerle eşleşmedi</strong> — gelir olarak kaydedilir ama reçetesi olmadığı için stoktan
+                düşmez. Stoktan düşmesini istiyorsanız Mutfak ve Stok → Ürünler'e aynı adla ekleyip dosyayı yeniden yükleyin:{" "}
+                {unmatched.map((u) => `${u.name} (×${u.quantity})`).join(", ")}
+              </div>
+            </div>
+          )}
           {dateMismatch && (
             <div className="excel-date-warning" role="alert">
               <span>
@@ -225,11 +229,21 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
           {pending.parsed.rows.length > 0 && (
             <>
               <DataTable
-                rows={pending.parsed.rows.slice(0, PREVIEW_LIMIT).map((row, index) => ({ ...row, key: String(index) }))}
+                rows={previewRows(pending.parsed.rows)}
                 rowKey={(row) => row.key}
                 columns={[
                   { header: "Tarih", render: (row) => formatDate(row.saleDate) },
-                  { header: "Ürün", render: (row) => sizeLabel.get(row.dishSizeId) ?? "—" },
+                  {
+                    header: "Ürün",
+                    render: (row) =>
+                      row.dishSizeId ? (
+                        sizeLabel.get(row.dishSizeId) ?? "—"
+                      ) : (
+                        <span className="excel-unmatched-cell">
+                          {row.productName ?? "—"} <span className="ui-badge warning">eşleşmedi</span>
+                        </span>
+                      ),
+                  },
                   { header: "Adet", align: "right", render: (row) => String(row.quantity) },
                   { header: "Tutar", align: "right", render: (row) => <Money value={row.totalAmount} /> },
                   { header: "Ödeme", render: (row) => PAYMENT_METHOD_LABELS[row.paymentMethod] },

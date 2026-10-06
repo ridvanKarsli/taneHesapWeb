@@ -84,14 +84,14 @@ export const NAV_GROUPS: NavGroup[] = [
         label: "Gün Sonu",
         roles: ADMIN,
         description:
-          "Günün Kasa, Yemeksepeti ve Uber Excel'lerini yükleyin, ardından kasadaki gerçek nakdi ve POS'taki gerçek kart gelirini girin. Kasaya ve banka hesabına gerçek tutar yazılır, fark raporlanır.",
+          "Günün Kasa, Yemeksepeti ve Trendyol Go Excel'lerini yükleyin, ardından kasadaki gerçek nakdi ve POS'taki gerçek kart gelirini girin. Kasaya ve banka hesabına gerçek tutar yazılır, fark raporlanır.",
       },
       {
         path: "/gun-sonu/paket-servis",
         label: "Paket Servis",
         roles: ADMIN,
         actingSuperAdminOnly: true,
-        description: "Yemeksepeti, Uber gibi platformlar ve komisyon oranları. Yalnızca süper admin görür ve değiştirir.",
+        description: "Yemeksepeti, Trendyol Go gibi platformlar ve komisyon oranları. Yalnızca süper admin görür ve değiştirir.",
       },
     ],
   },

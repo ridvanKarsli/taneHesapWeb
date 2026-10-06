@@ -1,15 +1,18 @@
 import type { DishDto } from "../types/dish";
 import { PaymentMethod, SalesChannel } from "../types/enums";
 import type { PlatformDto } from "../types/platform";
-import { buildTemplateSheets, parseSalesSheet, type CellValue, type ParsedSales, type SheetFormat } from "./salesExcel";
+import { looksLikeTrendyolSheet, looksLikeYemeksepetiSheet, parseTrendyolSheet, parseYemeksepetiSheet } from "./platformSheets";
+import { ProductMatcher } from "./productMatcher";
+import { parseSalesSheet, type CellValue, type ParsedSales, type SheetFormat } from "./salesExcel";
 
 /**
- * Satışlar yalnızca Excel ile girilir; üç kaynak vardır: dükkânın kasa (POS) dökümü, Yemeksepeti ve Uber.
- * Her kaynak kendi ayrıştırıcısını taşır (strateji deseni). Şu an üçü de taneHesap şablonunu okur; gerçek
- * dışa aktarım dosyaları gelince yalnızca ilgili kaynağın `parse`/`template` fonksiyonu değişir — sayfa,
- * içe aktarma akışı ve backend aynı kalır.
+ * Satışlar yalnızca Excel ile girilir; üç kaynak vardır: dükkânın kasa dökümü, Yemeksepeti ve Trendyol Go
+ * (Uber Eats kuryeli). Her kaynak kendi ayrıştırıcısını taşır (strateji deseni): platform dosyaları panelden
+ * indirildiği gibi yüklenir (şablon yok); kasa dökümü gelene kadar Kasa için taneHesap biçimi okunur.
  */
-export type SalesSourceId = "kasa" | "yemeksepeti" | "uber";
+export type SalesSourceId = "kasa" | "yemeksepeti" | "trendyolgo";
+
+type SheetParser = (sheet: CellValue[][], ctx: SalesSourceContext, format: SheetFormat) => ParsedSales;
 
 export interface SalesSourceContext {
   dishes: DishDto[];
@@ -26,6 +29,9 @@ export interface SalesSource {
   /** Dosyada ödeme sütunu boşsa kullanılacak ödeme şekli (platform ödemesi bankaya gelir → Kart). */
   defaultPayment: PaymentMethod;
   hint: string;
+  /** Dosya bu kaynağın biçimine benziyor mu (yanlış karta yüklemeyi yakalamak için). */
+  looksLike: (sheet: CellValue[][]) => boolean;
+  parse: SheetParser;
 }
 
 export const SALES_SOURCES: SalesSource[] = [
@@ -35,6 +41,8 @@ export const SALES_SOURCES: SalesSource[] = [
     channel: SalesChannel.InStore,
     defaultPayment: PaymentMethod.Cash,
     hint: "Dükkân içi satışlar (kasa dökümü). Ödeme sütunu Nakit/Kart.",
+    looksLike: (sheet) => !looksLikeTrendyolSheet(sheet) && !looksLikeYemeksepetiSheet(sheet),
+    parse: (sheet, ctx, format) => parseSalesSheet(sheet, ctx.dishes, format),
   },
   {
     id: "yemeksepeti",
@@ -42,15 +50,19 @@ export const SALES_SOURCES: SalesSource[] = [
     channel: SalesChannel.Platform,
     platformKeywords: ["yemeksepeti", "yemek sepeti"],
     defaultPayment: PaymentMethod.Card,
-    hint: "Yemeksepeti siparişleri; komisyon otomatik gider olur.",
+    hint: "Yemeksepeti panelindeki sipariş raporu (olduğu gibi). Komisyon otomatik gider olur.",
+    looksLike: looksLikeYemeksepetiSheet,
+    parse: (sheet, ctx, format) => parseYemeksepetiSheet(sheet, new ProductMatcher(ctx.dishes), format),
   },
   {
-    id: "uber",
-    label: "Uber",
+    id: "trendyolgo",
+    label: "Trendyol Go",
     channel: SalesChannel.Platform,
-    platformKeywords: ["uber"],
+    platformKeywords: ["trendyol", "uber"],
     defaultPayment: PaymentMethod.Card,
-    hint: "Uber siparişleri; komisyon otomatik gider olur.",
+    hint: "Trendyol Go (Uber Eats kuryeli) sipariş dökümü (olduğu gibi). Komisyon otomatik gider olur.",
+    looksLike: looksLikeTrendyolSheet,
+    parse: (sheet, ctx, format) => parseTrendyolSheet(sheet, new ProductMatcher(ctx.dishes), format),
   },
 ];
 
@@ -69,10 +81,15 @@ function formatOf(source: SalesSource, platforms: PlatformDto[]): SheetFormat {
   return { channel: source.channel, platformId: platform?.id ?? null, defaultPayment: source.defaultPayment };
 }
 
+/** Dosyayı kaynağın ayrıştırıcısıyla okur; başka bir kaynağın dosyası yüklendiyse adıyla uyarır. */
 export function parseSourceSheet(source: SalesSource, sheet: CellValue[][], ctx: SalesSourceContext): ParsedSales {
-  return parseSalesSheet(sheet, ctx.dishes, formatOf(source, ctx.platforms));
-}
-
-export function buildSourceTemplate(source: SalesSource, ctx: SalesSourceContext, date: string) {
-  return buildTemplateSheets(ctx.dishes, date, source.defaultPayment);
+  const other = SALES_SOURCES.find((s) => s.id !== source.id && s.id !== "kasa" && s.looksLike(sheet));
+  if (other && !source.looksLike(sheet)) {
+    return { rows: [], errors: [`Bu dosya ${other.label} dökümüne benziyor. Lütfen ${other.label} kartından yükleyin.`] };
+  }
+  const format = formatOf(source, ctx.platforms);
+  if (format.channel === SalesChannel.Platform && !format.platformId) {
+    return { rows: [], errors: ["Bu paket servis platformu henüz tanımlı değil; sistem yöneticinizin komisyon oranıyla eklemesi gerekiyor."] };
+  }
+  return source.parse(sheet, ctx, format);
 }

@@ -23,7 +23,7 @@ export function PlatformsPage() {
   return (
     <CrudPage<PlatformDto>
       load={platformApi.getAll}
-      emptyText="Henüz platform yok — “Yemeksepeti” ve “Uber” adlarıyla ekleyin; Gün Sonu'ndaki Excel kartları bu adlarla eşleşir."
+      emptyText="Henüz platform yok — “Yemeksepeti” ve “Trendyol Go” adlarıyla ekleyin; Gün Sonu'ndaki Excel kartları bu adlarla eşleşir."
       columns={[
         { header: "Ad", render: (row) => row.name },
         { header: "Komisyon", align: "right", render: (row) => formatPercent(row.commissionPercentage) },

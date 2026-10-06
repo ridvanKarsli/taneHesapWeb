@@ -5,7 +5,7 @@ export interface DailySalesEntryDto {
   id: string;
   saleDate: string;
   saleTime: string | null;
-  dishSizeId: string;
+  dishSizeId: string | null;
   dishName: string;
   sizeName: string;
   quantity: number;
@@ -15,6 +15,7 @@ export interface DailySalesEntryDto {
   platformId: string | null;
   platformName: string | null;
   discountAmount: number | null;
+  externalOrderNumber: string | null;
 }
 
 /** Backend `DailySalesUploadDto`: bir günün bir kaynaktan yüklenmiş satış özeti ("Geçmiş yüklemeler"). */
@@ -30,7 +31,12 @@ export interface DailySalesUploadDto {
 export interface ImportRowRequest {
   saleDate: string;
   saleTime: string | null;
-  dishSizeId: string;
+  /** Sistemde eşleşen ürün boyu; eşleşmeyen platform ürünü için null (gelir sayılır, stoktan düşmez). */
+  dishSizeId: string | null;
+  /** Dosyadaki ürün adı. */
+  productName: string | null;
+  /** Platformun sipariş numarası (Trendyol Go / Yemeksepeti). */
+  externalOrderNumber: string | null;
   quantity: number;
   totalAmount: number;
   paymentMethod: PaymentMethod;

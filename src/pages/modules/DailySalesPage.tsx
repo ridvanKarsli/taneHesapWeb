@@ -19,7 +19,7 @@ import { SalesExcelImport } from "./SalesExcelImport";
 import "./modules.css";
 
 /**
- * Gün sonu: (1) günün Kasa, Yemeksepeti ve Uber Excel'leri yüklenir — satışlar, stok düşümü, komisyonlar;
+ * Gün sonu: (1) günün Kasa, Yemeksepeti ve Trendyol Go Excel'leri yüklenir — satışlar, stok düşümü, komisyonlar;
  * (2) gelir doğrulama — kasadaki gerçek nakit ve POS'taki gerçek kart geliri girilir, kasaya gerçek tutar yazılır
  * (bkz. proje raporu 3.5, 3.10).
  */
@@ -46,7 +46,7 @@ export function DailySalesPage() {
   return (
     <div>
       <PageHeader
-        description="Önce günün Kasa, Yemeksepeti ve Uber Excel'lerini yükleyin; sonra kasadaki gerçek nakdi ve POS'taki gerçek kart toplamını girip doğrulayın. Aynı dosya ikinci kez yüklenirse gün iki kez sayılmaz."
+        description="Önce günün Kasa, Yemeksepeti ve Trendyol Go Excel'lerini yükleyin; sonra kasadaki gerçek nakdi ve POS'taki gerçek kart toplamını girip doğrulayın. Aynı dosya ikinci kez yüklenirse gün iki kez sayılmaz."
         actions={<DateFilter id="sales-date" label="Tarih" value={date} onChange={setDate} />}
       />
 

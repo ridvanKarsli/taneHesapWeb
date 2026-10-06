@@ -21,7 +21,7 @@ interface IncomeVerificationPanelProps {
 /**
  * Gün sonunun ikinci adımı: Kasa Excel'inden beklenen dükkân içi nakit/kart geliri ile kasadan sayılan nakit ve
  * POS'taki kart toplamı karşılaştırılır. Kaydedince nakit kasasına ve banka hesabına gerçek tutarlar yazılır,
- * raporlardaki gelir de bu olur. Paket servis (Yemeksepeti, Uber) kapsam dışıdır.
+ * raporlardaki gelir de bu olur. Paket servis (Yemeksepeti, Trendyol Go) kapsam dışıdır.
  */
 export function IncomeVerificationPanel({ date, reloadKey, onChanged }: IncomeVerificationPanelProps) {
   const day = useAsyncData(() => incomeVerificationApi.getDay(date), `${date}|${reloadKey}`);
