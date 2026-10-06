@@ -1,13 +1,13 @@
-import { CircleCheck, FileSpreadsheet, History, PackagePlus, TriangleAlert, Upload, X } from "lucide-react";
+import { CircleCheck, FileSpreadsheet, History, OctagonAlert, Upload, X } from "lucide-react";
 import { useMemo, useRef, useState, type ChangeEvent } from "react";
+import { Link } from "react-router-dom";
 import { extractErrorMessage } from "../../api/apiError";
-import { dishApi } from "../../api/moduleApis";
 import { ErrorMessage } from "../../components/ui/AsyncState";
 import { DataTable } from "../../components/ui/DataTable";
 import { Money } from "../../components/ui/Money";
 import { formatDate } from "../../lib/format";
 import { readFirstSheet } from "../../lib/excelReader";
-import type { CellValue, UnmatchedProduct } from "../../lib/salesExcel";
+import { toImportRows, type CellValue, type ParsedRow } from "../../lib/salesExcel";
 import { SALES_SOURCES, parseSourceSheet, platformOf, type SalesSource, type SalesSourceContext } from "../../lib/salesSources";
 import { DailySalesImportMode, type DailySalesEntryDto, type ImportRowRequest } from "../../types/dailySales";
 import { PAYMENT_METHOD_LABELS, SalesChannel } from "../../types/enums";
@@ -23,32 +23,17 @@ interface SalesExcelImportProps {
   /** Satışlar değişince geçmiş listesi yeniden okunur. */
   reloadKey: string;
   onImport: (fileName: string, rows: ImportRowRequest[], mode: DailySalesImportMode) => Promise<void>;
-  /** Önizlemeden ürün eklenince ürün listesi yeniden okunur; dosya yeni listeyle yeniden eşleştirilir. */
-  onCatalogChanged: () => Promise<void>;
 }
 
-/** Okunmuş dosya; ayrıştırma (`parsed`) ürün listesi değiştikçe yeniden yapılır — ürün eklenince satırlar anında eşleşir. */
+/** Okunmuş dosya; ayrıştırma ürün listesi değiştikçe yeniden yapılır (Ürünler'e ekleyip dönünce satırlar eşleşir). */
 interface Pending {
   source: SalesSource;
   fileName: string;
   sheet: CellValue[][];
 }
 
-/** Eşleşmeyen ürünün sistemde açılacağı boy adı (parantezdeki boy zaten ürün adının parçasıdır). */
-const DEFAULT_SIZE_NAME = "Porsiyon";
-
-const PREVIEW_LIMIT = 8;
-
-/** Önizleme: eşleşmeyen satırlar başa alınır ki ne eksik hemen görülsün; sonra dosya sırası. */
-function previewRows(rows: ImportRowRequest[]) {
-  return rows
-    .map((row, index) => ({ ...row, key: String(index), order: row.dishSizeId === null ? 0 : 1 }))
-    .sort((a, b) => a.order - b.order || Number(a.key) - Number(b.key))
-    .slice(0, PREVIEW_LIMIT);
-}
-
 /** Dosyadaki satırların günleri (tekrarsız, sıralı). */
-function datesOf(rows: ImportRowRequest[]): string[] {
+function datesOf(rows: ParsedRow[]): string[] {
   return [...new Set(rows.map((r) => r.saleDate))].sort();
 }
 
@@ -58,13 +43,26 @@ function entriesOf(source: SalesSource, entries: DailySalesEntryDto[], ctx: Sale
   return entries.filter((e) => e.channel === source.channel && (source.channel === SalesChannel.InStore || e.platformId === platform?.id));
 }
 
+/** Ürün bazında özet: kaç tane, kaç para (işlenmiş görünümün üst tablosu). */
+function summarizeByProduct(rows: ParsedRow[], label: (row: ParsedRow) => string) {
+  const map = new Map<string, { name: string; quantity: number; amount: number }>();
+  for (const row of rows) {
+    const name = label(row);
+    const entry = map.get(name) ?? { name, quantity: 0, amount: 0 };
+    entry.quantity += row.quantity;
+    entry.amount += row.totalAmount;
+    map.set(name, entry);
+  }
+  return [...map.values()].sort((a, b) => b.amount - a.amount);
+}
+
 /**
  * Satışların tek giriş yolu: üç kaynak kartı (Kasa, Yemeksepeti, Trendyol Go). Platform dosyaları panelden
- * indirildiği gibi yüklenir (şablon yok). Her kart seçili gün için yüklendi mi gösterir; dosya seçilince tarayıcıda
- * okunur, önizlenir ve onaylanınca kaydedilir. Aynı kaynağın aynı günü ikinci kez yüklenirse sunucu reddeder
- * ("değiştir" işaretlenirse o kaynağın o günkü satırları yenilenir).
+ * indirildiği gibi yüklenir (şablon yok). Dosya tarayıcıda okunur ve işlenmiş hâli gösterilir: tarih, ürün, adet,
+ * tutar. Dosyadaki her ürün Ürünler listesinde olmak zorundadır — olmayan varsa dosya reddedilir, kullanıcı ürünleri
+ * ekleyip dosyayı yeniden yükler. Hepsi eşleşince "Onayla ve kaydet" ile satışlar işlenir (stok düşer, kasaya yazılır).
  */
-export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, onImport, onCatalogChanged }: SalesExcelImportProps) {
+export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, onImport }: SalesExcelImportProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [picking, setPicking] = useState<SalesSource | null>(null);
   const [pending, setPending] = useState<Pending | null>(null);
@@ -73,7 +71,6 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
   const [historyOf, setHistoryOf] = useState<SalesSource | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isBusy, setIsBusy] = useState(false);
-  const [addingProduct, setAddingProduct] = useState<string | null>(null);
 
   const parsed = useMemo(() => (pending ? parseSourceSheet(pending.source, pending.sheet, ctx) : null), [pending, ctx]);
 
@@ -82,28 +79,14 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
   const fileDates = parsed ? datesOf(parsed.rows) : [];
   const otherDates = fileDates.filter((d) => d !== date);
   const dateMismatch = otherDates.length > 0;
-  const canSave = parsed !== null && parsed.rows.length > 0 && (!dateMismatch || acceptOtherDates);
 
   const sizeLabel = new Map(ctx.dishes.flatMap((d) => d.sizes.map((s) => [s.id, `${d.name} — ${s.name}`] as const)));
+  const productLabel = (row: ParsedRow) => (row.dishSizeId ? (sizeLabel.get(row.dishSizeId) ?? "—") : (row.productName ?? "—"));
   const unmatched = parsed?.unmatchedProducts ?? [];
-  const unmatchedRowCount = parsed?.rows.filter((r) => r.dishSizeId === null).length ?? 0;
-
-  /** Dosyadaki adla ürün açar (tek boy; fiyat dosyadan okunabildiyse o, yoksa 0 — Ürünler'den düzeltilir). */
-  async function addProducts(products: UnmatchedProduct[]) {
-    setError(null);
-    setAddingProduct(products.length === 1 ? products[0].name : "*");
-    try {
-      for (const product of products) {
-        const dish = await dishApi.create({ name: product.name, description: "Platform dosyasından eklendi — reçetesini Ürünler'den girin." });
-        await dishApi.addSize(dish.id, { name: DEFAULT_SIZE_NAME, salePrice: product.unitPrice ?? 0, recipeItems: [] });
-      }
-      await onCatalogChanged();
-    } catch (addError) {
-      setError(extractErrorMessage(addError));
-    } finally {
-      setAddingProduct(null);
-    }
-  }
+  const importRows = parsed ? toImportRows(parsed.rows) : null;
+  const totalAmount = parsed?.rows.reduce((sum, r) => sum + r.totalAmount, 0) ?? 0;
+  const totalQuantity = parsed?.rows.reduce((sum, r) => sum + r.quantity, 0) ?? 0;
+  const canSave = importRows !== null && importRows.length > 0 && (!dateMismatch || acceptOtherDates);
 
   function pickFile(source: SalesSource) {
     setPicking(source);
@@ -133,7 +116,7 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
   }
 
   async function submit() {
-    if (!pending || !parsed || !canSave) {
+    if (!pending || !importRows || !canSave) {
       return;
     }
     setError(null);
@@ -141,7 +124,7 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
     try {
       await onImport(
         `${pending.source.label}: ${pending.fileName}`,
-        parsed.rows,
+        importRows,
         replaceExisting ? DailySalesImportMode.Replace : DailySalesImportMode.RejectIfExists,
       );
       setPending(null);
@@ -208,7 +191,7 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
         <div className="excel-preview">
           <div className="excel-preview-head">
             <p className="ui-subheading">
-              {pending.source.label} — {pending.fileName}: {parsed.rows.length} geçerli satır
+              {pending.source.label} — {pending.fileName}: {parsed.rows.length} satır, {totalQuantity} adet, <Money value={totalAmount} />
               {parsed.errors.length > 0 && `, ${parsed.errors.length} hatalı satır`}
             </p>
             <button type="button" className="ui-button ghost small" onClick={() => setPending(null)} aria-label="Önizlemeyi kapat">
@@ -226,37 +209,30 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
             </div>
           )}
           {unmatched.length > 0 && (
-            <div className="excel-unmatched" role="status">
-              <TriangleAlert size={16} aria-hidden="true" />
-              <div className="excel-unmatched-body">
+            <div className="excel-rejected" role="alert">
+              <OctagonAlert size={18} aria-hidden="true" />
+              <div className="excel-rejected-body">
                 <p>
-                  <strong>{unmatchedRowCount} satır sistemdeki ürünlerle eşleşmedi</strong> — gelir olarak kaydedilir ama reçetesi olmadığı için
-                  stoktan düşmez. Dosyadaki adla ürün olarak ekleyin; reçetesini sonra Mutfak ve Stok → Ürünler'den girersiniz.
+                  <strong>Dosya kaydedilemez: {unmatched.length} ürün Ürünler listesinde yok.</strong> Bu ürünleri{" "}
+                  <Link to="/mutfak/urunler">Mutfak ve Stok → Ürünler</Link>'e dosyadaki adla (parantezdeki boy dahil) ekleyin, reçetesini girin ve
+                  dosyayı yeniden yükleyin. Eklemeden kaydedilirse o ürünlerin stoğu düşmez; bu yüzden reddedilir.
                 </p>
-                <ul className="excel-unmatched-list">
+                <ul className="excel-rejected-list">
                   {unmatched.map((u) => (
                     <li key={u.name}>
-                      <span>
-                        {u.name} <span className="ui-muted">×{u.quantity}{u.unitPrice !== null && ` · ₺${u.unitPrice}`}</span>
+                      <strong>{u.name}</strong>
+                      <span className="ui-muted">
+                        ×{u.quantity}
+                        {u.unitPrice !== null && (
+                          <>
+                            {" "}
+                            · <Money value={u.unitPrice} />
+                          </>
+                        )}
                       </span>
-                      <button
-                        type="button"
-                        className="ui-button small"
-                        disabled={addingProduct !== null || isBusy}
-                        onClick={() => void addProducts([u])}
-                      >
-                        <PackagePlus size={14} aria-hidden="true" />
-                        {addingProduct === u.name ? "Ekleniyor…" : "Ürün olarak ekle"}
-                      </button>
                     </li>
                   ))}
                 </ul>
-                {unmatched.length > 1 && (
-                  <button type="button" className="ui-button secondary small" disabled={addingProduct !== null || isBusy} onClick={() => void addProducts(unmatched)}>
-                    <PackagePlus size={14} aria-hidden="true" />
-                    {addingProduct === "*" ? "Ekleniyor…" : `Hepsini ekle (${unmatched.length} ürün)`}
-                  </button>
-                )}
               </div>
             </div>
           )}
@@ -280,28 +256,42 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
           )}
           {parsed.rows.length > 0 && (
             <>
+              <h3 className="excel-section-title">Ürün özeti</h3>
               <DataTable
-                rows={previewRows(parsed.rows)}
-                rowKey={(row) => row.key}
+                rows={summarizeByProduct(parsed.rows, productLabel)}
+                rowKey={(row) => row.name}
                 columns={[
-                  { header: "Tarih", render: (row) => formatDate(row.saleDate) },
-                  {
-                    header: "Ürün",
-                    render: (row) =>
-                      row.dishSizeId ? (
-                        sizeLabel.get(row.dishSizeId) ?? "—"
-                      ) : (
-                        <span className="excel-unmatched-cell">
-                          {row.productName ?? "—"} <span className="ui-badge warning">eşleşmedi</span>
-                        </span>
-                      ),
-                  },
+                  { header: "Ürün", render: (row) => <span className="ui-cell-strong">{row.name}</span> },
                   { header: "Adet", align: "right", render: (row) => String(row.quantity) },
-                  { header: "Tutar", align: "right", render: (row) => <Money value={row.totalAmount} /> },
-                  { header: "Ödeme", render: (row) => PAYMENT_METHOD_LABELS[row.paymentMethod] },
+                  { header: "Tutar", align: "right", render: (row) => <Money value={row.amount} /> },
                 ]}
               />
-              {parsed.rows.length > PREVIEW_LIMIT && <p className="ui-muted">… ve {parsed.rows.length - PREVIEW_LIMIT} satır daha.</p>}
+              <h3 className="excel-section-title">İşlenmiş satırlar ({parsed.rows.length})</h3>
+              <div className="excel-rows">
+                <DataTable
+                  rows={parsed.rows.map((row, index) => ({ ...row, key: String(index) }))}
+                  rowKey={(row) => row.key}
+                  rowClassName={(row) => (row.dishSizeId ? undefined : "excel-row-unmatched")}
+                  columns={[
+                    { header: "Tarih", render: (row) => `${formatDate(row.saleDate)}${row.saleTime ? ` ${row.saleTime.slice(0, 5)}` : ""}` },
+                    {
+                      header: "Ürün",
+                      render: (row) =>
+                        row.dishSizeId ? (
+                          productLabel(row)
+                        ) : (
+                          <span className="excel-unmatched-cell">
+                            {row.productName ?? "—"} <span className="ui-badge danger">listede yok</span>
+                          </span>
+                        ),
+                    },
+                    { header: "Adet", align: "right", render: (row) => String(row.quantity) },
+                    { header: "Tutar", align: "right", render: (row) => <Money value={row.totalAmount} /> },
+                    { header: "Ödeme", render: (row) => PAYMENT_METHOD_LABELS[row.paymentMethod] },
+                    { header: "Sipariş no", render: (row) => row.externalOrderNumber ?? "—" },
+                  ]}
+                />
+              </div>
               <label className="ui-checkbox" htmlFor="excel-replace-existing">
                 <input id="excel-replace-existing" type="checkbox" checked={replaceExisting} onChange={(e) => setReplaceExisting(e.target.checked)} />
                 Bu dosyadaki günlerin mevcut {pending.source.label} satışlarını değiştir (düzeltilmiş dosyayı yeniden yüklerken)
@@ -309,7 +299,7 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
               <div className="ui-form-actions excel-actions">
                 <button type="button" className="ui-button" onClick={() => void submit()} disabled={isBusy || !canSave}>
                   <Upload size={16} aria-hidden="true" />
-                  {isBusy ? "Yükleniyor…" : `${parsed.rows.length} satırı kaydet`}
+                  {isBusy ? "Kaydediliyor…" : unmatched.length > 0 ? "Önce eksik ürünleri ekleyin" : `Onayla ve kaydet (${parsed.rows.length} satır)`}
                 </button>
               </div>
             </>

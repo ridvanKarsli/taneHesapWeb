@@ -26,14 +26,22 @@ export interface UnmatchedProduct {
   unitPrice: number | null;
 }
 
+/** Dosyadan çözülen satır: ürün sistemde eşleşmediyse `dishSizeId` null'dır — dosya bu hâlde kaydedilemez. */
+export type ParsedRow = Omit<ImportRowRequest, "dishSizeId"> & { dishSizeId: string | null };
+
 export interface ParsedSales {
-  rows: ImportRowRequest[];
+  rows: ParsedRow[];
   errors: string[];
   /**
-   * Sistemde eşleşmeyen platform ürünleri (satır yine kaydedilir, stoktan düşmez) — önizlemede uyarı olarak gösterilir
-   * ve tek tıkla aynı adla ürün olarak eklenebilir. `unitPrice` dosyadan okunabildiyse (Trendyol Go) satış fiyatı olur.
+   * Ürünler listesinde olmayan ürünler. Dosya reddedilir: kullanıcı bunları Mutfak ve Stok → Ürünler'e ekleyip dosyayı
+   * yeniden yükler. `unitPrice` dosyadan okunabildiyse (Trendyol Go) bilgi için gösterilir.
    */
   unmatchedProducts?: UnmatchedProduct[];
+}
+
+/** Tüm satırlar eşleşmişse backend satırları; bir tane bile eşleşmeyen varsa null (kaydedilemez). */
+export function toImportRows(rows: ParsedRow[]): ImportRowRequest[] | null {
+  return rows.every((r) => r.dishSizeId !== null) ? (rows as ImportRowRequest[]) : null;
 }
 
 const PAYMENT_ALIASES: Record<string, PaymentMethod> = {
@@ -123,7 +131,7 @@ export function parseSalesSheet(sheet: CellValue[][], dishes: DishDto[], format:
     return { rows: [], errors: ["Bu paket servis platformu henüz tanımlı değil; sistem yöneticinizin komisyon oranıyla eklemesi gerekiyor."] };
   }
 
-  const rows: ImportRowRequest[] = [];
+  const rows: ParsedRow[] = [];
   const errors: string[] = [];
 
   body.forEach((cells, i) => {

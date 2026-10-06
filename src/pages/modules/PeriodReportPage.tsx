@@ -115,22 +115,12 @@ export function PeriodReportPage() {
                   <p className="ui-muted">Maliyet, reçete × malzemelerin güncel birim fiyatıyla hesaplanan tahmini değerdir.</p>
                   <DataTable
                     rows={data.salesByDish}
-                    rowKey={(row) => row.dishSizeId ?? `ext:${row.dishName}`}
+                    rowKey={(row) => row.dishSizeId}
                     columns={[
-                      {
-                        header: "Ürün",
-                        render: (row) =>
-                          row.dishSizeId ? (
-                            <span className="ui-cell-strong">{`${row.dishName} — ${row.sizeName}`}</span>
-                          ) : (
-                            <span className="ui-cell-strong" title="Sistemde tanımlı değil; maliyet bilinmiyor">
-                              {row.dishName} <span className="ui-badge warning">eşleşmedi</span>
-                            </span>
-                          ),
-                      },
+                      { header: "Ürün", render: (row) => <span className="ui-cell-strong">{`${row.dishName} — ${row.sizeName}`}</span> },
                       { header: "Adet", align: "right", render: (row) => String(row.quantity) },
                       { header: "Ciro", align: "right", render: (row) => <Money value={row.revenue} /> },
-                      { header: "Tahmini maliyet", align: "right", render: (row) => (row.dishSizeId ? <Money value={row.estimatedCost} /> : "—") },
+                      { header: "Tahmini maliyet", align: "right", render: (row) => <Money value={row.estimatedCost} /> },
                       {
                         header: "Tahmini kâr",
                         align: "right",

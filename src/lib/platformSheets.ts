@@ -1,8 +1,7 @@
-import type { ImportRowRequest } from "../types/dailySales";
 import { PaymentMethod, SalesChannel } from "../types/enums";
 import { cellToDateTime } from "./excelReader";
 import { ProductMatcher } from "./productMatcher";
-import type { CellValue, ParsedSales, SheetFormat, UnmatchedProduct } from "./salesExcel";
+import type { CellValue, ParsedRow, ParsedSales, SheetFormat, UnmatchedProduct } from "./salesExcel";
 
 /** Eşleşmeyen ürünleri ad bazında toplar (adet toplanır, ilk görülen birim fiyat tutulur). */
 class UnmatchedCollector {
@@ -76,7 +75,7 @@ export function parseTrendyolSheet(sheet: CellValue[][], matcher: ProductMatcher
     return { rows: [], errors: ["Bu dosya Trendyol Go sipariş dökümüne benzemiyor (Sipariş Tarihi, Sipariş Numarası, Ürün Adı, Adet, Birim Fiyatı sütunları bekleniyor)."] };
   }
 
-  const rows: ImportRowRequest[] = [];
+  const rows: ParsedRow[] = [];
   const errors: string[] = [];
   const unmatched = new UnmatchedCollector();
 
@@ -178,7 +177,7 @@ export function parseYemeksepetiSheet(sheet: CellValue[][], matcher: ProductMatc
   }
   const { map, headerIndex } = header;
 
-  const rows: ImportRowRequest[] = [];
+  const rows: ParsedRow[] = [];
   const errors: string[] = [];
   const unmatched = new UnmatchedCollector();
 

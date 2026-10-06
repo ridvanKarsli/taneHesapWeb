@@ -16,8 +16,7 @@ export interface PeriodReportDto {
   expenseByType: { expenseTypeId: string; expenseTypeName: string; category: ExpenseCategory; amount: number }[];
   /** Tabak (boy) bazlı satış; maliyet güncel malzeme fiyatlarıyla tahminidir. */
   salesByDish: {
-    /** Eşleşmeyen platform ürünlerinde null. */
-    dishSizeId: string | null;
+    dishSizeId: string;
     dishName: string;
     sizeName: string;
     quantity: number;
