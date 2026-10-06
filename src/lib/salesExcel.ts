@@ -128,7 +128,7 @@ export function parseSalesSheet(sheet: CellValue[][], dishes: DishDto[], format:
     dishes.flatMap((dish) => dish.sizes.map((size) => [`${normalize(dish.name)}|${normalize(size.name)}`, size] as const)),
   );
   if (format.channel === SalesChannel.Platform && !format.platformId) {
-    return { rows: [], errors: ["Bu paket servis platformu henüz tanımlı değil; sistem yöneticinizin komisyon oranıyla eklemesi gerekiyor."] };
+    return { rows: [], errors: ["Bu paket servis platformu pasif ya da silinmiş; Paket Servis'ten (süper admin) yeniden etkinleştirilmeli."] };
   }
 
   const rows: ParsedRow[] = [];

@@ -89,7 +89,7 @@ export function parseSourceSheet(source: SalesSource, sheet: CellValue[][], ctx:
   }
   const format = formatOf(source, ctx.platforms);
   if (format.channel === SalesChannel.Platform && !format.platformId) {
-    return { rows: [], errors: ["Bu paket servis platformu henüz tanımlı değil; sistem yöneticinizin komisyon oranıyla eklemesi gerekiyor."] };
+    return { rows: [], errors: ["Bu paket servis platformu pasif ya da silinmiş; Paket Servis'ten (süper admin) yeniden etkinleştirilmeli."] };
   }
   return source.parse(sheet, ctx, format);
 }

@@ -219,6 +219,16 @@
   color: var(--color-text-muted);
 }
 
+.sales-source-warning {
+  margin: 0;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
 .sales-source .ui-muted {
   margin: 0;
   font-size: 0.84rem;

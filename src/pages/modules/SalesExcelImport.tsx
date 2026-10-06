@@ -139,7 +139,9 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
     <div>
       <div className="sales-sources">
         {SALES_SOURCES.map((source) => {
-          const missingPlatform = source.channel === SalesChannel.Platform && !platformOf(source, ctx.platforms);
+          const platform = source.channel === SalesChannel.Platform ? platformOf(source, ctx.platforms) : null;
+          const missingPlatform = source.channel === SalesChannel.Platform && !platform;
+          const commissionUnset = platform !== null && platform.commissionPercentage === 0;
           const done = entriesOf(source, entries, ctx);
           return (
             <article key={source.id} className={`sales-source${done.length > 0 ? " done" : ""}`}>
@@ -153,7 +155,16 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
                   <span className="sales-source-status muted">{formatDate(date)} için yüklenmedi</span>
                 )}
               </div>
-              <p className="ui-muted">{missingPlatform ? `${source.label} platformu henüz tanımlı değil — sistem yöneticiniz komisyon oranıyla birlikte ekleyince açılır.` : source.hint}</p>
+              <p className="ui-muted">
+                {missingPlatform
+                  ? `${source.label} platformu pasif ya da silinmiş — Paket Servis'ten (süper admin) yeniden etkinleştirilince açılır.`
+                  : source.hint}
+              </p>
+              {commissionUnset && (
+                <p className="sales-source-warning" role="note">
+                  Komisyon oranı girilmemiş (%0): komisyon gideri hesaplanmaz. Paket Servis'ten {platform.name} oranını girin.
+                </p>
+              )}
               <div className="sales-source-actions">
                 <button type="button" className="ui-button small" onClick={() => pickFile(source)} disabled={isBusy || missingPlatform}>
                   <FileSpreadsheet size={15} aria-hidden="true" />
