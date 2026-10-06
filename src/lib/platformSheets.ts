@@ -2,7 +2,26 @@ import type { ImportRowRequest } from "../types/dailySales";
 import { PaymentMethod, SalesChannel } from "../types/enums";
 import { cellToDateTime } from "./excelReader";
 import { ProductMatcher } from "./productMatcher";
-import type { CellValue, ParsedSales, SheetFormat } from "./salesExcel";
+import type { CellValue, ParsedSales, SheetFormat, UnmatchedProduct } from "./salesExcel";
+
+/** Eşleşmeyen ürünleri ad bazında toplar (adet toplanır, ilk görülen birim fiyat tutulur). */
+class UnmatchedCollector {
+  private readonly items = new Map<string, UnmatchedProduct>();
+
+  add(name: string, quantity: number, unitPrice: number | null): void {
+    const existing = this.items.get(name);
+    if (existing) {
+      existing.quantity += quantity;
+      existing.unitPrice ??= unitPrice;
+    } else {
+      this.items.set(name, { name, quantity, unitPrice });
+    }
+  }
+
+  list(): UnmatchedProduct[] {
+    return [...this.items.values()];
+  }
+}
 
 /**
  * Paket servis platformlarının kendi dışa aktarım dosyaları (şablon yok; dosya panelden indirildiği gibi yüklenir).
@@ -59,7 +78,7 @@ export function parseTrendyolSheet(sheet: CellValue[][], matcher: ProductMatcher
 
   const rows: ImportRowRequest[] = [];
   const errors: string[] = [];
-  const unmatched = new Map<string, number>();
+  const unmatched = new UnmatchedCollector();
 
   sheet.slice(1).forEach((cells, i) => {
     const rowNo = i + 2;
@@ -87,7 +106,7 @@ export function parseTrendyolSheet(sheet: CellValue[][], matcher: ProductMatcher
 
     const match = matcher.match(productName);
     if (!match) {
-      unmatched.set(productName, (unmatched.get(productName) ?? 0) + Math.round(quantity));
+      unmatched.add(productName, Math.round(quantity), unitPrice);
     }
     rows.push({
       saleDate: when.date,
@@ -104,7 +123,7 @@ export function parseTrendyolSheet(sheet: CellValue[][], matcher: ProductMatcher
     });
   });
 
-  return { rows, errors, unmatchedProducts: [...unmatched].map(([name, quantity]) => ({ name, quantity })) };
+  return { rows, errors, unmatchedProducts: unmatched.list() };
 }
 
 // ---------- Yemeksepeti — satır başına bir sipariş, ürünler tek metinde ----------
@@ -161,7 +180,7 @@ export function parseYemeksepetiSheet(sheet: CellValue[][], matcher: ProductMatc
 
   const rows: ImportRowRequest[] = [];
   const errors: string[] = [];
-  const unmatched = new Map<string, number>();
+  const unmatched = new UnmatchedCollector();
 
   sheet.slice(headerIndex + 1).forEach((cells, i) => {
     const rowNo = headerIndex + i + 2;
@@ -202,7 +221,7 @@ export function parseYemeksepetiSheet(sheet: CellValue[][], matcher: ProductMatc
 
     matched.forEach(({ item, match }, index) => {
       if (!match) {
-        unmatched.set(item.name, (unmatched.get(item.name) ?? 0) + item.quantity);
+        unmatched.add(item.name, item.quantity, null); // Yemeksepeti'nde ürün başına fiyat yok
       }
       rows.push({
         saleDate: when.date,
@@ -220,5 +239,5 @@ export function parseYemeksepetiSheet(sheet: CellValue[][], matcher: ProductMatc
     });
   });
 
-  return { rows, errors, unmatchedProducts: [...unmatched].map(([name, quantity]) => ({ name, quantity })) };
+  return { rows, errors, unmatchedProducts: unmatched.list() };
 }

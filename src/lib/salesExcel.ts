@@ -20,11 +20,20 @@ export interface SheetFormat {
 
 export type CellValue = string | number | boolean | Date | null | undefined;
 
+export interface UnmatchedProduct {
+  name: string;
+  quantity: number;
+  unitPrice: number | null;
+}
+
 export interface ParsedSales {
   rows: ImportRowRequest[];
   errors: string[];
-  /** Sistemde eşleşmeyen platform ürünleri (satır yine kaydedilir, stoktan düşmez) — önizlemede uyarı olarak gösterilir. */
-  unmatchedProducts?: { name: string; quantity: number }[];
+  /**
+   * Sistemde eşleşmeyen platform ürünleri (satır yine kaydedilir, stoktan düşmez) — önizlemede uyarı olarak gösterilir
+   * ve tek tıkla aynı adla ürün olarak eklenebilir. `unitPrice` dosyadan okunabildiyse (Trendyol Go) satış fiyatı olur.
+   */
+  unmatchedProducts?: UnmatchedProduct[];
 }
 
 const PAYMENT_ALIASES: Record<string, PaymentMethod> = {

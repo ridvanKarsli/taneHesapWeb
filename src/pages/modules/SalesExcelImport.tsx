@@ -1,12 +1,13 @@
-import { CircleCheck, FileSpreadsheet, History, TriangleAlert, Upload, X } from "lucide-react";
-import { useRef, useState, type ChangeEvent } from "react";
+import { CircleCheck, FileSpreadsheet, History, PackagePlus, TriangleAlert, Upload, X } from "lucide-react";
+import { useMemo, useRef, useState, type ChangeEvent } from "react";
 import { extractErrorMessage } from "../../api/apiError";
+import { dishApi } from "../../api/moduleApis";
 import { ErrorMessage } from "../../components/ui/AsyncState";
 import { DataTable } from "../../components/ui/DataTable";
 import { Money } from "../../components/ui/Money";
 import { formatDate } from "../../lib/format";
 import { readFirstSheet } from "../../lib/excelReader";
-import type { ParsedSales } from "../../lib/salesExcel";
+import type { CellValue, UnmatchedProduct } from "../../lib/salesExcel";
 import { SALES_SOURCES, parseSourceSheet, platformOf, type SalesSource, type SalesSourceContext } from "../../lib/salesSources";
 import { DailySalesImportMode, type DailySalesEntryDto, type ImportRowRequest } from "../../types/dailySales";
 import { PAYMENT_METHOD_LABELS, SalesChannel } from "../../types/enums";
@@ -22,13 +23,19 @@ interface SalesExcelImportProps {
   /** Satışlar değişince geçmiş listesi yeniden okunur. */
   reloadKey: string;
   onImport: (fileName: string, rows: ImportRowRequest[], mode: DailySalesImportMode) => Promise<void>;
+  /** Önizlemeden ürün eklenince ürün listesi yeniden okunur; dosya yeni listeyle yeniden eşleştirilir. */
+  onCatalogChanged: () => Promise<void>;
 }
 
+/** Okunmuş dosya; ayrıştırma (`parsed`) ürün listesi değiştikçe yeniden yapılır — ürün eklenince satırlar anında eşleşir. */
 interface Pending {
   source: SalesSource;
   fileName: string;
-  parsed: ParsedSales;
+  sheet: CellValue[][];
 }
+
+/** Eşleşmeyen ürünün sistemde açılacağı boy adı (parantezdeki boy zaten ürün adının parçasıdır). */
+const DEFAULT_SIZE_NAME = "Porsiyon";
 
 const PREVIEW_LIMIT = 8;
 
@@ -57,7 +64,7 @@ function entriesOf(source: SalesSource, entries: DailySalesEntryDto[], ctx: Sale
  * okunur, önizlenir ve onaylanınca kaydedilir. Aynı kaynağın aynı günü ikinci kez yüklenirse sunucu reddeder
  * ("değiştir" işaretlenirse o kaynağın o günkü satırları yenilenir).
  */
-export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, onImport }: SalesExcelImportProps) {
+export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, onImport, onCatalogChanged }: SalesExcelImportProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [picking, setPicking] = useState<SalesSource | null>(null);
   const [pending, setPending] = useState<Pending | null>(null);
@@ -66,17 +73,37 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
   const [historyOf, setHistoryOf] = useState<SalesSource | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isBusy, setIsBusy] = useState(false);
+  const [addingProduct, setAddingProduct] = useState<string | null>(null);
+
+  const parsed = useMemo(() => (pending ? parseSourceSheet(pending.source, pending.sheet, ctx) : null), [pending, ctx]);
 
   // Gece yüklemesi: 4'ünde saat 03:00'te 3'ünün dosyası yüklenir. Dosyadaki tarih seçili günden farklıysa uyarılır;
   // tek bir gün varsa seçili gün tek tıkla o güne alınır, birden çok gün varsa açıkça onaylanır.
-  const fileDates = pending ? datesOf(pending.parsed.rows) : [];
+  const fileDates = parsed ? datesOf(parsed.rows) : [];
   const otherDates = fileDates.filter((d) => d !== date);
   const dateMismatch = otherDates.length > 0;
-  const canSave = pending !== null && pending.parsed.rows.length > 0 && (!dateMismatch || acceptOtherDates);
+  const canSave = parsed !== null && parsed.rows.length > 0 && (!dateMismatch || acceptOtherDates);
 
   const sizeLabel = new Map(ctx.dishes.flatMap((d) => d.sizes.map((s) => [s.id, `${d.name} — ${s.name}`] as const)));
-  const unmatched = pending?.parsed.unmatchedProducts ?? [];
-  const unmatchedRowCount = pending?.parsed.rows.filter((r) => r.dishSizeId === null).length ?? 0;
+  const unmatched = parsed?.unmatchedProducts ?? [];
+  const unmatchedRowCount = parsed?.rows.filter((r) => r.dishSizeId === null).length ?? 0;
+
+  /** Dosyadaki adla ürün açar (tek boy; fiyat dosyadan okunabildiyse o, yoksa 0 — Ürünler'den düzeltilir). */
+  async function addProducts(products: UnmatchedProduct[]) {
+    setError(null);
+    setAddingProduct(products.length === 1 ? products[0].name : "*");
+    try {
+      for (const product of products) {
+        const dish = await dishApi.create({ name: product.name, description: "Platform dosyasından eklendi — reçetesini Ürünler'den girin." });
+        await dishApi.addSize(dish.id, { name: DEFAULT_SIZE_NAME, salePrice: product.unitPrice ?? 0, recipeItems: [] });
+      }
+      await onCatalogChanged();
+    } catch (addError) {
+      setError(extractErrorMessage(addError));
+    } finally {
+      setAddingProduct(null);
+    }
+  }
 
   function pickFile(source: SalesSource) {
     setPicking(source);
@@ -95,7 +122,7 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
     setIsBusy(true);
     try {
       const sheet = await readFirstSheet(file);
-      setPending({ source: picking, fileName: file.name, parsed: parseSourceSheet(picking, sheet, ctx) });
+      setPending({ source: picking, fileName: file.name, sheet });
       setReplaceExisting(false);
       setAcceptOtherDates(false);
     } catch {
@@ -106,7 +133,7 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
   }
 
   async function submit() {
-    if (!pending || !canSave) {
+    if (!pending || !parsed || !canSave) {
       return;
     }
     setError(null);
@@ -114,7 +141,7 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
     try {
       await onImport(
         `${pending.source.label}: ${pending.fileName}`,
-        pending.parsed.rows,
+        parsed.rows,
         replaceExisting ? DailySalesImportMode.Replace : DailySalesImportMode.RejectIfExists,
       );
       setPending(null);
@@ -177,34 +204,59 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
       {isBusy && !pending && <p className="ui-muted">Dosya okunuyor…</p>}
       {error && <ErrorMessage message={error} />}
 
-      {pending && (
+      {pending && parsed && (
         <div className="excel-preview">
           <div className="excel-preview-head">
             <p className="ui-subheading">
-              {pending.source.label} — {pending.fileName}: {pending.parsed.rows.length} geçerli satır
-              {pending.parsed.errors.length > 0 && `, ${pending.parsed.errors.length} hatalı satır`}
+              {pending.source.label} — {pending.fileName}: {parsed.rows.length} geçerli satır
+              {parsed.errors.length > 0 && `, ${parsed.errors.length} hatalı satır`}
             </p>
             <button type="button" className="ui-button ghost small" onClick={() => setPending(null)} aria-label="Önizlemeyi kapat">
               <X size={16} aria-hidden="true" />
             </button>
           </div>
-          {pending.parsed.errors.length > 0 && (
+          {parsed.errors.length > 0 && (
             <div className="ui-error excel-errors">
               <div>
-                {pending.parsed.errors.slice(0, 10).map((message) => (
+                {parsed.errors.slice(0, 10).map((message) => (
                   <div key={message}>{message}</div>
                 ))}
-                {pending.parsed.errors.length > 10 && <div>… ve {pending.parsed.errors.length - 10} hata daha.</div>}
+                {parsed.errors.length > 10 && <div>… ve {parsed.errors.length - 10} hata daha.</div>}
               </div>
             </div>
           )}
           {unmatched.length > 0 && (
             <div className="excel-unmatched" role="status">
               <TriangleAlert size={16} aria-hidden="true" />
-              <div>
-                <strong>{unmatchedRowCount} satır sistemdeki ürünlerle eşleşmedi</strong> — gelir olarak kaydedilir ama reçetesi olmadığı için stoktan
-                düşmez. Stoktan düşmesini istiyorsanız Mutfak ve Stok → Ürünler'e aynı adla ekleyip dosyayı yeniden yükleyin:{" "}
-                {unmatched.map((u) => `${u.name} (×${u.quantity})`).join(", ")}
+              <div className="excel-unmatched-body">
+                <p>
+                  <strong>{unmatchedRowCount} satır sistemdeki ürünlerle eşleşmedi</strong> — gelir olarak kaydedilir ama reçetesi olmadığı için
+                  stoktan düşmez. Dosyadaki adla ürün olarak ekleyin; reçetesini sonra Mutfak ve Stok → Ürünler'den girersiniz.
+                </p>
+                <ul className="excel-unmatched-list">
+                  {unmatched.map((u) => (
+                    <li key={u.name}>
+                      <span>
+                        {u.name} <span className="ui-muted">×{u.quantity}{u.unitPrice !== null && ` · ₺${u.unitPrice}`}</span>
+                      </span>
+                      <button
+                        type="button"
+                        className="ui-button small"
+                        disabled={addingProduct !== null || isBusy}
+                        onClick={() => void addProducts([u])}
+                      >
+                        <PackagePlus size={14} aria-hidden="true" />
+                        {addingProduct === u.name ? "Ekleniyor…" : "Ürün olarak ekle"}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                {unmatched.length > 1 && (
+                  <button type="button" className="ui-button secondary small" disabled={addingProduct !== null || isBusy} onClick={() => void addProducts(unmatched)}>
+                    <PackagePlus size={14} aria-hidden="true" />
+                    {addingProduct === "*" ? "Ekleniyor…" : `Hepsini ekle (${unmatched.length} ürün)`}
+                  </button>
+                )}
               </div>
             </div>
           )}
@@ -226,10 +278,10 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
               )}
             </div>
           )}
-          {pending.parsed.rows.length > 0 && (
+          {parsed.rows.length > 0 && (
             <>
               <DataTable
-                rows={previewRows(pending.parsed.rows)}
+                rows={previewRows(parsed.rows)}
                 rowKey={(row) => row.key}
                 columns={[
                   { header: "Tarih", render: (row) => formatDate(row.saleDate) },
@@ -249,7 +301,7 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
                   { header: "Ödeme", render: (row) => PAYMENT_METHOD_LABELS[row.paymentMethod] },
                 ]}
               />
-              {pending.parsed.rows.length > PREVIEW_LIMIT && <p className="ui-muted">… ve {pending.parsed.rows.length - PREVIEW_LIMIT} satır daha.</p>}
+              {parsed.rows.length > PREVIEW_LIMIT && <p className="ui-muted">… ve {parsed.rows.length - PREVIEW_LIMIT} satır daha.</p>}
               <label className="ui-checkbox" htmlFor="excel-replace-existing">
                 <input id="excel-replace-existing" type="checkbox" checked={replaceExisting} onChange={(e) => setReplaceExisting(e.target.checked)} />
                 Bu dosyadaki günlerin mevcut {pending.source.label} satışlarını değiştir (düzeltilmiş dosyayı yeniden yüklerken)
@@ -257,7 +309,7 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
               <div className="ui-form-actions excel-actions">
                 <button type="button" className="ui-button" onClick={() => void submit()} disabled={isBusy || !canSave}>
                   <Upload size={16} aria-hidden="true" />
-                  {isBusy ? "Yükleniyor…" : `${pending.parsed.rows.length} satırı kaydet`}
+                  {isBusy ? "Yükleniyor…" : `${parsed.rows.length} satırı kaydet`}
                 </button>
               </div>
             </>

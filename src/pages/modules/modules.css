@@ -469,3 +469,29 @@
 .excel-unmatched-cell .ui-badge {
   margin-left: 0.35rem;
 }
+
+.excel-unmatched-body p {
+  margin: 0 0 0.5rem;
+}
+
+.excel-unmatched-list {
+  list-style: none;
+  margin: 0 0 0.6rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.excel-unmatched-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px dashed var(--color-border);
+}
+
+.excel-unmatched-list li:last-child {
+  border-bottom: 0;
+}
