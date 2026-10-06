@@ -176,14 +176,12 @@ export function ExpensesPage() {
       <PageHeader
         description={
           isEmployee
-            ? "Gider türünü seçip tutarı girin. Listede sadece sizin girdiğiniz giderler görünür."
+            ? "Gider türünü seçip tutarı girin; tedarikçiden aldığınız malzemeyi “Malzeme alışı” ile girin. Listede sadece sizin girdiğiniz giderler görünür."
             : "Elle girilen giderler ve sistemin ürettiği otomatik giderler (komisyon, düzenli gider, tedarikçi ve personel ödemeleri) burada toplanır."
         }
         actions={
           <>
-            {!isEmployee && (
-              <ExpenseQuickActions cards={cards} onDone={refresh} />
-            )}
+            <ExpenseQuickActions cards={cards} canPayEmployees={!isEmployee} onDone={refresh} />
             <ModalFormButton
               label="Yeni gider"
               icon={Plus}
