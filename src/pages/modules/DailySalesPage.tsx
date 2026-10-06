@@ -67,7 +67,7 @@ export function DailySalesPage() {
 
       <Section title="1. Excel ile yükle" icon={FileSpreadsheet}>
         <AsyncState data={catalog} error={dishes.error ?? platforms.error ?? entries.error} isLoading={!catalog && !dishes.error && !platforms.error && !entries.error}>
-          {(c) => <SalesExcelImport date={date} onDateChange={setDate} ctx={c} entries={c.entries} reloadKey={String(version)} onImport={importRows} />}
+          {(c) => <SalesExcelImport date={date} onDateChange={setDate} ctx={c} entries={c.entries} reloadKey={String(version)} onImport={importRows} onPlatformsChanged={platforms.reload} />}
         </AsyncState>
       </Section>
 

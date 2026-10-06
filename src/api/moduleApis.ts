@@ -80,7 +80,13 @@ export const ingredientApi = {
   },
 };
 
-export const platformApi = createCrudApi<PlatformDto, CreatePlatformRequest, UpdatePlatformRequest>("/api/platforms");
+export const platformApi = {
+  ...createCrudApi<PlatformDto, CreatePlatformRequest, UpdatePlatformRequest>("/api/platforms"),
+  /** Yalnızca komisyon yüzdesi — işletme sahibi Gün Sonu kartından günceller. */
+  async updateCommission(id: string, commissionPercentage: number) {
+    return (await httpClient.put<PlatformDto>(`/api/platforms/${id}/commission`, { commissionPercentage })).data;
+  },
+};
 
 export const employeeApi = {
   ...createCrudApi<EmployeeDto, CreateEmployeeRequest, UpdateEmployeeRequest>("/api/employees"),

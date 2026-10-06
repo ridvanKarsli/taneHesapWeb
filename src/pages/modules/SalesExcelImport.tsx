@@ -1,16 +1,18 @@
-import { CircleCheck, FileSpreadsheet, History, OctagonAlert, Upload, X } from "lucide-react";
+import { CircleCheck, FileSpreadsheet, History, OctagonAlert, Percent, Upload, X } from "lucide-react";
 import { useMemo, useRef, useState, type ChangeEvent } from "react";
 import { Link } from "react-router-dom";
 import { extractErrorMessage } from "../../api/apiError";
 import { ErrorMessage } from "../../components/ui/AsyncState";
 import { DataTable } from "../../components/ui/DataTable";
 import { Money } from "../../components/ui/Money";
-import { formatDate } from "../../lib/format";
+import { formatDate, formatPercent } from "../../lib/format";
 import { readFirstSheet } from "../../lib/excelReader";
 import { toImportRows, type CellValue, type ParsedRow } from "../../lib/salesExcel";
 import { SALES_SOURCES, parseSourceSheet, platformOf, type SalesSource, type SalesSourceContext } from "../../lib/salesSources";
 import { DailySalesImportMode, type DailySalesEntryDto, type ImportRowRequest } from "../../types/dailySales";
+import type { PlatformDto } from "../../types/platform";
 import { PAYMENT_METHOD_LABELS, SalesChannel } from "../../types/enums";
+import { PlatformCommissionDialog } from "./PlatformCommissionDialog";
 import { SalesUploadHistory } from "./SalesUploadHistory";
 
 interface SalesExcelImportProps {
@@ -23,6 +25,8 @@ interface SalesExcelImportProps {
   /** Satışlar değişince geçmiş listesi yeniden okunur. */
   reloadKey: string;
   onImport: (fileName: string, rows: ImportRowRequest[], mode: DailySalesImportMode) => Promise<void>;
+  /** Komisyon oranı değişince platform listesi yeniden okunur. */
+  onPlatformsChanged: () => Promise<void>;
 }
 
 /** Okunmuş dosya; ayrıştırma ürün listesi değiştikçe yeniden yapılır (Ürünler'e ekleyip dönünce satırlar eşleşir). */
@@ -62,13 +66,14 @@ function summarizeByProduct(rows: ParsedRow[], label: (row: ParsedRow) => string
  * tutar. Dosyadaki her ürün Ürünler listesinde olmak zorundadır — olmayan varsa dosya reddedilir, kullanıcı ürünleri
  * ekleyip dosyayı yeniden yükler. Hepsi eşleşince "Onayla ve kaydet" ile satışlar işlenir (stok düşer, kasaya yazılır).
  */
-export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, onImport }: SalesExcelImportProps) {
+export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, onImport, onPlatformsChanged }: SalesExcelImportProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [picking, setPicking] = useState<SalesSource | null>(null);
   const [pending, setPending] = useState<Pending | null>(null);
   const [replaceExisting, setReplaceExisting] = useState(false);
   const [acceptOtherDates, setAcceptOtherDates] = useState(false);
   const [historyOf, setHistoryOf] = useState<SalesSource | null>(null);
+  const [commissionOf, setCommissionOf] = useState<PlatformDto | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isBusy, setIsBusy] = useState(false);
 
@@ -147,6 +152,17 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
             <article key={source.id} className={`sales-source${done.length > 0 ? " done" : ""}`}>
               <div className="sales-source-head">
                 <strong>{source.label}</strong>
+                {platform && (
+                  <button
+                    type="button"
+                    className="ui-button ghost small sales-source-commission"
+                    onClick={() => setCommissionOf(platform)}
+                    title="Bu platformun komisyon yüzdesini değiştir"
+                  >
+                    <Percent size={14} aria-hidden="true" />
+                    Komisyonu güncelle · {formatPercent(platform.commissionPercentage)}
+                  </button>
+                )}
                 {done.length > 0 ? (
                   <span className="sales-source-status">
                     <CircleCheck size={15} aria-hidden="true" /> {formatDate(date)} yüklendi · {done.length} satır
@@ -162,7 +178,7 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
               </p>
               {commissionUnset && (
                 <p className="sales-source-warning" role="note">
-                  Komisyon oranı girilmemiş (%0): komisyon gideri hesaplanmaz. Paket Servis'ten {platform.name} oranını girin.
+                  Komisyon oranı girilmemiş (%0): komisyon gideri hesaplanmaz. “Komisyonu güncelle” ile {platform.name} oranını girin.
                 </p>
               )}
               <div className="sales-source-actions">
@@ -180,6 +196,8 @@ export function SalesExcelImport({ date, onDateChange, ctx, entries, reloadKey, 
         })}
       </div>
       <input ref={fileInputRef} type="file" accept=".xlsx" hidden onChange={(e) => void handleFile(e)} />
+
+      {commissionOf && <PlatformCommissionDialog platform={commissionOf} onClose={() => setCommissionOf(null)} onSaved={onPlatformsChanged} />}
 
       {historyOf && (
         <SalesUploadHistory
