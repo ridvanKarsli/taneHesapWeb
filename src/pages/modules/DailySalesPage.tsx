@@ -114,7 +114,17 @@ export function DailySalesPage() {
                 rows={rows}
                 rowKey={(row) => row.id}
                 columns={[
-                  { header: "Ürün", render: (row) => `${row.dishName} — ${row.sizeName}` },
+                  {
+                    header: "Ürün",
+                    render: (row) =>
+                      row.dishSizeId ? (
+                        `${row.dishName} — ${row.sizeName}`
+                      ) : (
+                        <span className="excel-unmatched-cell" title="Sistemde ürün olarak tanımlı değil; gelir sayıldı, stoktan düşmedi">
+                          {row.dishName} <span className="ui-badge warning">eşleşmedi</span>
+                        </span>
+                      ),
+                  },
                   { header: "Adet", align: "right", render: (row) => String(row.quantity) },
                   { header: "Tutar", align: "right", render: (row) => <Money value={row.totalAmount} /> },
                   { header: "Ödeme", render: (row) => PAYMENT_METHOD_LABELS[row.paymentMethod] },

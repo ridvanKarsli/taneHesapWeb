@@ -55,26 +55,36 @@ export class ProductMatcher {
       return exact;
     }
 
+    // Ürün sistemde dosyadaki tam adıyla tanımlıysa ("Tavuklu Pilav (1 Porsiyon)" + tek boy) doğrudan o.
+    const byFull = this.byDish.get(full);
+    if (byFull) {
+      return { dish: byFull.dish, size: this.pickDefaultSize(byFull.sizes) };
+    }
+
     const { base, hint } = splitProductName(productName);
-    const entry = this.byDish.get(base) ?? this.byDish.get(full);
+    const entry = this.byDish.get(base);
     if (!entry) {
       return null;
     }
 
     const { dish, sizes } = entry;
-    if (hint) {
+    if (hint && sizes.length > 1) {
+      // Birden çok boy varken parantezdeki boy sistemde olmalı; "Duble" yazıyorsa Normal'e sayılmaz (stok yanlış düşerdi).
       const bySizeHint = sizes.find((s) => {
         const name = normalizeProductText(s.name);
         return name === hint || hint.includes(name) || name.includes(hint);
       });
-      if (bySizeHint) {
-        return { dish, size: bySizeHint };
-      }
+      return bySizeHint ? { dish, size: bySizeHint } : null;
     }
+    // Tek boy: parantezdeki ne olursa olsun belirsizlik yok ("Kavurmalı Pilav (Porsiyon)" → tek boyu).
+    return { dish, size: this.pickDefaultSize(sizes) };
+  }
+
+  /** Boy belirtilmemişse: tek boy varsa o, yoksa "Normal/Porsiyon" gibi varsayılan ad, o da yoksa ilk boy. */
+  private pickDefaultSize(sizes: DishSizeDto[]): DishSizeDto {
     if (sizes.length === 1) {
-      return { dish, size: sizes[0] };
+      return sizes[0];
     }
-    const preferred = sizes.find((s) => DEFAULT_SIZE_NAMES.includes(normalizeProductText(s.name)));
-    return { dish, size: preferred ?? sizes[0] };
+    return sizes.find((s) => DEFAULT_SIZE_NAMES.includes(normalizeProductText(s.name))) ?? sizes[0];
   }
 }
