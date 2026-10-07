@@ -135,7 +135,10 @@ function paymentLabel(row: ExpenseDto): string {
   return row.paymentCardName ? `${base} · ${row.paymentCardName}` : base;
 }
 
-/** Gider girişi ve listesi — ADMIN ve EMPLOYEE birlikte kullanır (bkz. proje raporu 3.1). */
+/**
+ * Gider girişi ve listesi — ADMIN ve EMPLOYEE birlikte kullanır (bkz. proje raporu 3.1). Çalışan tarih/tür filtresi
+ * görmez: listesi bu ayın kendi girdiği giderleridir (sunucu zaten yalnızca kendi kayıtlarını döndürür).
+ */
 export function ExpensesPage() {
   const { user } = useAuth();
   const isEmployee = user?.role === UserRole.Employee;
@@ -165,7 +168,11 @@ export function ExpensesPage() {
   const total = (expenses.data ?? []).reduce((sum, e) => sum + e.amount, 0);
 
   async function refresh() {
-    await Promise.all([expenses.reload(), reloadCards(), expenseTypes.reload()]);
+    await Promise.all([
+      expenses.reload(),
+      reloadCards(),
+      expenseTypes.reload(),
+    ]);
   }
 
   function updateFilter(patch: Partial<ExpenseListFilter>) {
@@ -182,7 +189,11 @@ export function ExpensesPage() {
         }
         actions={
           <>
-            <ExpenseQuickActions cards={cards} canPayEmployees={!isEmployee} onDone={refresh} />
+            <ExpenseQuickActions
+              cards={cards}
+              canPayEmployees={!isEmployee}
+              onDone={refresh}
+            />
             <ModalFormButton
               label="Yeni gider"
               icon={Plus}
@@ -201,13 +212,15 @@ export function ExpensesPage() {
                 description: "",
               }}
               intro={
-              !isEmployee && (
-                <p className="ui-muted">
-                  Stok takibi yapılan malzemeler (pirinç, et…) için buradan değil "Malzeme alışı" ile girin; böylece stok ve birim fiyat da güncellenir.
-                </p>
-              )
-            }
-            submitLabel="Gider ekle"
+                !isEmployee && (
+                  <p className="ui-muted">
+                    Stok takibi yapılan malzemeler (pirinç, et…) için buradan
+                    değil "Malzeme alışı" ile girin; böylece stok ve birim fiyat
+                    da güncellenir.
+                  </p>
+                )
+              }
+              submitLabel="Gider ekle"
               onSubmit={async (values) => {
                 await expenseApi.create(await toRequest(values, allTypes));
                 await refresh();
@@ -219,34 +232,48 @@ export function ExpensesPage() {
 
       <Section
         actions={
-          <div className="ui-toolbar">
-            <DateFilter id="expense-from" label="Başlangıç" value={filter.fromDate ?? ""} onChange={(fromDate) => updateFilter({ fromDate })} />
-            <DateFilter id="expense-to" label="Bitiş" value={filter.toDate ?? ""} onChange={(toDate) => updateFilter({ toDate })} />
-            <div className="ui-filter">
-              <label htmlFor="expense-type">Tür</label>
-              <select
-                id="expense-type"
-                value={filter.expenseTypeId ?? ""}
-                onChange={(e) =>
-                  updateFilter({ expenseTypeId: e.target.value || undefined })
-                }
-              >
-                <option value="">Tümü</option>
-                {(expenseTypes.data ?? []).map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name}
-                  </option>
-                ))}
-              </select>
+          isEmployee ? undefined : (
+            <div className="ui-toolbar">
+              <DateFilter
+                id="expense-from"
+                label="Başlangıç"
+                value={filter.fromDate ?? ""}
+                onChange={(fromDate) => updateFilter({ fromDate })}
+              />
+              <DateFilter
+                id="expense-to"
+                label="Bitiş"
+                value={filter.toDate ?? ""}
+                onChange={(toDate) => updateFilter({ toDate })}
+              />
+              <div className="ui-filter">
+                <label htmlFor="expense-type">Tür</label>
+                <select
+                  id="expense-type"
+                  value={filter.expenseTypeId ?? ""}
+                  onChange={(e) =>
+                    updateFilter({ expenseTypeId: e.target.value || undefined })
+                  }
+                >
+                  <option value="">Tümü</option>
+                  {(expenseTypes.data ?? []).map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-          </div>
+          )
         }
       >
         <StatGrid>
           <StatTile
             icon={Wallet}
             iconTone="rose"
-            label="Seçili aralıkta toplam"
+            label={
+              isEmployee ? "Bu ay girdiğiniz toplam" : "Seçili aralıkta toplam"
+            }
             value={<Money value={total} />}
           />
           <StatTile
@@ -259,7 +286,11 @@ export function ExpensesPage() {
         <AsyncState
           {...expenses}
           isEmpty={(rows) => rows.length === 0}
-          emptyText="Bu aralıkta gider yok."
+          emptyText={
+            isEmployee
+              ? "Bu ay henüz gider girmediniz."
+              : "Bu aralıkta gider yok."
+          }
         >
           {(rows) => (
             <DataTable
@@ -272,7 +303,8 @@ export function ExpensesPage() {
                 },
                 {
                   header: "Kayıt saati",
-                  render: (row) => formatRecordedAt(row.createdAtUtc, row.expenseDate),
+                  render: (row) =>
+                    formatRecordedAt(row.createdAtUtc, row.expenseDate),
                 },
                 { header: "Tür", render: (row) => row.expenseTypeName },
                 {
@@ -337,7 +369,10 @@ export function ExpensesPage() {
             submitLabel="Kaydet"
             onCancel={() => setEditing(null)}
             onSubmit={async (values) => {
-              await expenseApi.update(editing.id, await toRequest(values, allTypes));
+              await expenseApi.update(
+                editing.id,
+                await toRequest(values, allTypes),
+              );
               setEditing(null);
               await refresh();
             }}
